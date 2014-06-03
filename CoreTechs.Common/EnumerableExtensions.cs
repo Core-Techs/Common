@@ -122,5 +122,37 @@ namespace CoreTechs.Common
             var element = list[i];
             return element;
         }
+
+        public static T GetNextOrDefault<T>(this IEnumerator<T> source, T @default = default(T))
+        {
+            if (source == null) throw new ArgumentNullException("source");
+            return !source.MoveNext() ? @default : source.Current;
+        }
+
+        public static IEnumerable<LinkedList<T>> Split<T>(this IEnumerable<T> source, T delim)
+        {
+            return source.SplitWhere(x => x.Equals(delim));
+        }
+
+        public static IEnumerable<LinkedList<T>> SplitWhere<T>(this IEnumerable<T> source, Func<T,bool> predicate)
+        {
+            var list = new LinkedList<T>();
+            var lastWasDelim = false;
+
+            foreach (var item in source)
+            {
+                lastWasDelim = false;
+                if (predicate(item))
+                {
+                    yield return list;
+                    list=new LinkedList<T>();
+                    lastWasDelim = true;
+                }
+                else list.AddLast(item);
+            }
+
+            if (list.Any() || lastWasDelim)
+                yield return list;
+        }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -132,12 +133,12 @@ namespace CoreTechs.Common
         public static string SafeSubstring(this string s, int index, int length)
         {
             if (s == null) throw new ArgumentNullException("s");
-            return string.Concat(s.Skip(index).Take(length));
+            return s.Skip(index).Take(length).StringConcat();
         }
 
         public static string Reverse(this string s)
         {
-            return string.Concat(s.ToTextElements().Reverse());
+            return s.ToTextElements().Reverse().StringConcat();
         }
 
         public static IEnumerable<string> ToTextElements(this string source)
@@ -204,6 +205,18 @@ namespace CoreTechs.Common
             {
                 return @default;
             }
+        }
+
+        public static StringReader ToStringReader(this string s)
+        {
+            if (s == null) throw new ArgumentNullException("s");
+            return new StringReader(s);
+        }
+
+        public static string StringConcat<T>(this IEnumerable<T> source)
+        {
+            if (source == null) throw new ArgumentNullException("source");
+            return string.Concat(source);
         }
     }
 }
