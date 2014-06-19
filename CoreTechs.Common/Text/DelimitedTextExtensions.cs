@@ -5,9 +5,8 @@ using System.Linq;
 
 namespace CoreTechs.Common.Text
 {
-    public static class Extensions
+    public static class CsvParsingExtensions
     {
-
         /// <summary>
         /// Parses delimited text.
         /// </summary>
@@ -20,12 +19,12 @@ namespace CoreTechs.Common.Text
         /// For more features or better performance, CsvHelper is recommended:
         /// https://www.nuget.org/packages/CsvHelper/
         /// </remarks>
-        public static IEnumerable<string[]> ReadDelimited(this TextReader reader, char delimiter = ',', char textQualifier = '"')
+        public static IEnumerable<string[]> ReadCsv(this TextReader reader, char delimiter = ',', char textQualifier = '"')
         {
             if (reader == null) throw new ArgumentNullException("reader");
-
+            
             const int readNothing = -1;
-            var data = new LinkedList<CharWrapper>();
+            var data = new List<int>();
             var inTxt = false;
             int read;
             string[] result;
@@ -58,7 +57,7 @@ namespace CoreTechs.Common.Text
                 else if (inTxt && is2Quals)
                 {
                     // treat the qualifier as a literal character within the field text
-                    data.AddLast(new CharWrapper(c, true));
+                    data.Add(c);
                     reader.Skip();
                 }
 
@@ -73,26 +72,30 @@ namespace CoreTechs.Common.Text
                 else if (inTxt)
                 {
                     // treat as a literal field character 
-                    data.AddLast(new CharWrapper(c, true));
+                    data.Add(c);
                 }
 
                 // reached a field delimiter
                 else if (isDelim)
                 {
                     // record delim
-                    data.AddLast(new FieldTerminator(c));
+                    data.Add(FieldTerminator);
                 }
 
                 else
                 {
                     // character is part of current field
-                    data.AddLast(new CharWrapper(c, false));
+                    // character is negated as a way of 
+                    // encoding a non-text-qualified character
+                    data.Add(-c);
                 }
             }
 
             result = PreYieldResult(data);
             if (ShouldYield(result)) yield return result;
         }
+
+        private const int FieldTerminator = int.MinValue;
 
         /// <summary>
         /// Parses delimited text. The first row of data should be a header record containing the names of the fields in the following records.
@@ -106,14 +109,14 @@ namespace CoreTechs.Common.Text
         /// For more features or better performance, CsvHelper is recommended:
         /// https://www.nuget.org/packages/CsvHelper/
         /// </remarks>
-        public static IEnumerable<Record> ReadDelimitedWithHeader(this TextReader reader,
+        public static IEnumerable<Record> ReadCsvWithHeader(this TextReader reader,
            StringComparer fieldKeyComparer = null,
            char delimiter = ',',
            char textQualifier = '"')
         {
             if (reader == null) throw new ArgumentNullException("reader");
 
-            var it = reader.ReadDelimited(delimiter, textQualifier).GetEnumerator();
+            var it = reader.ReadCsv(delimiter, textQualifier).GetEnumerator();
             if (!it.MoveNext())
                 yield break;
 
@@ -123,24 +126,27 @@ namespace CoreTechs.Common.Text
                 yield return new Record(header, it.Current, fieldKeyComparer ?? StringComparer.OrdinalIgnoreCase);
         }
 
-        private static string[] PreYieldResult(ICollection<CharWrapper> data)
+        private static string[] PreYieldResult(ICollection<int> data)
         {
+            Func<int, bool> isQualified = i => i >= 0;
+            Func<int, char> decode = i => (char) Math.Abs(i);
+
             // create string array
-            var rawFields = data.SplitWhere(x => x is FieldTerminator);
+            var rawFields = data.SplitWhere(x => x == FieldTerminator);
             var fields = new List<string>();
 
             foreach (var raw in rawFields)
             {
                 // trim unqualified spaces from left
-                CharWrapper c;
-                while (raw.Count > 0 && !(c = raw.First.Value).Qualified && char.IsWhiteSpace(c.Character))
-                    raw.RemoveFirst();
+                int c;
+                while (raw.Count > 0 && !isQualified(c = raw.First()) && char.IsWhiteSpace(decode(c)))
+                    raw.RemoveAt(0);
 
                 // trim unqualified spaces from right
-                while (raw.Count > 0 && !(c = raw.Last.Value).Qualified && char.IsWhiteSpace(c.Character))
-                    raw.RemoveLast();
+                while (raw.Count > 0 && !isQualified(c = raw.Last()) && char.IsWhiteSpace(decode(c)))
+                    raw.RemoveAt(raw.Count - 1);
 
-                fields.Add(raw.Select(x => x.Character).StringConcat());
+                fields.Add(raw.Select(decode).StringConcat());
             }
 
             data.Clear();
@@ -163,27 +169,5 @@ namespace CoreTechs.Common.Text
             for (var i = 0; i < n; i++)
                 r.Read();
         }
-
-
-        private class CharWrapper
-        {
-            public char Character { get; private set; }
-            public bool Qualified { get; private set; }
-
-            public CharWrapper(char c, bool qualified)
-            {
-                Character = c;
-                Qualified = qualified;
-            }
-        }
-
-        private class FieldTerminator : CharWrapper
-        {
-            public FieldTerminator(char c) : base(c, false)
-            {
-            }
-        }
     }
-
-
 }

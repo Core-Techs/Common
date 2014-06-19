@@ -129,14 +129,14 @@ namespace CoreTechs.Common
             return !source.MoveNext() ? @default : source.Current;
         }
 
-        public static IEnumerable<LinkedList<T>> Split<T>(this IEnumerable<T> source, T delim)
+        public static IEnumerable<List<T>> Split<T>(this IEnumerable<T> source, T delim)
         {
             return source.SplitWhere(x => x.Equals(delim));
         }
 
-        public static IEnumerable<LinkedList<T>> SplitWhere<T>(this IEnumerable<T> source, Func<T,bool> predicate)
+        public static IEnumerable<List<T>> SplitWhere<T>(this IEnumerable<T> source, Func<T,bool> predicate)
         {
-            var list = new LinkedList<T>();
+            var list = new List<T>();
             var lastWasDelim = false;
 
             foreach (var item in source)
@@ -145,10 +145,10 @@ namespace CoreTechs.Common
                 if (predicate(item))
                 {
                     yield return list;
-                    list=new LinkedList<T>();
+                    list=new List<T>();
                     lastWasDelim = true;
                 }
-                else list.AddLast(item);
+                else list.Add(item);
             }
 
             if (list.Any() || lastWasDelim)

@@ -60,7 +60,9 @@
     <Compile Include="SingleGlobalInstance.cs" />
     <Compile Include="Stopwatch.cs" />
     <Compile Include="StringExtensions.cs" />
-    <Compile Include="Text\Extensions.cs" />
+    <Compile Include="Text\CsvWriter.cs" />
+    <Compile Include="Text\DelimitedTextExtensions.cs" />
+    <Compile Include="Text\ICsvWritable.cs" />
     <Compile Include="Text\Record.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

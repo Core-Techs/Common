@@ -5,14 +5,14 @@ using NUnit.Framework;
 
 namespace Tests.Text
 {
-    public class DelimitedTextParsingTests
+    public class CsvParsingTests
     {
         [Test]
         public void Simple()
         {
             using (var rdr = TestFiles.Simple.ToStringReader())
             {
-                var it = rdr.ReadDelimited().GetEnumerator();
+                var it = rdr.ReadCsv().GetEnumerator();
 
                 it.MoveNext();
                 var record = it.Current;
@@ -31,7 +31,7 @@ namespace Tests.Text
         {
             using (var rdr = TestFiles.SimpleTextQualified.ToStringReader())
             {
-                var it = rdr.ReadDelimited().GetEnumerator();
+                var it = rdr.ReadCsv().GetEnumerator();
 
                 it.MoveNext();
                 var record = it.Current;
@@ -50,7 +50,7 @@ namespace Tests.Text
         {
             using (var rdr = TestFiles.AdvancedTextQualified.ToStringReader())
             {
-                var it = rdr.ReadDelimited().GetEnumerator();
+                var it = rdr.ReadCsv().GetEnumerator();
 
                 it.MoveNext();
                 var record = it.Current;
@@ -73,7 +73,7 @@ namespace Tests.Text
         {
             using (var rdr = TestFiles.FieldDataIsTrimmed.ToStringReader())
             {
-                var it = rdr.ReadDelimited().GetEnumerator();
+                var it = rdr.ReadCsv().GetEnumerator();
 
                 var record = it.GetNextOrDefault();
                 CollectionAssert.AreEqual(new[] { "Ronnie", "Overby" }, record);
@@ -94,7 +94,7 @@ namespace Tests.Text
 
             using (var rdr = TestFiles.EmptyFields.ToStringReader())
             {
-                var it = rdr.ReadDelimited().GetEnumerator();
+                var it = rdr.ReadCsv().GetEnumerator();
 
                 var record = it.GetNextOrDefault();
                 CollectionAssert.AreEqual(new[] { "", "" }, record);
@@ -121,15 +121,13 @@ namespace Tests.Text
             }
         }
 
-
-
         [Test]
         public void WithHeader()
         {
 
             using (var rdr = TestFiles.WithHeader.ToStringReader())
             {
-                var it = rdr.ReadDelimitedWithHeader().GetEnumerator();
+                var it = rdr.ReadCsvWithHeader().GetEnumerator();
 
                 var record = it.GetNextOrDefault();
                 Assert.AreEqual("Ronnie", record["Name"]);
