@@ -56,7 +56,6 @@ namespace CoreTechs.Common
                 return (T)new BinaryFormatter().Deserialize(ms);
         }
 
-
         /// <summary>
         /// Serializes an object using XmlSerializer.
         /// </summary>

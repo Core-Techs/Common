@@ -50,6 +50,7 @@
     <Compile Include="FileSystemExtensions.cs" />
     <Compile Include="ObjectExtensions.cs" />
     <Compile Include="RandomExtensions.cs" />
+    <Compile Include="Reflection\Types.cs" />
     <Compile Include="SqlServer\BulkInserter.cs" />
     <Compile Include="SortingExtensions.cs" />
     <Compile Include="AppSettings.cs" />
