@@ -11,12 +11,12 @@ namespace CoreTechs.Common
 {
     public class SingleGlobalInstance : IDisposable
     {
+        private const int DefaultTimeout = 1;
         public bool HasHandle = false;
         private Mutex _mutex;
 
         private void InitMutex(Guid appGuid)
         {
-          
             var mutexId = string.Format("Global\\{{{0}}}", appGuid);
             _mutex = new Mutex(false, mutexId);
 
@@ -26,17 +26,10 @@ namespace CoreTechs.Common
             _mutex.SetAccessControl(securitySettings);
         }
 
-        public SingleGlobalInstance(int timeOut = 1):this(Assembly.GetEntryAssembly(),timeOut) { }
-        public SingleGlobalInstance(Assembly assembly,int timeOut = 1):this(GetAssemblyId(assembly),timeOut) { }
+        public SingleGlobalInstance(int timeOut = DefaultTimeout):this(Assembly.GetEntryAssembly(),timeOut) { }
+        public SingleGlobalInstance(Assembly assembly,int timeOut = DefaultTimeout):this(GetAssemblyId(assembly),timeOut) { }
 
-        private static Guid GetAssemblyId(Assembly assembly)
-        {
-            var appGuid =((GuidAttribute) assembly.GetCustomAttributes(typeof (GuidAttribute), false)
-                    .GetValue(0)).Value;
-            return new Guid(appGuid);
-        }
-
-        public SingleGlobalInstance(Guid id, int timeOut = 1)
+        public SingleGlobalInstance(Guid id, int timeOut = DefaultTimeout)
         {
             InitMutex(id);
             try
@@ -52,6 +45,12 @@ namespace CoreTechs.Common
             }
         }
 
+        private static Guid GetAssemblyId(Assembly assembly)
+        {
+            var appGuid =((GuidAttribute) assembly.GetCustomAttributes(typeof (GuidAttribute), false)
+                    .GetValue(0)).Value;
+            return new Guid(appGuid);
+        }
 
         public void Dispose()
         {

@@ -215,11 +215,6 @@ namespace CoreTechs.Common
             return string.IsNullOrWhiteSpace(s);
         }
 
-        public static bool IsNotNullOrWhiteSpace(this string s)
-        {
-            return !string.IsNullOrWhiteSpace(s);
-        }
-
         public static T Parse<T>(this string s, Func<string, T> parser)
         {
             return parser(s);

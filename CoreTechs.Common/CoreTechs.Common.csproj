@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BeepScope.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="DateTimeExtensions.cs" />
     <Compile Include="EnumerableExtensions.cs" />
@@ -61,6 +62,7 @@
     <Compile Include="SingleGlobalInstance.cs" />
     <Compile Include="Stopwatch.cs" />
     <Compile Include="StringExtensions.cs" />
+    <Compile Include="TaskExtensions.cs" />
     <Compile Include="Text\CsvWriter.cs" />
     <Compile Include="Text\DelimitedTextExtensions.cs" />
     <Compile Include="Text\ICsvWritable.cs" />

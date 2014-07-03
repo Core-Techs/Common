@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Runtime.CompilerServices;
 
@@ -51,6 +53,8 @@ namespace CoreTechs.Common
         {
             return _appSettingsProvider[name] ?? @default;
         }
+
+        
 
         public T GetSettingOrDefault<T>(Func<string, T> parser, T @default = default(T),
             [CallerMemberName] string name = null)
