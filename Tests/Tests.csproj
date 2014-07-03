@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BeepScopeTests.cs" />
     <Compile Include="Enumerable\Tests.cs" />
     <Compile Include="StringTests.cs" />
     <Compile Include="Text\CsvParsingTests.cs" />

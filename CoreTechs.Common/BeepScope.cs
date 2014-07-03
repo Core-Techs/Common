@@ -19,10 +19,9 @@ namespace CoreTechs.Common
             var token = _cts.Token;
             _task = Task.Run(() =>
             {
-
                 var rng = new Random();
                 while (!token.IsCancellationRequested)
-                    Console.Beep(rng.Next(minFreq, maxFreq), (int)beepDuration.TotalMilliseconds);
+                    Console.Beep(rng.Next(minFreq, maxFreq), (int) beepDuration.TotalMilliseconds);
 
             }, token);
         }
@@ -31,10 +30,7 @@ namespace CoreTechs.Common
         {
             using(_cts)
             using (_task)
-            {
-                _cts.Cancel();
-                _task.Wait();
-            }
+                _cts.CancelAndWait(_task);
         }
     }
 }
