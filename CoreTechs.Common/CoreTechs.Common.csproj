@@ -37,6 +37,7 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Security" />
+    <Reference Include="System.Speech" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -49,9 +50,13 @@
     <Compile Include="DateTimeExtensions.cs" />
     <Compile Include="EnumerableExtensions.cs" />
     <Compile Include="FileSystemExtensions.cs" />
+    <Compile Include="MessageLoop.cs" />
+    <Compile Include="RepeatScope.cs" />
     <Compile Include="ObjectExtensions.cs" />
     <Compile Include="RandomExtensions.cs" />
     <Compile Include="Reflection\Types.cs" />
+    <Compile Include="Sequence.cs" />
+    <Compile Include="SpeechScope.cs" />
     <Compile Include="SqlServer\BulkInserter.cs" />
     <Compile Include="SortingExtensions.cs" />
     <Compile Include="AppSettings.cs" />

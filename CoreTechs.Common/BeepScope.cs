@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace CoreTechs.Common
 {
@@ -8,29 +6,24 @@ namespace CoreTechs.Common
     /// Random beeps on a background task from the time of construction until disposal.
     /// Use this to add that that 1960's space ship computer feeling to your software.
     /// </summary>
-    public class BeepScope : IDisposable
+   public class BeepScope : RepeatScope
     {
-        private readonly CancellationTokenSource _cts = new CancellationTokenSource();
-        private readonly Task _task;
+        private readonly TimeSpan _beepDuration;
+        private readonly int _minFreq;
+        private readonly int _maxFreq;
 
-        public BeepScope() : this(200, 3000, TimeSpan.FromMilliseconds(100)) { }
-        public BeepScope(int minFreq, int maxFreq, TimeSpan beepDuration)
+        public BeepScope(int minFreq = 200, int maxFreq = 3000, TimeSpan? beepDuration = null)
         {
-            var token = _cts.Token;
-            _task = Task.Run(() =>
-            {
-                var rng = new Random();
-                while (!token.IsCancellationRequested)
-                    Console.Beep(rng.Next(minFreq, maxFreq), (int) beepDuration.TotalMilliseconds);
-
-            }, token);
+            _minFreq = minFreq;
+            _maxFreq = maxFreq;
+            _beepDuration = beepDuration ?? TimeSpan.FromMilliseconds(100);
         }
 
-        public void Dispose()
+        protected override void Execute()
         {
-            using(_cts)
-            using (_task)
-                _cts.CancelAndWait(_task);
+            var frequency = RNG.Next(_minFreq, _maxFreq);
+            var totalMilliseconds = (int) _beepDuration.TotalMilliseconds;
+            Console.Beep(frequency, totalMilliseconds);
         }
     }
 }
