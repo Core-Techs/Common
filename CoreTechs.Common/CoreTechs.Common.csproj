@@ -46,11 +46,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BeepScope.cs" />
+    <Compile Include="ConnectionScope.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="DbConnectionExtensions.cs" />
     <Compile Include="DateTimeExtensions.cs" />
+    <Compile Include="DisconnectionScope.cs" />
+    <Compile Include="DynamicDataRow.cs" />
     <Compile Include="EnumerableExtensions.cs" />
     <Compile Include="FileSystemExtensions.cs" />
     <Compile Include="MessageLoop.cs" />
+    <Compile Include="Reflection\PropertyExtensions.cs" />
     <Compile Include="RepeatScope.cs" />
     <Compile Include="ObjectExtensions.cs" />
     <Compile Include="RandomExtensions.cs" />
