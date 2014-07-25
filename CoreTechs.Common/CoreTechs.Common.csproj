@@ -54,6 +54,7 @@
     <Compile Include="DynamicDataRow.cs" />
     <Compile Include="EnumerableExtensions.cs" />
     <Compile Include="FileSystemExtensions.cs" />
+    <Compile Include="Measures\Length.cs" />
     <Compile Include="MessageLoop.cs" />
     <Compile Include="Reflection\PropertyExtensions.cs" />
     <Compile Include="RepeatScope.cs" />
