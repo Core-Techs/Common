@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="BeepScopeTests.cs" />
     <Compile Include="Enumerable\Tests.cs" />
+    <Compile Include="MsgLoopTests.cs" />
     <Compile Include="Reflection\ReflectionTests.cs" />
     <Compile Include="StringTests.cs" />
     <Compile Include="Text\CsvParsingTests.cs" />

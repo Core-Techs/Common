@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Runtime.ExceptionServices;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CoreTechs.Common
@@ -19,10 +20,14 @@ namespace CoreTechs.Common
         public MessageLoop(Func<T> stateFactory) : this(stateFactory, true) { }
         public MessageLoop(Func<T> stateFactory, bool disposeState)
         {
+            var ready = new ManualResetEventSlim();
             _task = Task.Run(() =>
             {
                 var state = stateFactory();
                 using (disposeState ? state as IDisposable : null)
+                {
+                    ready.Set();
+
                     foreach (var msg in _msgs.GetConsumingEnumerable())
                     {
                         var result = new MessageResult();
@@ -36,8 +41,10 @@ namespace CoreTechs.Common
                         }
 
                         msg.CompletionSource.SetResult(result);
-                    }
+                    }}
             });
+
+            ready.Wait();
         }
 
         public async Task<TResult> GetAsync<TResult>(Func<T, TResult> factory)
