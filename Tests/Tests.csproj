@@ -30,11 +30,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.AspNet.Identity.Core">
+      <HintPath>..\packages\Microsoft.AspNet.Identity.Core.2.0.1\lib\net45\Microsoft.AspNet.Identity.Core.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -45,7 +49,6 @@
     <Compile Include="BeepScopeTests.cs" />
     <Compile Include="Enumerable\Tests.cs" />
     <Compile Include="MsgLoopTests.cs" />
-    <Compile Include="Reflection\ReflectionTests.cs" />
     <Compile Include="StringTests.cs" />
     <Compile Include="Text\CsvParsingTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -54,6 +57,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>TestFiles.resx</DependentUpon>
     </Compile>
+    <Compile Include="TypeConversionTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -76,6 +80,7 @@
       <LastGenOutput>TestFiles.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -46,24 +46,26 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BeepScope.cs" />
-    <Compile Include="ConnectionScope.cs" />
+    <Compile Include="ConversionExtensions.cs" />
+    <Compile Include="Database\ConnectionScope.cs" />
     <Compile Include="Constants.cs" />
-    <Compile Include="DbConnectionExtensions.cs" />
+    <Compile Include="Database\Extensions.cs" />
     <Compile Include="DateTimeExtensions.cs" />
-    <Compile Include="DisconnectionScope.cs" />
-    <Compile Include="DynamicDataRow.cs" />
+    <Compile Include="Database\DisconnectionScope.cs" />
+    <Compile Include="Database\DynamicDataRow.cs" />
     <Compile Include="EnumerableExtensions.cs" />
     <Compile Include="FileSystemExtensions.cs" />
-    <Compile Include="Measures\Length.cs" />
+    <Compile Include="Length.cs" />
     <Compile Include="MessageLoop.cs" />
-    <Compile Include="Reflection\PropertyExtensions.cs" />
+    <Compile Include="Reflection\Memoizer.cs" />
+    <Compile Include="Reflection\ReflectionExtensions.cs" />
     <Compile Include="RepeatScope.cs" />
     <Compile Include="ObjectExtensions.cs" />
     <Compile Include="RandomExtensions.cs" />
     <Compile Include="Reflection\Types.cs" />
     <Compile Include="Sequence.cs" />
     <Compile Include="SpeechScope.cs" />
-    <Compile Include="SqlServer\BulkInserter.cs" />
+    <Compile Include="Database\BulkInserter.cs" />
     <Compile Include="SortingExtensions.cs" />
     <Compile Include="AppSettings.cs" />
     <Compile Include="Attempt.cs" />
@@ -72,6 +74,7 @@
     <Compile Include="RNG.cs" />
     <Compile Include="SingleGlobalInstance.cs" />
     <Compile Include="Stopwatch.cs" />
+    <Compile Include="StreamExtensions.cs" />
     <Compile Include="StringExtensions.cs" />
     <Compile Include="TaskExtensions.cs" />
     <Compile Include="Text\CsvWriter.cs" />

@@ -20,13 +20,13 @@ namespace CoreTechs.Common
         public MessageLoop(Func<T> stateFactory) : this(stateFactory, true) { }
         public MessageLoop(Func<T> stateFactory, bool disposeState)
         {
-            var ready = new ManualResetEventSlim();
+            var readyExitCtor = new ManualResetEventSlim();
             _task = Task.Run(() =>
             {
                 var state = stateFactory();
                 using (disposeState ? state as IDisposable : null)
                 {
-                    ready.Set();
+                    readyExitCtor.Set();
 
                     foreach (var msg in _msgs.GetConsumingEnumerable())
                     {
@@ -41,15 +41,16 @@ namespace CoreTechs.Common
                         }
 
                         msg.CompletionSource.SetResult(result);
-                    }}
+                    }
+                }
             });
 
-            ready.Wait();
+            readyExitCtor.Wait();
         }
 
         public async Task<TResult> GetAsync<TResult>(Func<T, TResult> factory)
         {
-            var result = await SendMessage(factory);
+            var result = await SendMessageAsync(factory);
 
             if (result.Exception != null)
                 result.Exception.Throw();
@@ -59,7 +60,7 @@ namespace CoreTechs.Common
 
         public TResult Get<TResult>(Func<T, TResult> factory)
         {
-            var result = SendMessage(factory).Result;
+            var result = SendMessageAsync(factory).Result;
 
             if (result.Exception != null)
                 result.Exception.Throw();
@@ -85,7 +86,7 @@ namespace CoreTechs.Common
             });
         }
 
-        private Task<MessageResult> SendMessage<TResult>(Func<T, TResult> factory)
+        private Task<MessageResult> SendMessageAsync<TResult>(Func<T, TResult> factory)
         {
             var msg = new Message(src => (object)factory(src));
             _msgs.Add(msg);
