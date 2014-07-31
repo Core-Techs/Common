@@ -57,7 +57,8 @@
     <Compile Include="FileSystemExtensions.cs" />
     <Compile Include="Length.cs" />
     <Compile Include="MessageLoop.cs" />
-    <Compile Include="Reflection\Memoizer.cs" />
+    <Compile Include="Memoizer.cs" />
+    <Compile Include="NumberExtensions.cs" />
     <Compile Include="Reflection\ReflectionExtensions.cs" />
     <Compile Include="RepeatScope.cs" />
     <Compile Include="ObjectExtensions.cs" />
