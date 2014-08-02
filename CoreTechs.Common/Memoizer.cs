@@ -13,7 +13,7 @@ namespace CoreTechs.Common
         /// <remarks>
         /// Direct access provided to the memoization cache, so that values can be manually added/removed.
         /// </remarks>>
-        public static readonly ConcurrentDictionary<object, object> Cache = new ConcurrentDictionary<object, object>();
+        public readonly ConcurrentDictionary<object, object> Cache = new ConcurrentDictionary<object, object>();
 
         /// <summary>
         /// Returns data produced by the factory. Future calls with matching keyData and namespace
