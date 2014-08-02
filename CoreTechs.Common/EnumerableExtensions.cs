@@ -78,6 +78,14 @@ namespace CoreTechs.Common
         }
 
         /// <summary>
+        /// Repeatedly enumerates the source, yielding it's items.
+        /// </summary>
+        public static IEnumerable<T> RepeatMany<T>(this IEnumerable<T> source)
+        {
+            return source.Repeat().SelectMany(x => x);
+        }
+
+        /// <summary>
         /// Repeatedly invokes the delegate and yields it's result.
         /// </summary>
         public static IEnumerable<T> InvokeRepeatedly<T>(this Func<T> func)
