@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
@@ -385,6 +386,34 @@ namespace CoreTechs.Common.Database
                 dataset.Tables.Add(table);
 
             } while (!dataReader.IsClosed);
+        }
+
+        /// <summary>
+        /// Yields all rows from all tables in the dataset.
+        /// This is mostly useful when you have a dataset known to have a single table.
+        /// </summary>
+        public static IEnumerable<DataRow> AsEnumerable(this DataSet dataset)
+        {
+            if (dataset == null) throw new ArgumentNullException("dataset");
+            return dataset.Tables.Cast<DataTable>().SelectMany(t => t.AsEnumerable());
+        }
+
+        /// <summary>
+        /// Maps all rows in the table to the specified type.
+        /// </summary>
+        public static IEnumerable<T> AsEnumerable<T>(this DataTable dataTable) where T : class
+        {
+            if (dataTable == null) throw new ArgumentNullException("dataTable");
+            return dataTable.AsEnumerable().Select(row => row.Create<T>());
+        }
+
+        /// <summary>
+        /// Maps all rows in each table in the data set to the specified type.
+        /// </summary>
+        public static IEnumerable<T> AsEnumerable<T>(this DataSet dataSet) where T : class
+        {
+            if (dataSet == null) throw new ArgumentNullException("dataSet");
+            return dataSet.AsEnumerable().Select(row => row.Create<T>());
         }
     }
 }
