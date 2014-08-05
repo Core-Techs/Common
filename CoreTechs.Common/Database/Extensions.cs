@@ -86,6 +86,12 @@ namespace CoreTechs.Common.Database
             return new DynamicDataRow(row);
         }
 
+        public static IEnumerable<dynamic> AsDynamic(this IEnumerable<DataRow> rows)
+        {
+            if (rows == null) throw new ArgumentNullException("rows");
+            return rows.Select(r => r.AsDynamic());
+        }
+
         /// <summary>
         /// Creates a <see cref="ConnectionScope"/> and ensures the connection is opened.
         /// When the returned ConnectionScope is disposed, the connection will be closed
