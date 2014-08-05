@@ -38,6 +38,13 @@ namespace CoreTechs.Common
             Instance.NextBytes(buffer);
         }
 
+        public static byte[] NextBytes(long count)
+        {
+            var buffer = new byte[count];
+            Instance.NextBytes(buffer);
+            return buffer;
+        }
+
         public static double NextDouble()
         {
             return Instance.NextDouble();
