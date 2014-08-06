@@ -36,7 +36,7 @@ namespace CoreTechs.Common
             if (Directory.Exists(path))
                 return true;
 
-            if (System.IO.File.Exists(path))
+            if (File.Exists(path))
                 return false;
 
             // neither file nor directory exists. guess intention
@@ -54,9 +54,22 @@ namespace CoreTechs.Common
             return !path.IsDirectoryPath();
         }
 
-        public static FileInfo GetFile(this DirectoryInfo directory, string relativeFilePath)
+        public static FileInfo GetFile(this DirectoryInfo directory, string file)
         {
-            return new FileInfo(Path.Combine(directory.FullName, relativeFilePath));
+            return new FileInfo(Path.Combine(directory.FullName, file));
+        }
+
+        public static DirectoryInfo GetSubDirectory(this DirectoryInfo directory, string subDirectory, bool create = false)
+        {
+            if (directory == null) throw new ArgumentNullException("directory");
+            if (subDirectory.IsNullOrWhiteSpace()) throw new ArgumentNullException("subDirectory");
+
+            if (create)
+                return directory.CreateSubdirectory(subDirectory);
+
+            var path = Path.Combine(directory.FullName, subDirectory);
+            var sub = new DirectoryInfo(path);
+            return sub;
         }
 
         /// <summary>
@@ -214,6 +227,16 @@ namespace CoreTechs.Common
         public static string GetPath(this Environment.SpecialFolder specialFolder, Environment.SpecialFolderOption option = Environment.SpecialFolderOption.None)
         {
             return Environment.GetFolderPath(specialFolder, option);
+        }
+
+        public static DirectoryInfo EnsureExists(this DirectoryInfo dir)
+        {
+            if (dir == null) throw new ArgumentNullException("dir");
+
+            if (!dir.Exists)
+                dir.Create();
+
+            return dir;
         }
     }
 }
