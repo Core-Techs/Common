@@ -33,13 +33,13 @@ namespace CoreTechs.Common
         public static void CancelAndWait(this CancellationTokenSource cancellationTokenSource, Task task, int millisecondsTimeout = -1, CancellationToken waitCancellationToken = default(CancellationToken))
         {
             cancellationTokenSource.Cancel();
-            new[] {task}.WaitAllHandlingCancellation(millisecondsTimeout, waitCancellationToken);
+            new[] { task }.WaitAllHandlingCancellation(millisecondsTimeout, waitCancellationToken);
         }
 
         public static void WaitHandlingCancellation(this Task task, int millisecondsTimeout = -1,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            WaitAllHandlingCancellation(new[] {task}, millisecondsTimeout, cancellationToken);
+            WaitAllHandlingCancellation(new[] { task }, millisecondsTimeout, cancellationToken);
         }
 
         public static void WaitAllHandlingCancellation(this IEnumerable<Task> tasks, int millisecondsTimeout = -1, CancellationToken cancellationToken = default(CancellationToken))
@@ -54,5 +54,17 @@ namespace CoreTechs.Common
             }
         }
 
+        public static Task StartNew(this TaskFactory taskFactory, Action action, CancellationToken cancellationToken, TaskCreationOptions creationOptions)
+        {
+            var taskScheduler = Attempt.Get(TaskScheduler.FromCurrentSynchronizationContext).Value ?? TaskScheduler.Default;
+
+            return taskFactory.StartNew(action, cancellationToken, creationOptions, taskScheduler);
+        }
+
+        public static Task<T> StartNew<T>(this TaskFactory taskFactory, Func<T> function, CancellationToken cancellationToken, TaskCreationOptions creationOptions)
+        {
+            var taskScheduler = Attempt.Get(TaskScheduler.FromCurrentSynchronizationContext).Value ?? TaskScheduler.Default;
+            return taskFactory.StartNew(function, cancellationToken, creationOptions, taskScheduler);
+        }
     }
 }
