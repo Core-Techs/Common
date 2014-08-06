@@ -210,5 +210,10 @@ namespace CoreTechs.Common
 
             return relativePath.Replace('/', Path.DirectorySeparatorChar);
         }
+
+        public static string GetPath(this Environment.SpecialFolder specialFolder, Environment.SpecialFolderOption option = Environment.SpecialFolderOption.None)
+        {
+            return Environment.GetFolderPath(specialFolder, option);
+        }
     }
 }
