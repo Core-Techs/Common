@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Cryptography;
 using System.Threading;
 
 namespace CoreTechs.Common
@@ -13,9 +14,31 @@ namespace CoreTechs.Common
         private static readonly ThreadLocal<Random> LocalRandom =
             new ThreadLocal<Random>(() => new Random(Interlocked.Increment(ref _seed)));
 
+        private static readonly ThreadLocal<RNGCryptoServiceProvider> LocalCrypto =
+            new ThreadLocal<RNGCryptoServiceProvider>(() => new RNGCryptoServiceProvider());
+
         public static Random Instance
         {
             get { return LocalRandom.Value; }
+        }
+
+        public static RNGCryptoServiceProvider Crypto
+        {
+            get { return LocalCrypto.Value; }
+        }
+
+        public static byte[] GetBytes(this RandomNumberGenerator rng,  int count)
+        {
+            var bytes = new byte[count];
+            rng.GetBytes(bytes);
+            return bytes;
+        }
+
+        public static byte[] GetNonZeroBytes(this RandomNumberGenerator rng, int count)
+        {
+            var bytes = new byte[count];
+            rng.GetNonZeroBytes(bytes);
+            return bytes;
         }
 
         public static int Next()
