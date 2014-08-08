@@ -78,5 +78,15 @@ namespace CoreTechs.Common
         {
             Thread.Sleep(timeSpan);
         }
+
+        public static TimeSpan Multiply(this TimeSpan timeSpan, int n)
+        {
+            return TimeSpan.FromTicks(timeSpan.Ticks*n);
+        }
+
+        public static TimeSpan Divide(this TimeSpan timeSpan, double n)
+        {
+            return TimeSpan.FromTicks((long) (timeSpan.Ticks/n));
+        }
     }
 }

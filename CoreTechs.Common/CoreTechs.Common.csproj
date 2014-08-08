@@ -77,6 +77,7 @@
     <Compile Include="Stopwatch.cs" />
     <Compile Include="StreamExtensions.cs" />
     <Compile Include="StringExtensions.cs" />
+    <Compile Include="Clocks.cs" />
     <Compile Include="TaskExtensions.cs" />
     <Compile Include="Text\CsvWriter.cs" />
     <Compile Include="Text\DelimitedTextExtensions.cs" />
