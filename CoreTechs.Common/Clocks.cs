@@ -17,6 +17,7 @@ namespace CoreTechs.Common
     {
         private DateTimeOffset _prevInstant;
         private Func<DateTimeOffset, DateTimeOffset> _nextNowFunction;
+        private readonly object _syncLock = new object();
 
         public TestClock(DateTimeOffset initialInstant, Func<DateTimeOffset, DateTimeOffset> nextNowFunction)
         {
@@ -39,7 +40,7 @@ namespace CoreTechs.Common
         {
             get
             {
-                lock (this)
+                lock (_syncLock)
                 {
                     var now = _prevInstant = _nextNowFunction(_prevInstant);
                     return now;
