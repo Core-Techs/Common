@@ -88,5 +88,15 @@ namespace CoreTechs.Common
         {
             return TimeSpan.FromTicks((long) (timeSpan.Ticks/n));
         }
+
+        public static DateTime SpecifyKind(this DateTime dt, DateTimeKind kind)
+        {
+            return DateTime.SpecifyKind(dt, kind);
+        }
+
+        public static DateTimeOffset ToDateTimeOffset(this DateTime dt)
+        {
+            return new DateTimeOffset(dt);
+        }
     }
 }
