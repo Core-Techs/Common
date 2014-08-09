@@ -82,7 +82,15 @@ namespace CoreTechs.Common
         /// </summary>
         public static IEnumerable<T> RepeatMany<T>(this IEnumerable<T> source)
         {
-            return source.Repeat().SelectMany(x => x);
+            return source.Repeat().SelectMany();
+        }
+
+        /// <summary>
+        /// Flattens an enumerable of enumerables.
+        /// </summary>
+        public static IEnumerable<T> SelectMany<T>(this IEnumerable<IEnumerable<T>> source)
+        {
+            return source.SelectMany(x => x);
         }
 
         /// <summary>

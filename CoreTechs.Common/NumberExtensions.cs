@@ -49,6 +49,21 @@ namespace CoreTechs.Common
             return TimeSpan.FromHours(n);
         }
 
+        public static TimeSpan Weeks(this double n)
+        {
+            return TimeSpan.FromDays(n*7);
+        }
+
+        public static TimeSpan Weeks(this int n)
+        {
+            return TimeSpan.FromDays(n * 7);
+        }
+
+        public static TimeSpan Weeks(this long n)
+        {
+            return TimeSpan.FromDays(n * 7);
+        }
+
         public static TimeSpan Days(this double n)
         {
             return TimeSpan.FromDays(n);

@@ -6,10 +6,24 @@ using System.Threading.Tasks;
 
 namespace CoreTechs.Common
 {
+
     /// <summary>
-    /// A task based message loop that allows for interacting with generic state.
+    /// A stateless, task-based message loop.
+    /// Commonly useful within a class that you intend to be thread-safe,
+    /// but don't want to use locks/mutexes.
+    /// 
+    /// Synchronization is achieved by sequencing interactions through the
+    /// message loop, rather than using locks.
+    /// </summary>
+    public class MessageLoop : MessageLoop<object> { }
+
+    /// <summary>
+    /// A task-based message loop that allows for interacting with generic state.
     /// This is useful when you need to interact with an object from multiple threads,
     /// but that object is not thread safe or it requires thread affinity.
+    /// 
+    /// Synchronization is achieved by sequencing interactions through the
+    /// message loop, rather than using locks.
     /// </summary>
     public class MessageLoop<T> : IDisposable
     {
@@ -17,9 +31,12 @@ namespace CoreTechs.Common
         private readonly BlockingCollection<Message> _msgs = new BlockingCollection<Message>();
 
         public MessageLoop(T state) : this(() => state, false) { }
+        public MessageLoop() : this(() => default(T)) { }
         public MessageLoop(Func<T> stateFactory) : this(stateFactory, true) { }
         public MessageLoop(Func<T> stateFactory, bool disposeState)
         {
+            stateFactory = stateFactory ?? (() => default(T));
+
             var readyExitCtor = new ManualResetEventSlim();
             _task = Task.Run(() =>
             {
@@ -58,6 +75,11 @@ namespace CoreTechs.Common
             return (TResult)result.Value;
         }
 
+        public Task<TResult> GetAsync<TResult>(Func<TResult> factory)
+        {
+            return GetAsync(_ => factory());
+        }
+
         public TResult Get<TResult>(Func<T, TResult> factory)
         {
             var result = SendMessageAsync(factory).Result;
@@ -66,6 +88,11 @@ namespace CoreTechs.Common
                 result.Exception.Throw();
 
             return (TResult)result.Value;
+        }
+
+        public TResult Get<TResult>(Func<TResult> factory)
+        {
+            return Get(_ => factory());
         }
 
         public async Task DoAsync(Action<T> action)
@@ -77,6 +104,11 @@ namespace CoreTechs.Common
             });
         }
 
+        public Task DoAsync(Action action)
+        {
+            return DoAsync(_ => action());
+        }
+
         public void Do(Action<T> action)
         {
             Get(src =>
@@ -84,6 +116,11 @@ namespace CoreTechs.Common
                 action(src);
                 return 0;
             });
+        }
+
+        public void Do(Action action)
+        {
+            Do(_ => action());
         }
 
         private Task<MessageResult> SendMessageAsync<TResult>(Func<T, TResult> factory)

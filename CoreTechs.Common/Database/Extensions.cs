@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
@@ -85,6 +86,12 @@ namespace CoreTechs.Common.Database
             return new DynamicDataRow(row);
         }
 
+        public static IEnumerable<dynamic> AsDynamic(this IEnumerable<DataRow> rows)
+        {
+            if (rows == null) throw new ArgumentNullException("rows");
+            return rows.Select(r => r.AsDynamic());
+        }
+
         /// <summary>
         /// Creates a <see cref="ConnectionScope"/> and ensures the connection is opened.
         /// When the returned ConnectionScope is disposed, the connection will be closed
@@ -138,7 +145,8 @@ namespace CoreTechs.Common.Database
         /// Executes the sql query and returns the first value in the first row of the result.
         /// </summary>
         /// <exception cref="DataException">Thrown if no rows are returned for the query.</exception>
-        async public static Task<T> ScalarSqlAsync<T>(this DbConnection conn, string sql, params DbParameter[] parameters)
+        public static async Task<T> ScalarSqlAsync<T>(this DbConnection conn, string sql,
+            params DbParameter[] parameters)
         {
             if (conn == null) throw new ArgumentNullException("conn");
             if (sql == null) throw new ArgumentNullException("sql");
@@ -176,7 +184,8 @@ namespace CoreTechs.Common.Database
         /// Executes the sql query and returns the first value in the first row of the result.
         /// </summary>
         /// <exception cref="DataException">Thrown if no rows are returned for the query.</exception>
-        public static T Scalar<T>(this DbConnection conn, string sql, CommandType commandType, params DbParameter[] parameters)
+        public static T Scalar<T>(this DbConnection conn, string sql, CommandType commandType,
+            params DbParameter[] parameters)
         {
             using (var dataset = Query(conn, sql, commandType, parameters))
                 return GetScalar<T>(sql, commandType, parameters, dataset);
@@ -187,7 +196,7 @@ namespace CoreTechs.Common.Database
         /// </summary>
         /// <exception cref="DataException">Thrown if no rows are returned for the query.</exception>
         public static async Task<T> ScalarAsync<T>(this DbConnection conn, string sql, CommandType commandType,
-           params DbParameter[] parameters)
+            params DbParameter[] parameters)
         {
             using (var dataset = await QueryAsync(conn, sql, commandType, parameters))
                 return GetScalar<T>(sql, commandType, parameters, dataset);
@@ -203,7 +212,7 @@ namespace CoreTechs.Common.Database
             if (row != null)
                 return row.Field<T>(0);
 
-            throw new DataException(string.Format("No rows were returned. {0}", new { sql, commandType }))
+            throw new DataException(string.Format("No rows were returned. {0}", new {sql, commandType}))
                 .WithData("DbParameters", parameters);
         }
 
@@ -255,7 +264,8 @@ namespace CoreTechs.Common.Database
         /// <summary>
         /// Executes the sql and returns all result sets.
         /// </summary>
-        public static DataSet Query(this DbConnection conn, string sql, CommandType commandType, params DbParameter[] parameters)
+        public static DataSet Query(this DbConnection conn, string sql, CommandType commandType,
+            params DbParameter[] parameters)
         {
             if (conn == null) throw new ArgumentNullException("conn");
             if (sql == null) throw new ArgumentNullException("sql");
@@ -335,7 +345,8 @@ namespace CoreTechs.Common.Database
         /// <summary>
         /// Executes the sql.
         /// </summary>
-        public static void Execute(this DbConnection conn, string sql, CommandType commandType, params DbParameter[] parameters)
+        public static void Execute(this DbConnection conn, string sql, CommandType commandType,
+            params DbParameter[] parameters)
         {
             using (var cmd = CreateCommand(conn, sql, commandType, parameters))
             using (conn.Connect())
@@ -345,7 +356,8 @@ namespace CoreTechs.Common.Database
         /// <summary>
         /// Executes the sql.
         /// </summary>
-        public async static Task ExecuteAsync(this DbConnection conn, string sql, CommandType commandType, params DbParameter[] parameters)
+        public static async Task ExecuteAsync(this DbConnection conn, string sql, CommandType commandType,
+            params DbParameter[] parameters)
         {
             using (var cmd = CreateCommand(conn, sql, commandType, parameters))
             using (conn.ConnectAsync())
@@ -362,7 +374,8 @@ namespace CoreTechs.Common.Database
             return e;
         }
 
-        private static DbCommand CreateCommand(DbConnection conn, string sql, CommandType cmdType, params DbParameter[] parameters)
+        private static DbCommand CreateCommand(DbConnection conn, string sql, CommandType cmdType,
+            params DbParameter[] parameters)
         {
             var cmd = conn.CreateCommand();
             cmd.CommandType = cmdType;
@@ -386,5 +399,34 @@ namespace CoreTechs.Common.Database
 
             } while (!dataReader.IsClosed);
         }
+
+        /// <summary>
+        /// Yields all rows from all tables in the dataset.
+        /// This is mostly useful when you have a dataset known to have a single table.
+        /// </summary>
+        public static IEnumerable<DataRow> AsEnumerable(this DataSet dataset)
+        {
+            if (dataset == null) throw new ArgumentNullException("dataset");
+            return dataset.Tables.Cast<DataTable>().SelectMany(t => t.AsEnumerable());
+        }
+
+        /// <summary>
+        /// Maps all rows in the table to the specified type.
+        /// </summary>
+        public static IEnumerable<T> AsEnumerable<T>(this DataTable dataTable) where T : class
+        {
+            if (dataTable == null) throw new ArgumentNullException("dataTable");
+            return dataTable.AsEnumerable().Select(row => row.Create<T>());
+        }
+
+        /// <summary>
+        /// Maps all rows in each table in the data set to the specified type.
+        /// </summary>
+        public static IEnumerable<T> AsEnumerable<T>(this DataSet dataSet) where T : class
+        {
+            if (dataSet == null) throw new ArgumentNullException("dataSet");
+            return dataSet.AsEnumerable().Select(row => row.Create<T>());
+        }
+
     }
 }

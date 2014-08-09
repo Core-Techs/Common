@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 
 namespace CoreTechs.Common
 {
@@ -71,6 +72,21 @@ namespace CoreTechs.Common
         public static double TotalMonths(this TimeSpan timeSpan)
         {
             return timeSpan.TotalYears() * 12;
+        }
+
+        public static void Sleep(this TimeSpan timeSpan)
+        {
+            Thread.Sleep(timeSpan);
+        }
+
+        public static TimeSpan Multiply(this TimeSpan timeSpan, int n)
+        {
+            return TimeSpan.FromTicks(timeSpan.Ticks*n);
+        }
+
+        public static TimeSpan Divide(this TimeSpan timeSpan, double n)
+        {
+            return TimeSpan.FromTicks((long) (timeSpan.Ticks/n));
         }
     }
 }

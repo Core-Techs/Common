@@ -241,7 +241,40 @@ namespace CoreTechs.Common
         public static string StringConcat<T>(this IEnumerable<T> source)
         {
             if (source == null) throw new ArgumentNullException("source");
+
             return string.Concat(source);
+        }
+
+        public static IEnumerable<string> FormatMany<T>(this IEnumerable<T> source, string format,
+            IFormatProvider formatProvider = null) where T : IFormattable
+        {
+            return source.Select(x => x.ToString(format, formatProvider));
+        }
+
+        public static string StringConcat<T>(this IEnumerable<T> source, string format, IFormatProvider formatProvider = null) where T: IFormattable
+        {
+            if (source == null) throw new ArgumentNullException("source");
+
+            return source.FormatMany(format, formatProvider).StringConcat();
+        }
+
+        public static IEnumerable<string> ReadLines(this TextReader reader)
+        {
+            if (reader == null) throw new ArgumentNullException("reader");
+            while (true )
+            {
+                var line = reader.ReadLine();
+                if (line == null)
+                    yield break;
+
+                yield return line;
+            }
+        }
+
+        public static IEnumerable<string> ReadLines(this string s)
+        {
+            if (s == null) throw new ArgumentNullException("s");
+            return s.ToStringReader().ReadLines();
         }
     }
 }
