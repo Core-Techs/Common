@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -19,15 +20,18 @@ namespace CoreTechs.Common
         public static Attempt Do(Action action)
         {
             var begin = DateTimeOffset.Now;
+            ExceptionDispatchInfo exInfo = null;
+
             try
             {
                 action();
-                return new Attempt(begin);
             }
             catch (Exception ex)
             {
-                return new Attempt(begin, ex);
+                exInfo = ExceptionDispatchInfo.Capture(ex);
             }
+
+            return new Attempt(begin, exInfo);
         }
 
         /// <summary>
@@ -37,30 +41,50 @@ namespace CoreTechs.Common
         public static Attempt<T> Get<T>(Func<T> factory, T @default = default(T))
         {
             var begin = DateTimeOffset.Now;
+            T result;
+
             try
             {
-                return new Attempt<T>(begin, factory());
+                result = factory();
             }
             catch (Exception ex)
             {
-                return new Attempt<T>(begin, @default, ex);
+                var exInfo = ExceptionDispatchInfo.Capture(ex);
+                return new Attempt<T>(begin, @default, exInfo);
             }
+
+            return new Attempt<T>(begin, result);
+
         }
 
         private readonly Lazy<TimeSpan> _lazyDuration;
+        private readonly ExceptionDispatchInfo _exDispatchInfo;
 
         /// <summary>
         /// True if an exception was not thrown; false otherwise.
         /// </summary>
         public bool Succeeded
         {
-            get { return Exception == null; }
+            get { return _exDispatchInfo == null; }
         }
 
         /// <summary>
         /// The exception that was thrown.
         /// </summary>
-        public Exception Exception { get; private set; }
+        public Exception Exception
+        {
+            get { return _exDispatchInfo == null ? null : _exDispatchInfo.SourceException; }
+        }
+
+        /// <summary>
+        /// Throws the exception if present.
+        /// The original stack trace will be preserved.
+        /// </summary>
+        public void ThrowIfFailed()
+        {
+            if (_exDispatchInfo != null)
+                _exDispatchInfo.Throw();
+        }
 
         /// <summary>
         /// When the attempt began.
@@ -83,12 +107,12 @@ namespace CoreTechs.Common
             }
         }
 
-        public Attempt(DateTimeOffset beginDateTime, Exception exception = null)
+        internal Attempt(DateTimeOffset beginDateTime, ExceptionDispatchInfo exInfo = null)
         {
             _lazyDuration = new Lazy<TimeSpan>(() => EndDateTime - BeginDateTime);
             EndDateTime = DateTimeOffset.Now;
             BeginDateTime = beginDateTime;
-            Exception = exception;
+            _exDispatchInfo = exInfo;
         }
 
         public static class Repeatedly
@@ -111,7 +135,7 @@ namespace CoreTechs.Common
             }
         }
     }
-    
+
     public class Attempt<T> : Attempt
     {
         /// <summary>
@@ -119,7 +143,7 @@ namespace CoreTechs.Common
         /// </summary>
         public T Value { get; private set; }
 
-        public Attempt(DateTimeOffset beginDateTime, T value, Exception exception = null)
+        internal Attempt(DateTimeOffset beginDateTime, T value, ExceptionDispatchInfo exception = null)
             : base(beginDateTime, exception)
         {
             Value = value;

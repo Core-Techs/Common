@@ -196,6 +196,11 @@ namespace CoreTechs.Common
             return a.Parent.FullName.Equals(b.Parent.FullName, StringComparison.OrdinalIgnoreCase);
         }
 
+        public static bool AreSame(this FileInfo a, FileInfo b)
+        {
+            return a.FullName.Equals(b.FullName, StringComparison.OrdinalIgnoreCase);
+        }
+
         public static string GetRelativePathFrom(this FileSystemInfo to, FileSystemInfo from)
         {
             return from.GetRelativePathTo(to);
@@ -234,6 +239,51 @@ namespace CoreTechs.Common
                 dir.Create();
 
             return dir;
+        }
+
+        /// <summary>
+        /// Determines if the directory contains the other directory or file at any depth. 
+        /// </summary>
+        public static bool Contains(this DirectoryInfo dir, FileSystemInfo other)
+        {
+            if (dir == null) throw new ArgumentNullException("dir");
+            if (other == null) throw new ArgumentNullException("other");
+
+            return other.FullName.StartsWith(dir.FullName, true, null);
+
+        }
+
+        /// <summary>
+        /// Determines if the file or directory is contained within the the other directory at any depth.
+        /// </summary>
+        public static bool IsContainedWithin(this FileSystemInfo fileOrDirectory, DirectoryInfo otherDir)
+        {
+            return otherDir.Contains(fileOrDirectory);
+        }
+
+        /// <summary>
+        /// Determines if the directory directly contains the other directory or file.
+        /// </summary>
+        public static bool ContainsDirectly(this DirectoryInfo dir, FileSystemInfo other)
+        {
+            if (dir == null) throw new ArgumentNullException("dir");
+            if (other == null) throw new ArgumentNullException("other");
+
+            return dir.AreSame(other.GetParentDirectory());
+        }
+
+        /// <summary>
+        /// Determines if the file or directory is contained directly within the the other directory.
+        /// </summary>
+        public static bool IsContainedDirectlyWithin(this FileSystemInfo fileOrDirectory, DirectoryInfo otherDir)
+        {
+            return otherDir.ContainsDirectly(fileOrDirectory);
+        }
+
+        public static DirectoryInfo GetParentDirectory(this FileSystemInfo fileSystemInfo)
+        {
+            var file = fileSystemInfo as FileInfo;
+            return file != null ? file.Directory : ((DirectoryInfo)fileSystemInfo).Parent;
         }
     }
 }

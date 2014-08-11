@@ -66,5 +66,10 @@ namespace CoreTechs.Common
             var taskScheduler = Attempt.Get(TaskScheduler.FromCurrentSynchronizationContext).Value ?? TaskScheduler.Default;
             return taskFactory.StartNew(function, cancellationToken, creationOptions, taskScheduler);
         }
+
+        public static Task<T> ToTask<T>(this T source)
+        {
+            return Task.FromResult(source);
+        }
     }
 }
