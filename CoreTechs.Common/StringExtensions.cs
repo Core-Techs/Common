@@ -276,5 +276,19 @@ namespace CoreTechs.Common
             if (s == null) throw new ArgumentNullException("s");
             return s.ToStringReader().ReadLines();
         }
+
+        public static IEnumerable<char> EnumerateCharacters(this TextReader reader)
+        {
+            if (reader == null) throw new ArgumentNullException("reader");
+
+            while (true)
+            {
+                var c = reader.Read();
+                if (c == -1)
+                    yield break;
+
+                yield return (char)c;
+            }
+        }
     }
 }
