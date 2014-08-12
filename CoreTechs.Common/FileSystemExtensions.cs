@@ -10,6 +10,31 @@ namespace CoreTechs.Common
 {
     public static class FileSystemExtensions
     {
+        /// <summary>
+        /// Yields each part of the path, ordered from the item to the root.
+        /// </summary>
+        public static IEnumerable<FileSystemInfo> EnumeratePathUpToRoot(this FileSystemInfo source)
+        {
+            if (source == null) throw new ArgumentNullException("source");
+
+            yield return source;
+            var parent = source.GetParentDirectory();
+            while (parent != null)
+            {
+                yield return parent;
+                parent = parent.GetParentDirectory();
+            }
+        }
+
+        /// <summary>
+        /// Yields each part of the path, ordered from the item to the root.
+        /// </summary>
+        public static IEnumerable<FileSystemInfo> EnumeratePathDownFromRoot(this FileSystemInfo source)
+        {
+            if (source == null) throw new ArgumentNullException("source");
+            return source.EnumeratePathUpToRoot().Reverse();
+        }
+
         public static IEnumerable<byte> EnumerateBytes(this FileInfo file)
         {
             if (file == null) throw new ArgumentNullException("file");
