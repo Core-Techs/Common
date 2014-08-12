@@ -27,7 +27,7 @@ namespace CoreTechs.Common
         }
 
         /// <summary>
-        /// Yields each part of the path, ordered from the item to the root.
+        /// Yields each part of the path, ordered from the root to the item.
         /// </summary>
         public static IEnumerable<FileSystemInfo> EnumeratePathDownFromRoot(this FileSystemInfo source)
         {
