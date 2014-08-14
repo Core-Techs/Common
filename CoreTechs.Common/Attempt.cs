@@ -69,6 +69,14 @@ namespace CoreTechs.Common
         }
 
         /// <summary>
+        /// True if an exception was thrown; false otherwise.
+        /// </summary>
+        public bool Failed
+        {
+            get { return !Succeeded; }
+        }
+
+        /// <summary>
         /// The exception that was thrown.
         /// </summary>
         public Exception Exception

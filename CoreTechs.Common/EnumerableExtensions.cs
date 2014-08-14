@@ -150,7 +150,7 @@ namespace CoreTechs.Common
             return source.SplitWhere(x => x.Equals(delim));
         }
 
-        public static IEnumerable<List<T>> SplitWhere<T>(this IEnumerable<T> source, Func<T,bool> predicate)
+        public static IEnumerable<List<T>> SplitWhere<T>(this IEnumerable<T> source, Func<T, bool> predicate)
         {
             var list = new List<T>();
             var lastWasDelim = false;
@@ -161,7 +161,7 @@ namespace CoreTechs.Common
                 if (predicate(item))
                 {
                     yield return list;
-                    list=new List<T>();
+                    list = new List<T>();
                     lastWasDelim = true;
                 }
                 else list.Add(item);
@@ -175,6 +175,15 @@ namespace CoreTechs.Common
         {
             foreach (var item in source)
                 action(item);
+        }
+
+        /// <summary>
+        /// Gets the last n items of the enumerable.
+        /// </summary>
+        public static IEnumerable<T> TakeLast<T>(this IEnumerable<T> source, int count)
+        {
+            if (source == null) throw new ArgumentNullException("source");
+            return source.Reverse().Take(count).Reverse();
         }
     }
 }
