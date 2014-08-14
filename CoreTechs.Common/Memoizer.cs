@@ -21,7 +21,7 @@ namespace CoreTechs.Common
         /// </summary>
         /// <typeparam name="T">The type of data to be returned.</typeparam>
         /// <param name="factory">The function that produces the data.</param>
-        /// <param name="keyData">Data that is used as a cache key.</param>
+        /// <param name="keyData">Data that is used as a cache key. This needs to have a good implementation of GetHashCode. Best to use anonymous objects with primitive properties.</param>
         /// <param name="namespace">
         /// A namespace for the cache key. 
         /// This is automatically set to the caller's member name when no value is passed in.</param>
