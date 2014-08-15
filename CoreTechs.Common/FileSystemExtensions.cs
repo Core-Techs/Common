@@ -143,13 +143,28 @@ namespace CoreTechs.Common
             SearchOption searchOption = SearchOption.TopDirectoryOnly,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            var e = di.EnumerateFiles(searchPattern, searchOption)
-                .Select(f => new
-                {
-                    FileInfo = f,
-                    HashAttempt = Attempt.Get(() => f.ComputeFileHash())
-                })
-                .Where(f => f.HashAttempt.Succeeded);
+            var e = di.EnumerateFiles(searchPattern, searchOption);
+            return e.GetUnchangedFiles(interval, cancellationToken);
+        }
+
+        /// <summary>
+        /// Returns files that haven't changed over a period of time.
+        /// </summary>
+        /// <param name="source">Files to check.</param>
+        /// <param name="interval">Time to wait between checking the files.</param>
+        /// <param name="cancellationToken">Token to cancel the wait between checks.</param>
+        /// <returns>Files that haven't changed.</returns>
+        public static FileInfo[] GetUnchangedFiles(this IEnumerable<FileInfo> source, TimeSpan interval, 
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (source == null)
+                throw new ArgumentNullException("source");
+
+            var e = source.Select(f => new
+            {
+                FileInfo = f,
+                HashAttempt = Attempt.Get(() => f.ComputeFileHash())
+            }).Where(f => f.HashAttempt.Succeeded);
 
             // ReSharper disable PossibleMultipleEnumeration
             var files = e.ToArray();

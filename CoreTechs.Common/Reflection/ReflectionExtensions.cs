@@ -9,7 +9,7 @@ namespace CoreTechs.Common.Reflection
         /// <summary>
         /// Returns all properties found for the type, but as they are retrieved from their own declaring types.
         /// This helps to ensure that the get and set methods can be accessed.
-        /// It's recommended to use this method to retrieve a types properties and then use LINQ for filtering.
+        /// It's recommended to use this method to retrieve a type's properties and then use LINQ for filtering.
         /// </summary>
         public static PropertyInfo[] GetPropertiesAsDeclared(this Type type)
         {

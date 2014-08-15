@@ -6,6 +6,11 @@ namespace CoreTechs.Common
 {
     public static class ConversionExtensions
     {
+        public static T ConvertTo<T>(this object obj)
+        {
+            return (T) obj.ConvertTo(typeof (T));
+        }
+
         public static object ConvertTo(this object obj, Type type)
         {
             if (type.IsInstanceOfType(obj))

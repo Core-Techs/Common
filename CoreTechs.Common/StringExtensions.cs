@@ -82,9 +82,6 @@ namespace CoreTechs.Common
             return s.IndexOf(value, stringComparison) != -1;
         }
 
-
-
-
         public static bool ContainsAll(this string s, params string[] others)
         {
             return s.ContainsAll(StringComparison.CurrentCulture, others);
@@ -174,7 +171,7 @@ namespace CoreTechs.Common
         }
 
         /// <summary>
-        /// Splits a string where each character satisifies the predicate.
+        /// Splits a string where each character satisfies the predicate.
         /// </summary>
         public static IEnumerable<string> SplitWhere(this string s, Func<char, bool> predicate, bool returnSplitChars = false)
         {
