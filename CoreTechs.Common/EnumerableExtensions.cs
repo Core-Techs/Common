@@ -1,11 +1,37 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace CoreTechs.Common
 {
     public static class EnumerableExtensions
     {
+        public static IEnumerable<T> Concat<T>(this IEnumerable<T> source, params T[] items)
+        {
+            foreach (var item in source)
+                yield return item;
+
+            foreach (var item in items)
+                yield return item;
+        }
+
+        public static IEnumerable<T> Concat<T>(this T source, params T[] items)
+        {
+            yield return source;
+
+            foreach (var item in items)
+                yield return item;
+        }
+
+        public static IEnumerable<T> Concat<T>(this T source, IEnumerable<T> items) 
+        {
+            yield return source;
+
+            foreach (var item in items)
+                yield return item;
+        }
+
         public static IEnumerable<T> SkipWhileNot<T>(this IEnumerable<T> source, Func<T, bool> predicate)
         {
             return source.SkipWhile(x => !predicate(x));

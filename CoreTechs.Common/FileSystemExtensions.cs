@@ -143,8 +143,8 @@ namespace CoreTechs.Common
             SearchOption searchOption = SearchOption.TopDirectoryOnly,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            var e = di.EnumerateFiles(searchPattern, searchOption);
-            return e.GetUnchangedFiles(interval, cancellationToken);
+            return di.EnumerateFiles(searchPattern, searchOption)
+                .GetUnchangedFiles(interval, cancellationToken);
         }
 
         /// <summary>
