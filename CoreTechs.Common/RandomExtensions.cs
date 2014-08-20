@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 
 namespace CoreTechs.Common
 {
@@ -76,7 +78,7 @@ namespace CoreTechs.Common
 
         public static long NextInt64(this Random r)
         {
-            return r.NextInt64(0, long.MaxValue);
+            return r.NextInt64(0, Int64.MaxValue);
         }
 
         /// <summary>
@@ -147,6 +149,101 @@ namespace CoreTechs.Common
                                rng.NextInt32(),
                                sign,
                                scale.Value);
+        }
+
+        public static byte[] NextBytes(this Random rng,long count)
+        {
+            var buffer = new byte[count];
+            rng.NextBytes(buffer);
+            return buffer;
+        }
+
+
+        public static object Next(this Random rng, Type type)
+        {
+            if (type == typeof(Int32))
+                return RNG.Next();
+
+            if (type == typeof(UInt32))
+                return BitConverter.ToUInt32(RNG.NextBytes(sizeof(UInt32)), 0);
+
+            if (type == typeof(Int64))
+                return BitConverter.ToInt64(RNG.NextBytes(sizeof(Int64)), 0);
+
+            if (type == typeof(UInt64))
+                return BitConverter.ToUInt64(RNG.NextBytes(sizeof(UInt64)), 0);
+
+            if (type == typeof(Int16))
+                return BitConverter.ToInt16(RNG.NextBytes(sizeof(Int16)), 0);
+
+            if (type == typeof(UInt16))
+                return BitConverter.ToUInt16(RNG.NextBytes(sizeof(UInt16)), 0);
+
+            if (type == typeof (Boolean))
+                return rng.NextBool();
+
+            if (typeof (IEnumerable<Byte>).IsAssignableFrom(type))
+                return rng.NextBytes(4);
+
+            if (type == typeof (Byte))
+                return rng.NextBytes(1).Single();
+
+            if (type == typeof (SByte))
+                unchecked
+                {
+                    return (SByte)rng.NextBytes(1).Single();
+                }
+
+            if (type == typeof (Double))
+                return rng.NextDouble();
+
+            if (type == typeof(Single))
+                return BitConverter.ToSingle(RNG.NextBytes(sizeof(Single)), 0);
+
+            if (type == typeof (Decimal))
+                return rng.NextDecimal();
+
+            if (type == typeof (String))
+                return rng.Next().ToString(CultureInfo.InvariantCulture);
+
+            if (type == typeof (DateTime))
+                return rng.NextDateTime();
+
+            if (type == typeof (DateTimeOffset))
+                return rng.NextDateTimeOffset();
+
+            if (type == typeof (TimeSpan))
+                return rng.NextTimeSpan();
+
+            if (type == typeof (Char))
+                return 0.Repeat().Select(_ => BitConverter.ToChar(rng.NextBytes(sizeof (Char)), 0))
+                    .WhereNot(char.IsControl)
+                    .WhereNot(char.IsSurrogate)
+                    .First();
+
+            if (type == typeof (Guid))
+                return Guid.NewGuid();
+
+            var types = new[]
+            {
+                typeof (Int32), typeof (UInt32), typeof (Int16), typeof (UInt16), typeof (Int64), typeof (UInt64),
+                typeof (byte), typeof (sbyte), typeof (byte[]), typeof (Double), typeof (Single), typeof (Decimal),
+                typeof (bool), typeof (Guid), typeof (String), typeof (Char), typeof (DateTime),
+                typeof (DateTimeOffset), typeof (TimeSpan)
+            };
+
+            if (type == typeof (Type))
+                return types.RandomElement(rng);
+
+            if (type == typeof (Object))
+                return rng.Next(types.RandomElement(rng));
+
+            throw new NotSupportedException("type not supported: " + type.FullName);
+        }
+
+        public static T Next<T>(this Random rng)
+        {
+            return (T) rng.Next(typeof (T));
         }
     }
 

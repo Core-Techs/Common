@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Threading;
 
@@ -63,9 +64,7 @@ namespace CoreTechs.Common
 
         public static byte[] NextBytes(long count)
         {
-            var buffer = new byte[count];
-            Instance.NextBytes(buffer);
-            return buffer;
+            return Instance.NextBytes(count);
         }
 
         public static double NextDouble()
@@ -126,6 +125,16 @@ namespace CoreTechs.Common
         public static long NextInt64()
         {
             return Instance.NextInt64();
+        }
+
+        public static object Next(Type type)
+        {
+            return Instance.Next(type);
+        }
+
+        public static T Next<T>()
+        {
+            return Instance.Next<T>();
         }
     }
 }
