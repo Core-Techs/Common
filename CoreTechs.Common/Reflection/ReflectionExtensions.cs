@@ -23,5 +23,10 @@ namespace CoreTechs.Common.Reflection
             if (type == null) throw new ArgumentNullException("type");
             return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
         }
+
+        public static bool IsAssignableTo(this Type from, Type to)
+        {
+            return to.IsAssignableFrom(from);
+        }
     }
 }
