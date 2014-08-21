@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Data.Common;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CoreTechs.Common.Database
@@ -29,10 +30,10 @@ namespace CoreTechs.Common.Database
                 _connection.Open();
         }
 
-        public async Task OpenAsync()
+        public async Task OpenAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             if (_connection.State != ConnectionState.Open)
-                await _connection.OpenAsync();
+                await _connection.OpenAsync(cancellationToken);
         }
 
         public void Dispose()
