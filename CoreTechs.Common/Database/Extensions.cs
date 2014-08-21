@@ -252,6 +252,7 @@ namespace CoreTechs.Common.Database
             params DbParameter[] parameters)
         {
             using (var cmd = CreateCommand(conn, sql, commandType, parameters))
+            using(conn.Connect())
                 return (T)cmd.ExecuteScalar();
         }
 
@@ -262,7 +263,7 @@ namespace CoreTechs.Common.Database
         public static Task<T> ScalarAsync<T>(this IDbConnection conn, string sql, CommandType commandType,
             params DbParameter[] parameters)
         {
-            return conn.ScalarAsync<T>(sql, commandType, CancellationToken.None, parameters);
+                return conn.ScalarAsync<T>(sql, commandType, CancellationToken.None, parameters);
         }
 
         /// <summary>
@@ -272,6 +273,7 @@ namespace CoreTechs.Common.Database
         public static async Task<T> ScalarAsync<T>(this IDbConnection conn, string sql, CommandType commandType, CancellationToken cancellationToken, params DbParameter[] parameters)
         {
             using (var cmd = CreateCommand(conn, sql, commandType, parameters))
+            using (conn.ConnectAsync(cancellationToken))
                 return (T)await cmd.ExecuteScalarAsync(cancellationToken);
         }
 
@@ -375,7 +377,7 @@ namespace CoreTechs.Common.Database
 
             var dataset = new DataSet();
             using (var cmd = CreateCommand(conn, sql, commandType, parameters))
-            using (await conn.ConnectAsync())
+            using (await conn.ConnectAsync(cancellationToken))
             using (var reader = await cmd.ExecuteReaderAsync(cancellationToken))
                 dataset.Load(reader);
 
@@ -469,7 +471,7 @@ namespace CoreTechs.Common.Database
         public static async Task ExecuteAsync(this IDbConnection conn, string sql, CommandType commandType, CancellationToken cancellationToken, params DbParameter[] parameters)
         {
             using (var cmd = CreateCommand(conn, sql, commandType, parameters))
-            using (conn.ConnectAsync())
+            using (conn.ConnectAsync(cancellationToken))
                 await cmd.ExecuteNonQueryAsync(cancellationToken);
         }
 
