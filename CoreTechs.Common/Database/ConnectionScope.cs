@@ -11,10 +11,10 @@ namespace CoreTechs.Common.Database
     /// </summary>
     public class ConnectionScope : IDisposable
     {
-        private readonly DbConnection _connection;
+        private readonly IDbConnection _connection;
         private readonly ConnectionState _initState;
 
-        public ConnectionScope(DbConnection connection)
+        public ConnectionScope(IDbConnection connection)
         {
             if (connection == null) throw new ArgumentNullException("connection");
 
