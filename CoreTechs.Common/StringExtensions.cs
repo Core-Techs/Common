@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace CoreTechs.Common
 {
@@ -286,6 +287,11 @@ namespace CoreTechs.Common
 
                 yield return (char)c;
             }
+        }
+
+        public static string RegexReplace(this string input, string pattern, string replacement, RegexOptions options = RegexOptions.None)
+        {
+            return Regex.Replace(input, pattern, replacement, options);
         }
     }
 }
