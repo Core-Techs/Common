@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,20 +38,28 @@ namespace CoreTechs.Common
         {
             stateFactory = stateFactory ?? (() => default(T));
 
-            var readyExitCtor = new ManualResetEventSlim();
+            var readyExitCtor = new TaskCompletionSource<bool>();
+
             _task = Task.Run(() =>
             {
-                var state = stateFactory();
-                using (disposeState ? state as IDisposable : null)
+                var getState = Attempt.Get(stateFactory);
+
+                if (getState.Failed)
                 {
-                    readyExitCtor.Set();
+                    readyExitCtor.SetException(getState.Exception);
+                    throw getState.Exception;
+                }
+
+                using (disposeState ? getState as IDisposable : null)
+                {
+                    readyExitCtor.SetResult(true);
 
                     foreach (var msg in _msgs.GetConsumingEnumerable())
                     {
                         var result = new MessageResult();
                         try
                         {
-                            result.Value = msg.Factory(state);
+                            result.Value = msg.Factory(getState.Value);
                         }
                         catch (Exception ex)
                         {
@@ -62,7 +71,17 @@ namespace CoreTechs.Common
                 }
             });
 
-            readyExitCtor.Wait();
+            try
+            {
+                readyExitCtor.Task.Wait();
+            }
+            catch (AggregateException ex)
+            {
+                if (ex.InnerExceptions.Count == 1)
+                    throw ex.InnerExceptions.Single();
+
+                throw;
+            }
         }
 
         public async Task<TResult> GetAsync<TResult>(Func<T, TResult> factory)

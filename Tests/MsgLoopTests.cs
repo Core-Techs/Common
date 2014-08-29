@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using CoreTechs.Common;
 using NUnit.Framework;
 
@@ -15,7 +16,21 @@ namespace Tests
             using (var loop = new MessageLoop<MsgLoopTests>(this))
                 Parallel.For(0, Iters, i => loop.Do(x => ++x._i));
 
-            Assert.AreEqual(Iters,_i);
+            Assert.AreEqual(Iters, _i);
+        }
+        [Test]
+        public void TestStateFactoryErrorsExposed()
+        {
+            var exception = new Exception("AHH!");
+
+            try
+            {
+                using (new MessageLoop<int>(() => { throw exception; })) { }
+            }
+            catch (Exception ex)
+            {
+                Assert.AreEqual(ex, exception);
+            }
         }
 
         [Test]

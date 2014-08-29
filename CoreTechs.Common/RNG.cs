@@ -112,6 +112,21 @@ namespace CoreTechs.Common
             return Instance.NextDateTime();
         }
 
+        public static DateTimeOffset NextDateTimeOffset(DateTimeOffset maxValue)
+        {
+            return Instance.NextDateTimeOffset(maxValue);
+        }
+
+        public static DateTimeOffset NextDateTimeOffset(DateTimeOffset minValue, DateTimeOffset maxValue)
+        {
+            return Instance.NextDateTimeOffset(minValue, maxValue);
+        }
+
+        public static DateTimeOffset NextDateTimeOffset()
+        {
+            return Instance.NextDateTimeOffset();
+        }
+
         public static long NextInt64(long maxValue)
         {
             return Instance.NextInt64(maxValue);
