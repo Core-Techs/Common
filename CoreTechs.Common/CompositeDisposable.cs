@@ -4,6 +4,11 @@ using System.Linq;
 
 namespace CoreTechs.Common
 {
+    /// <summary>
+    /// A container for other IDisposable objects that can be disposed all at once.
+    /// Disposal occurs in the order that items are enumerated.
+    /// Disposal exceptions do not prevent disposal of other elements.
+    /// </summary>
     public class CompositeDisposable : IDisposable
     {
         private bool _disposed;
