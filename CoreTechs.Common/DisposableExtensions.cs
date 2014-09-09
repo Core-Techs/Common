@@ -13,15 +13,17 @@ namespace CoreTechs.Common
         /// </summary>
         public static void Dispose(this IEnumerable<IDisposable> disposables)
         {
-            if (disposables == null) 
+            if (disposables == null)
                 throw new ArgumentNullException("disposables");
 
-            var dispose = disposables.Aggregate<IDisposable, Action>(
-                () => { },
-                (a, d) => () =>
-                {
-                    using (d) a();
-                });
+            var dispose = disposables
+                .Where(x => x != null)
+                .Aggregate<IDisposable, Action>(
+                    () => { },
+                    (a, d) => () =>
+                    {
+                        using (d) a();
+                    });
 
             dispose();
         }
