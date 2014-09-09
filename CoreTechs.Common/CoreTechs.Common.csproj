@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BeepScope.cs" />
+    <Compile Include="CompositeDisposable.cs" />
     <Compile Include="ConversionExtensions.cs" />
     <Compile Include="Database\ConnectionScope.cs" />
     <Compile Include="Constants.cs" />
@@ -52,6 +53,7 @@
     <Compile Include="DateTimeExtensions.cs" />
     <Compile Include="Database\DisconnectionScope.cs" />
     <Compile Include="Database\DynamicDataRow.cs" />
+    <Compile Include="DisposableExtensions.cs" />
     <Compile Include="EnumerableExtensions.cs" />
     <Compile Include="FileSystemExtensions.cs" />
     <Compile Include="Length.cs" />
