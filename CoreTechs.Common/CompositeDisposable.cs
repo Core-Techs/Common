@@ -11,16 +11,16 @@ namespace CoreTechs.Common
     /// </summary>
     public class CompositeDisposable : IDisposable
     {
-        private bool _disposed;
-        private readonly List<IDisposable> _disposables;
         private readonly object _syncLock = new object();
+        private bool _disposed;
+        private IDisposable[] _disposables;
 
         public CompositeDisposable(IEnumerable<IDisposable> disposables)
         {
             if (disposables == null) 
                 throw new ArgumentNullException("disposables");
 
-            _disposables = disposables.ToList();
+            _disposables = disposables.ToArray();
         }
 
         public void Dispose()
@@ -42,9 +42,8 @@ namespace CoreTechs.Common
             }
             finally
             {
-                _disposables.Clear();
+                _disposables = null;
             }
-            
         }
     }
 }
