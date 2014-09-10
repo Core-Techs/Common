@@ -25,12 +25,12 @@ namespace CoreTechs.Common
 
         public void Dispose()
         {
-            if (!_disposed)
+            if (_disposed)
                 return;
 
             lock (_syncLock)
             {
-                if (!_disposed)
+                if (_disposed)
                     return;
 
                 _disposed = true;
