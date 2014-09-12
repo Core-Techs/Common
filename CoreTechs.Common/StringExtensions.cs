@@ -12,6 +12,20 @@ namespace CoreTechs.Common
     public static class StringExtensions
     {
 
+        public static byte[] Encode(this string s, Encoding encoding = null)
+        {
+            if (s == null) throw new ArgumentNullException("s");
+            encoding = encoding ?? Encoding.Default;
+            return encoding.GetBytes(s);
+        }
+
+        public static string Decode(this IEnumerable<byte> bytes, Encoding encoding = null)
+        {
+            if (bytes == null) throw new ArgumentNullException("bytes");
+            encoding = encoding ?? Encoding.Default;
+            return encoding.GetString(bytes.ToArray());
+        }
+
         /// <summary>
         /// Joins string representation of items in source enumerable with a seperator.
         /// </summary>

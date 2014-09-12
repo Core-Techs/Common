@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 
 namespace CoreTechs.Common
@@ -210,6 +212,22 @@ namespace CoreTechs.Common
         {
             if (source == null) throw new ArgumentNullException("source");
             return source.Reverse().Take(count).Reverse();
+        }
+
+        public static IEnumerable<T> Take<T>(this IEnumerable<T> enumerable, long count)
+        {
+            if (enumerable == null) throw new ArgumentNullException("enumerable");
+            
+            var it = enumerable.GetEnumerator();
+            for (long i = 0; i < count && it.MoveNext(); i++)
+                yield return it.Current;
+        }
+
+        public static void Enumerate(this IEnumerable enumerable)
+        {
+            if (enumerable == null) throw new ArgumentNullException("enumerable");
+
+            foreach (var x in enumerable) { }
         }
     }
 }

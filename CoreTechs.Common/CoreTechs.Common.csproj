@@ -76,6 +76,7 @@
     <Compile Include="RNG.cs" />
     <Compile Include="SingleGlobalInstance.cs" />
     <Compile Include="Stopwatch.cs" />
+    <Compile Include="StreamBookmark.cs" />
     <Compile Include="StreamExtensions.cs" />
     <Compile Include="StringExtensions.cs" />
     <Compile Include="Clocks.cs" />
