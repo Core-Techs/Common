@@ -13,7 +13,7 @@ namespace CoreTechs.Common
             if (stream == null) throw new ArgumentNullException("stream");
             int b;
             while ((b = stream.ReadByte()) != -1)
-                yield return (byte) b;
+                yield return (byte)b;
         }
 
         public static MemoryStream ToMemoryStream(this IEnumerable<byte> bytes)
@@ -41,22 +41,16 @@ namespace CoreTechs.Common
         public static long? SeekTo(this Stream stream, byte[] target)
         {
             var t = 0;
+
             foreach (var b in stream.EnumerateBytes())
             {
-                if (b == target[t])
+                if ((b == target[t] || b == target[t = 0]) && target.Length == t + 1)
                 {
-                    if (target.Length == t + 1)
-                    {
-                        stream.Seek(-target.Length, SeekOrigin.Current);
-                        return stream.Position;
-                    }
+                    stream.Seek(-target.Length, SeekOrigin.Current);
+                    return stream.Position;
+                }
 
-                    t++;
-                }
-                else
-                {
-                    t = 0;
-                }
+                t++;
             }
 
             return null;
