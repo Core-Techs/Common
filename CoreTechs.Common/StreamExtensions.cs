@@ -74,7 +74,7 @@ namespace CoreTechs.Common
         /// of any of the target byte sequences found in the stream.
         /// </summary>
         /// <returns>The target byte sequence that was first found or null.</returns>
-        public static string SeekStartOfAny(this Stream stream,  params string[] targets)
+        public static string SeekStartOfAny(this Stream stream, params string[] targets)
         {
             return SeekStartOfAny(stream, null, targets);
         }
@@ -162,45 +162,126 @@ namespace CoreTechs.Common
             return found == null ? null : found.Decode(encoding);
         }
 
+        /// <summary>
+        /// Counts the number of bytes between the current position and the target byte sequence.
+        /// The starting position is returned to once the target is found or the end of the stream is reached.
+        /// </summary>
         public static long CountBytesUntil(this Stream stream, byte[] target)
         {
-            var start = stream.Position;
-            var found = stream.SeekEndOf(target);
-            var end = stream.Position;
-            var count = end - start;
+            byte[] targetFound;
+            return CountBytesUntilAny(stream, new[] { target }, out targetFound);
+        }
 
-            if (found)
-                count -= target.Length;
+        /// <summary>
+        /// Counts the number of bytes between the current position and the target string.
+        /// The starting position is returned to once the target is found or the end of the stream is reached.
+        /// </summary>
+        public static long CountBytesUntil(this Stream stream, string target, Encoding encoding = null)
+        {
+            string targetFound;
+            return CountBytesUntilAny(stream, new[] { target }, out targetFound, encoding);
+        }
 
-            stream.Seek(start, SeekOrigin.Begin);
+        /// <summary>
+        /// Counts the number of bytes between the current position and the first occurrence of any of the target byte sequences.
+        /// The starting position is returned to once a target is found or the end of the stream is reached.
+        /// </summary>
+        public static long CountBytesUntilAny(this Stream stream, byte[][] targets, out byte[] targetFound)
+        {
+            using (var start = stream.Bookmark())
+            {
+                targetFound = stream.SeekEndOfAny(targets);
+                var end = stream.Position;
+                var count = end - start.Position;
+
+                if (targetFound != null)
+                    count -= targetFound.Length;
+
+                return count;
+            }
+        }
+
+
+        /// <summary>
+        /// Counts the number of bytes between the current position and the first occurrence of any of the target strings.
+        /// The starting position is returned to once a target is found or the end of the stream is reached.
+        /// </summary>
+        /// <param name="targetFound">The string that was found first or null if no target was found.</param>
+        public static long CountBytesUntilAny(this Stream stream, string[] targets, out string targetFound, Encoding encoding = null)
+        {
+            encoding = encoding ?? Encoding.Default;
+            var bytes = targets.Select(x => encoding.GetBytes(x)).ToArray();
+            byte[] bytesFound;
+            var count = CountBytesUntilAny(stream, bytes, out bytesFound);
+            targetFound = bytesFound == null ? null : bytesFound.Decode(encoding);
             return count;
         }
 
-        public static long CountBytesUntil(this Stream stream, string target, Encoding encoding = null)
-        {
-            encoding = encoding ?? Encoding.Default;
-            var bytes = encoding.GetBytes(target);
-            return CountBytesUntil(stream, bytes);
-        }
-
+        /// <summary>
+        /// Enumerates the bytes until the target begins or the end of the stream.
+        /// </summary>
+        /// <param name="target">The target to search for.</param>
+        /// <param name="positionAfterTarget">True to seek to the end of the target after enumeration; false to keep position at beginning of target.</param>
+        /// <param name="encoding">The encoding used to decode the target string.</param>
+        /// <returns>An enumerable of bytes.</returns>
         public static IEnumerable<byte> EnumerateBytesUntil(this Stream stream, string target, bool positionAfterTarget = false, Encoding encoding = null)
         {
-            encoding = encoding ?? Encoding.Default;
-            var bytes = encoding.GetBytes(target);
-            return EnumerateBytesUntil(stream, bytes, positionAfterTarget);
+            return EnumerateBytesUntilAny(stream, new[] { target }, positionAfterTarget, encoding);
         }
 
+
+        /// <summary>
+        /// Enumerates the bytes until the target begins or the end of the stream.
+        /// </summary>
+        /// <param name="target">The target to search for.</param>
+        /// <param name="positionAfterTarget">True to seek to the end of the target after enumeration; false to keep position at beginning of target.</param>
+        /// <returns>An enumerable of bytes.</returns>
         public static IEnumerable<byte> EnumerateBytesUntil(this Stream stream, byte[] target, bool positionAfterTarget = false)
         {
-            var count = stream.CountBytesUntil(target);
+            return EnumerateBytesUntilAny(stream, new[] { target }, positionAfterTarget);
+        }
+
+
+
+        /// <summary>
+        /// Enumerates the bytes until any of the target byte sequences begin or the end of the stream.
+        /// </summary>
+        /// <param name="targets">The targets to search for.</param>
+        /// <param name="positionAfterTarget">True to seek to the end of the found target after enumeration; false to keep position at beginning of target.</param>
+        /// <returns>An enumerable of bytes.</returns>
+        public static IEnumerable<byte> EnumerateBytesUntilAny(this Stream stream, byte[][] targets, bool positionAfterTarget = false)
+        {
+            byte[] targetFound;
+            var count = stream.CountBytesUntilAny(targets, out targetFound);
             foreach (var b in stream.EnumerateBytes().Take(count))
                 yield return b;
 
-
             if (positionAfterTarget)
-                stream.Seek(target.Length, SeekOrigin.Current);
+                stream.Seek(targetFound.Length, SeekOrigin.Current);
         }
 
+
+        /// <summary>
+        /// Enumerates the bytes until any of the target strings begin or the end of the stream.
+        /// </summary>
+        /// <param name="targets">The targets to search for.</param>
+        /// <param name="positionAfterTarget">True to seek to the end of the found target after enumeration; false to keep position at beginning of target.</param>
+        /// <param name="encoding">The encoding used to decode the target strings.</param>
+        /// <returns>An enumerable of bytes.</returns>
+        public static IEnumerable<byte> EnumerateBytesUntilAny(this Stream stream, string[] targets, bool positionAfterTarget = false, Encoding encoding = null)
+        {
+            string targetFound;
+            var count = stream.CountBytesUntilAny(targets, out targetFound, encoding);
+            foreach (var b in stream.EnumerateBytes().Take(count))
+                yield return b;
+
+            if (positionAfterTarget)
+                stream.Seek(targetFound.Length, SeekOrigin.Current);
+        }
+
+        /// <summary>
+        /// Creates a <see cref="StreamBookmark"/>.
+        /// </summary>
         public static StreamBookmark Bookmark(this Stream stream)
         {
             if (stream == null) throw new ArgumentNullException("stream");
