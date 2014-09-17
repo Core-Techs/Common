@@ -119,21 +119,31 @@ namespace CoreTechs.Common
         /// <returns>The target byte sequence that was first found or null.</returns>
         public static byte[] SeekEndOfAny(this Stream stream, params byte[][] targets)
         {
-            var t = new int[targets.Length];
+            // contains the next expected target byte index
+            // for the index-correlated target :)
+            var expectations = new int[targets.Length];
 
-            foreach (var b in stream.EnumerateBytes())
+            foreach (var currentByte in stream.EnumerateBytes())
             {
-                for (var ti = 0; ti < targets.Length; ti++)
+                for (var targetIndex = 0; targetIndex < targets.Length; targetIndex++)
                 {
-                    var target = targets[ti];
+                    var target = targets[targetIndex];
 
-                    if (b != target[t[ti]] && b != target[t[ti] = 0])
-                        continue;
+                    // test current byte against target expectation
+                    // if failed and not the first byte of target, 
+                    // start over, trying the first byte of the target
+                    if (currentByte != target[expectations[targetIndex]])
+                        if (expectations[targetIndex] == 0 || currentByte != target[expectations[targetIndex] = 0])
+                            continue;
 
-                    if (target.Length == t[ti] + 1)
-                        return targets[ti];
+                    // test target has been completely matched
+                    if (target.Length == expectations[targetIndex] + 1)
+                        return target;
 
-                    t[ti]++;
+                    // not completely matched,
+                    // but the current byte meets the targets current expectation
+                    // advance the expected byte index
+                    expectations[targetIndex]++;
                 }
             }
 

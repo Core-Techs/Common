@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BeepScope.cs" />
+    <Compile Include="Characters.cs" />
     <Compile Include="CompositeDisposable.cs" />
     <Compile Include="ConversionExtensions.cs" />
     <Compile Include="Database\ConnectionScope.cs" />
