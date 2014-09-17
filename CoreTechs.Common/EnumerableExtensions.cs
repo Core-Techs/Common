@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 
 namespace CoreTechs.Common
 {
     public static class EnumerableExtensions
     {
+
         public static IEnumerable<T> Concat<T>(this IEnumerable<T> source, params T[] items)
         {
             foreach (var item in source)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 
 namespace CoreTechs.Common
@@ -76,75 +77,35 @@ namespace CoreTechs.Common
             get { return All.Where(char.IsWhiteSpace); }
         }
 
+        private static Func<char, bool> MapPredicate(CharTypes type)
+        {
+            switch (type)
+            {
+                case CharTypes.Letter: return char.IsLetter;
+                case CharTypes.Digit: return char.IsDigit;
+                case CharTypes.Number: return char.IsNumber;
+                case CharTypes.Symbol: return char.IsSymbol;
+                case CharTypes.Punctuation: return char.IsPunctuation;
+                case CharTypes.WhiteSpace: return char.IsWhiteSpace;
+                case CharTypes.UpperCase: return char.IsUpper;
+                case CharTypes.LowerCase: return char.IsLower;
+                case CharTypes.Control: return char.IsControl;
+                case CharTypes.HighSurrogate: return char.IsHighSurrogate;
+                case CharTypes.LowSurrogate: return char.IsLowSurrogate;
+                case CharTypes.Separator: return char.IsSeparator;
+                default:
+                    throw new ArgumentOutOfRangeException("type");
+            }
+        }
+
         public static IEnumerable<char> WhereAny(CharTypes types)
         {
-            Func<char, bool> predicate = c => false;
-
-            if (types.HasFlag(CharTypes.Control))
-            {
-                var f = predicate;
-                predicate = c => f(c) || char.IsControl(c);
-            }
-
-            if (types.HasFlag(CharTypes.Digit))
-            {
-                var f = predicate;
-                predicate = c => f(c) || char.IsDigit(c);
-            }
-
-            if (types.HasFlag(CharTypes.HighSurrogate))
-            {
-                var f = predicate;
-                predicate = c => f(c) || char.IsHighSurrogate(c);
-            }
-
-            if (types.HasFlag(CharTypes.Letter))
-            {
-                var f = predicate;
-                predicate = c => f(c) || char.IsLetter(c);
-            }
-
-            if (types.HasFlag(CharTypes.LowerCase))
-            {
-                var f = predicate;
-                predicate = c => f(c) || char.IsLower(c);
-            }
-
-            if (types.HasFlag(CharTypes.LowSurrogate))
-            {
-                var f = predicate;
-                predicate = c => f(c) || char.IsLowSurrogate(c);
-            }
-
-            if (types.HasFlag(CharTypes.Number))
-            {
-                var f = predicate;
-                predicate = c => f(c) || char.IsNumber(c);
-            }
-
-            if (types.HasFlag(CharTypes.Punctuation))
-            {
-                var f = predicate;
-                predicate = c => f(c) || char.IsPunctuation(c);
-            }
-
-            if (types.HasFlag(CharTypes.Symbol))
-            {
-                var f = predicate;
-                predicate = c => f(c) || char.IsSymbol(c);
-            }
-
-            if (types.HasFlag(CharTypes.UpperCase))
-            {
-                var f = predicate;
-                predicate = c => f(c) || char.IsUpper(c);
-            }
-
-            if (types.HasFlag(CharTypes.WhiteSpace))
-            {
-                var f = predicate;
-                predicate = c => f(c) || char.IsWhiteSpace(c);
-            }
+            var predicate = Enum.GetValues(typeof(CharTypes))
+                .Cast<CharTypes>()
+                .ToDictionary(x => x, MapPredicate)
+                .Where(x => types.HasFlag(x.Key))
+                .Select(x => x.Value)
+                .AnyTrue();
 
             return All.Where(predicate);
         }
@@ -163,6 +124,7 @@ namespace CoreTechs.Common
         LowerCase = 128,
         Control = 256,
         HighSurrogate = 512,
-        LowSurrogate = 1024
+        LowSurrogate = 1024,
+        Separator = 2048,
     }
 }
