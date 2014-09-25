@@ -124,22 +124,22 @@ namespace CoreTechs.Common
         }
 
 
-        public Attempt ThrowIfExceptionIs<T>()
+        public Attempt ThrowIfExceptionIs<T>() where T : Exception
         {
             return this.ThrowIf(x => x.Exception is T);
         }
 
-        public Attempt ThrowIfExceptionIsExactly<T>()
+        public Attempt ThrowIfExceptionIsExactly<T>() where T : Exception
         {
             return this.ThrowIf(x => x.Exception.GetType() == typeof(T));
         }
 
-        public Attempt CatchIfExceptionIs<T>()
+        public Attempt CatchIfExceptionIs<T>() where T : Exception
         {
             return this.CatchIf(x => x.Exception is T);
         }
 
-        public Attempt CatchIfExceptionIsExactly<T>()
+        public Attempt CatchIfExceptionIsExactly<T>() where T : Exception
         {
             return this.CatchIf(x => x.Exception.GetType() == typeof(T));
         }
@@ -178,22 +178,22 @@ namespace CoreTechs.Common
             Value = value;
         }
 
-        public new Attempt<T> ThrowIfExceptionIs<TEx>()
+        public new Attempt<T> ThrowIfExceptionIs<TEx>() where TEx : Exception
         {
             return this.ThrowIf(x => x.Exception is TEx);
         }
 
-        public new Attempt<T> ThrowIfExceptionIsExactly<TEx>()
+        public new Attempt<T> ThrowIfExceptionIsExactly<TEx>() where TEx : Exception
         {
             return this.ThrowIf(x => x.Exception.GetType() == typeof(TEx));
         }
 
-        public new Attempt<T> CatchIfExceptionIs<TEx>()
+        public new Attempt<T> CatchIfExceptionIs<TEx>() where TEx : Exception
         {
             return this.CatchIf(x => x.Exception is TEx);
         }
 
-        public new Attempt<T> CatchIfExceptionIsExactly<TEx>()
+        public new Attempt<T> CatchIfExceptionIsExactly<TEx>() where TEx : Exception
         {
             return this.CatchIf(x => x.Exception.GetType() == typeof(TEx));
         }
@@ -519,12 +519,12 @@ namespace CoreTechs.Common
         /// <summary>
         /// Suppresses exceptions only when the predicate is satisfied.
         /// </summary>
-        public static T CatchIf<T>(this T attempt, Func<T,bool> predicate) where T : Attempt
+        public static T CatchIf<T>(this T attempt, Func<T, bool> predicate) where T : Attempt
         {
             if (attempt == null) throw new ArgumentNullException("attempt");
             if (predicate == null) throw new ArgumentNullException("predicate");
 
-            if (attempt.Failed && ! predicate(attempt))
+            if (attempt.Failed && !predicate(attempt))
                 attempt.ThrowIfFailed();
 
             return attempt;
