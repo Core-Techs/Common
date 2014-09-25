@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 
 namespace CoreTechs.Common
@@ -100,6 +99,11 @@ namespace CoreTechs.Common
 
         public static IEnumerable<char> WhereAny(CharTypes types)
         {
+            return All.WhereAny(types);
+        }
+
+        public static IEnumerable<char> WhereAny(this IEnumerable<char> chars, CharTypes types)
+        {
             var predicate = Enum.GetValues(typeof(CharTypes))
                 .Cast<CharTypes>()
                 .ToDictionary(x => x, MapPredicate)
@@ -107,9 +111,22 @@ namespace CoreTechs.Common
                 .Select(x => x.Value)
                 .AnyTrue();
 
-            return All.Where(predicate);
+            return chars.Where(predicate);
+        }
+
+        public static class Keyboard
+        {
+            public const string Digits = "0123456789";
+            public const string LowerLetters = "abcdefghijklmnopqrstuvwxyz";
+            public const string UpperLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            public const string AllLetters = LowerLetters + UpperLetters;
+            public const string AllLettersAndDigits = AllLetters + Digits;
+            public const string Symbols = "~`$^+=<>|";
+            public const string Punctuation = @"!@#%&*()_-?,./:"";'{}[]\'";
+            public const string All = AllLettersAndDigits + Symbols + Punctuation;
         }
     }
+
 
     [Flags]
     public enum CharTypes

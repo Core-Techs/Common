@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AttemptTests.cs" />
     <Compile Include="BeepScopeTests.cs" />
     <Compile Include="ClockTests.cs" />
     <Compile Include="Enumerable\Tests.cs" />

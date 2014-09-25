@@ -123,6 +123,27 @@ namespace CoreTechs.Common
             _exDispatchInfo = exInfo;
         }
 
+
+        public Attempt ThrowIfExceptionIs<T>()
+        {
+            return this.ThrowIf(x => x.Exception is T);
+        }
+
+        public Attempt ThrowIfExceptionIsExactly<T>()
+        {
+            return this.ThrowIf(x => x.Exception.GetType() == typeof(T));
+        }
+
+        public Attempt CatchIfExceptionIs<T>()
+        {
+            return this.CatchIf(x => x.Exception is T);
+        }
+
+        public Attempt CatchIfExceptionIsExactly<T>()
+        {
+            return this.CatchIf(x => x.Exception.GetType() == typeof(T));
+        }
+
         public static class Repeatedly
         {
             /// <summary>
@@ -155,6 +176,26 @@ namespace CoreTechs.Common
             : base(beginDateTime, exception)
         {
             Value = value;
+        }
+
+        public new Attempt<T> ThrowIfExceptionIs<TEx>()
+        {
+            return this.ThrowIf(x => x.Exception is TEx);
+        }
+
+        public new Attempt<T> ThrowIfExceptionIsExactly<TEx>()
+        {
+            return this.ThrowIf(x => x.Exception.GetType() == typeof(TEx));
+        }
+
+        public new Attempt<T> CatchIfExceptionIs<TEx>()
+        {
+            return this.CatchIf(x => x.Exception is TEx);
+        }
+
+        public new Attempt<T> CatchIfExceptionIsExactly<TEx>()
+        {
+            return this.CatchIf(x => x.Exception.GetType() == typeof(TEx));
         }
     }
 
@@ -396,7 +437,11 @@ namespace CoreTechs.Common
         public static IEnumerable<Lazy<T>> ThrowWhere<T>(this IEnumerable<Lazy<T>> lazyAttempts, Func<T, bool> predicate)
             where T : Attempt
         {
-            return lazyAttempts.When(x => !x.Value.Succeeded && predicate(x.Value), x => { throw x.Value.Exception; });
+            foreach (var attempt in lazyAttempts)
+            {
+                attempt.Value.ThrowIf(predicate);
+                yield return attempt;
+            }
         }
 
         /// <summary>
@@ -405,7 +450,7 @@ namespace CoreTechs.Common
         public static IEnumerable<Lazy<T>> CatchWhere<T>(this IEnumerable<Lazy<T>> attempts, Func<T, bool> predicate)
             where T : Attempt
         {
-            return attempts.ThrowWhere(x => !predicate(x));
+            return attempts.ThrowWhere(predicate.Invert());
         }
 
         /// <summary>
@@ -470,6 +515,66 @@ namespace CoreTechs.Common
         {
             return Attempt.Repeatedly.Do(action).UsingStrategy(retryStrategy, cancellationToken);
         }
+
+        /// <summary>
+        /// Suppresses exceptions only when the predicate is satisfied.
+        /// </summary>
+        public static T CatchIf<T>(this T attempt, Func<T,bool> predicate) where T : Attempt
+        {
+            if (attempt == null) throw new ArgumentNullException("attempt");
+            if (predicate == null) throw new ArgumentNullException("predicate");
+
+            if (attempt.Failed && ! predicate(attempt))
+                attempt.ThrowIfFailed();
+
+            return attempt;
+        }
+
+        /// <summary>
+        /// Throws exception when the predicate is satisfied.
+        /// </summary>
+        public static T ThrowIf<T>(this T attempt, Func<T, bool> predicate) where T : Attempt
+        {
+            if (attempt == null) throw new ArgumentNullException("attempt");
+            if (predicate == null) throw new ArgumentNullException("predicate");
+            return attempt.CatchIf(predicate.Invert());
+        }/*
+
+        /// <summary>
+        /// Suppresses exceptions only when the exception is assignable to <typeparam name="TException" />.
+        /// </summary>
+        public static T CatchIfExceptionIs<T, TException>(this T attempt) where T : Attempt
+        {
+            if (attempt == null) throw new ArgumentNullException("attempt");
+            return attempt.CatchIf(a => a.Exception is TException);
+        }
+
+        /// <summary>
+        /// Throws exception it is assignable to <typeparam name="TException" />.
+        /// </summary>
+        public static T ThrowIfExceptionIs<T, TException>(this T attempt) where T : Attempt
+        {
+            if (attempt == null) throw new ArgumentNullException("attempt");
+            return attempt.ThrowIf(a => a.Exception is TException);
+        }
+
+        /// <summary>
+        /// Suppresses exceptions only when the exception is of type <typeparam name="TException" />.
+        /// </summary>
+        public static T CatchIfExceptionIsExactly<T, TException>(this T attempt) where T : Attempt
+        {
+            if (attempt == null) throw new ArgumentNullException("attempt");
+            return attempt.CatchIf(a => typeof (TException) == a.Exception.GetType());
+        }
+
+        /// <summary>
+        /// Suppresses exceptions only when the exception is of type <typeparam name="TException" />.
+        /// </summary>
+        public static T ThrowIfExceptionIsExactly<T, TException>(this T attempt) where T : Attempt
+        {
+            if (attempt == null) throw new ArgumentNullException("attempt");
+            return attempt.ThrowIf(a => typeof (TException) == a.Exception.GetType());
+        }*/
     }
 
     public interface IRetryStrategy
