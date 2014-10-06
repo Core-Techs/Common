@@ -538,43 +538,7 @@ namespace CoreTechs.Common
             if (attempt == null) throw new ArgumentNullException("attempt");
             if (predicate == null) throw new ArgumentNullException("predicate");
             return attempt.CatchIf(predicate.Invert());
-        }/*
-
-        /// <summary>
-        /// Suppresses exceptions only when the exception is assignable to <typeparam name="TException" />.
-        /// </summary>
-        public static T CatchIfExceptionIs<T, TException>(this T attempt) where T : Attempt
-        {
-            if (attempt == null) throw new ArgumentNullException("attempt");
-            return attempt.CatchIf(a => a.Exception is TException);
         }
-
-        /// <summary>
-        /// Throws exception it is assignable to <typeparam name="TException" />.
-        /// </summary>
-        public static T ThrowIfExceptionIs<T, TException>(this T attempt) where T : Attempt
-        {
-            if (attempt == null) throw new ArgumentNullException("attempt");
-            return attempt.ThrowIf(a => a.Exception is TException);
-        }
-
-        /// <summary>
-        /// Suppresses exceptions only when the exception is of type <typeparam name="TException" />.
-        /// </summary>
-        public static T CatchIfExceptionIsExactly<T, TException>(this T attempt) where T : Attempt
-        {
-            if (attempt == null) throw new ArgumentNullException("attempt");
-            return attempt.CatchIf(a => typeof (TException) == a.Exception.GetType());
-        }
-
-        /// <summary>
-        /// Suppresses exceptions only when the exception is of type <typeparam name="TException" />.
-        /// </summary>
-        public static T ThrowIfExceptionIsExactly<T, TException>(this T attempt) where T : Attempt
-        {
-            if (attempt == null) throw new ArgumentNullException("attempt");
-            return attempt.ThrowIf(a => typeof (TException) == a.Exception.GetType());
-        }*/
     }
 
     public interface IRetryStrategy
