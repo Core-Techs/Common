@@ -59,10 +59,13 @@ namespace CoreTechs.Common.Database
         /// <summary>
         /// Creates a new instance of T using the default constructor and then maps values from row's columns
         /// to the instance's properties where the names and types match.
+        /// 
+        /// If you don't have or don't want to use a default constructor, create the objects yourself and
+        /// use the <see cref="Map{T}"/> extension method instead.
         /// </summary>
-        public static T Create<T>(this DataRow row) where T : class
+        public static T Create<T>(this DataRow row) where T : class, new()
         {
-            var obj = Activator.CreateInstance<T>();
+            var obj = new T();
             Map(row, obj);
             return obj;
         }
