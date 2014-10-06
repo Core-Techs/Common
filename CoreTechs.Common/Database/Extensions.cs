@@ -68,7 +68,7 @@ namespace CoreTechs.Common.Database
         }
 
         /// <summary>
-        /// Set's the properties of the instance using the values of row column's where the names and types match.
+        /// Sets the properties of the instance using the values of row column's where the names and types match.
         /// </summary>
         public static void Map<T>(this DataRow row, T destination) where T : class
         {
