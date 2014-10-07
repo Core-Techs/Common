@@ -228,5 +228,30 @@ namespace CoreTechs.Common
 
             foreach (var x in enumerable) { }
         }
+
+        public static IEnumerable<T[]> AccumulateUntil<T>(this IEnumerable<T> source,
+        Func<T, bool> predicate)
+        {
+            return AccumulateWhile(source, predicate.Invert());
+        }
+
+        public static IEnumerable<T[]> AccumulateWhile<T>(this IEnumerable<T> source,
+            Func<T, bool> predicate)
+        {
+            var accumulated = new List<T>();
+
+            foreach (var item in source)
+            {
+                if (!predicate(item) && accumulated.Any())
+                {
+                    yield return accumulated.ToArray();
+                    accumulated.Clear();
+                }
+
+                accumulated.Add(item);
+            }
+
+            if (accumulated.Any()) yield return accumulated.ToArray();
+        }
     }
 }

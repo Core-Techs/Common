@@ -84,15 +84,15 @@ namespace CoreTechs.Common
             return new FileInfo(Path.Combine(directory.FullName, file));
         }
 
-        public static DirectoryInfo GetSubDirectory(this DirectoryInfo directory, params string[] subDirectories)
-        {
-            if (directory == null) throw new ArgumentNullException("directory");
-            if (subDirectories == null) throw new ArgumentNullException("subDirectories");
+    public static DirectoryInfo GetSubDirectory(this DirectoryInfo directory, params string[] subDirectories)
+    {
+        if (directory == null) throw new ArgumentNullException("directory");
+        if (subDirectories == null) throw new ArgumentNullException("subDirectories");
 
-            var path = Path.Combine(directory.FullName, Path.Combine(subDirectories));
-            var sub = new DirectoryInfo(path);
-            return sub;
-        }
+        var path = Path.Combine(directory.FullName, Path.Combine(subDirectories));
+        var sub = new DirectoryInfo(path);
+        return sub;
+    }
 
         /// <summary>
         /// Attempts to open a file. 
