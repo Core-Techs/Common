@@ -530,7 +530,7 @@ namespace CoreTechs.Common.Database
         /// <summary>
         /// Maps all rows in the table to the specified type.
         /// </summary>
-        public static IEnumerable<T> AsEnumerable<T>(this DataTable dataTable) where T : class
+        public static IEnumerable<T> AsEnumerable<T>(this DataTable dataTable) where T : class, new()
         {
             if (dataTable == null) throw new ArgumentNullException("dataTable");
             return dataTable.AsEnumerable().Select(row => row.Create<T>());
@@ -539,7 +539,7 @@ namespace CoreTechs.Common.Database
         /// <summary>
         /// Maps all rows in each table in the data set to the specified type.
         /// </summary>
-        public static IEnumerable<T> AsEnumerable<T>(this DataSet dataSet) where T : class
+        public static IEnumerable<T> AsEnumerable<T>(this DataSet dataSet) where T : class, new()
         {
             if (dataSet == null) throw new ArgumentNullException("dataSet");
             return dataSet.AsEnumerable().Select(row => row.Create<T>());

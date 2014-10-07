@@ -19,7 +19,7 @@ namespace CoreTechs.Common
             var dispose = disposables
                 .Where(x => x != null)
                 .Aggregate<IDisposable, Action>(
-                    () => { },
+                    ()=>{},
                     (a, d) => () =>
                     {
                         using (d) a();
