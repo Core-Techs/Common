@@ -528,6 +528,26 @@ namespace CoreTechs.Common.Database
         }
 
         /// <summary>
+        /// Yields all rows from all tables in the dataset.
+        /// This is mostly useful when you have a dataset known to have a single table.
+        /// </summary>
+        public static IEnumerable<dynamic> AsDynamic(this DataSet dataset)
+        {
+            if (dataset == null) throw new ArgumentNullException("dataset");
+            return dataset.AsEnumerable().Select(x => x.AsDynamic());
+        }
+
+        /// <summary>
+        /// Yields all rows from all tables in the dataset.
+        /// This is mostly useful when you have a dataset known to have a single table.
+        /// </summary>
+        public static IEnumerable<dynamic> AsDynamic(this DataTable dataTable)
+        {
+            if (dataTable == null) throw new ArgumentNullException("dataTable");
+            return dataTable.AsEnumerable().Select(x => x.AsDynamic());
+        }
+
+        /// <summary>
         /// Maps all rows in the table to the specified type.
         /// </summary>
         public static IEnumerable<T> AsEnumerable<T>(this DataTable dataTable) where T : class, new()
