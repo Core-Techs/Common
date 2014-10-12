@@ -86,10 +86,11 @@ namespace CoreTechs.Common.Database
 
                 var value = row[col];
 
+                if (value == DBNull.Value)
+                    value = null;
+
                 if (!prop.PropertyType.IsAssignableFrom(col.DataType))
-                {
                     value = value.ConvertTo(prop.PropertyType);
-                }
 
                 prop.SetValue(destination, value == DBNull.Value ? null : value);
             }
