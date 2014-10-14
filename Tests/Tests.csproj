@@ -54,6 +54,7 @@
     <Compile Include="FileSystemTests.cs" />
     <Compile Include="MsgLoopTests.cs" />
     <Compile Include="DateTimeSpanTests.cs" />
+    <Compile Include="ReflectionTests.cs" />
     <Compile Include="StreamTests.cs" />
     <Compile Include="StringTests.cs" />
     <Compile Include="Text\CsvParsingTests.cs" />

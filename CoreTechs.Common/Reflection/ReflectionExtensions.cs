@@ -14,7 +14,7 @@ namespace CoreTechs.Common.Reflection
         public static PropertyInfo[] GetPropertiesAsDeclared(this Type type)
         {
             return Memoizer.InternalInstance.Value.Get(type, () => type.GetRuntimeProperties()
-                .Select(p => p.DeclaringType.GetRuntimeProperty(p.Name))
+                .Select(p => p.DeclaringType.GetRuntimeProperty(p.Name) ?? p)
                 .ToArray());
         }
 

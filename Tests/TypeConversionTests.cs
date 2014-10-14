@@ -26,12 +26,10 @@ namespace Tests
         {
             yield return ConversionCase("01:00:00", TimeSpan.FromHours(1));
 
-            var mybday = new DateTime(1984, 5, 10);
+            var mybday = new DateTime(1984, 5, 10).SpecifyKind(DateTimeKind.Local);
             yield return ConversionCase("may 10 1984", mybday, false);
             yield return ConversionCase(mybday.ToString(CultureInfo.CurrentCulture), mybday);
             yield return ConversionCase(mybday, new DateTimeOffset(mybday));
-
-
 
             foreach (var c in GetNumericConversionCases())
                 yield return c;
