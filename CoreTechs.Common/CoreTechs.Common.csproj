@@ -55,11 +55,13 @@
     <Compile Include="Database\DisconnectionScope.cs" />
     <Compile Include="Database\DynamicDataRow.cs" />
     <Compile Include="DisposableExtensions.cs" />
+    <Compile Include="EnumConverter.cs" />
     <Compile Include="EnumerableExtensions.cs" />
     <Compile Include="FileSystemExtensions.cs" />
     <Compile Include="Length.cs" />
     <Compile Include="MessageLoop.cs" />
     <Compile Include="Memoizer.cs" />
+    <Compile Include="DateTimeOffsetConverter.cs" />
     <Compile Include="NumberExtensions.cs" />
     <Compile Include="Predicate.cs" />
     <Compile Include="Reflection\ReflectionExtensions.cs" />

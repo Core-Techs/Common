@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using CoreTechs.Common;
 using NUnit.Framework;
 
@@ -8,6 +7,35 @@ namespace Tests
 {
     class TypeConversionTests
     {
+        public TypeConversionTests()
+        {
+            ConversionExtensions.RegisterAllCustomTypeConverters();
+        }
+
+        [Test]
+        public void CanConvertFromDbNull()
+        {
+            DBNull.Value.ConvertTo<object>();
+            DBNull.Value.ConvertTo<int?>();
+            DBNull.Value.ConvertTo<bool?>();
+            DBNull.Value.ConvertTo<double?>();
+            DBNull.Value.ConvertTo<decimal?>();
+            DBNull.Value.ConvertTo<long?>();
+        }
+
+        [Test]
+        [TestCase(new object[]{null, null})]
+        [TestCase(new object[]{5, DayOfWeek.Friday})]
+        [TestCase(new object[]{5L, DayOfWeek.Friday})]
+        public void CanConvertEnums(object i, DayOfWeek? expected)
+        {
+            var actual = i.ConvertTo<DayOfWeek?>();
+            Assert.AreEqual(expected, actual);
+
+            var actual2 = actual.ConvertTo<int?>();
+            Assert.AreEqual(i, actual2);
+        }
+
         [Test, TestCaseSource("GetConversionCases")]
         public void CanConvert(Type sourceType, object value, Type targetType, object expectedValue, bool recip)
         {
@@ -24,16 +52,16 @@ namespace Tests
 
         public IEnumerable<object[]> GetConversionCases()
         {
+            yield return ConversionCase(DayOfWeek.Friday, (int) DayOfWeek.Friday);
             yield return ConversionCase("01:00:00", TimeSpan.FromHours(1));
 
             var mybday = new DateTime(1984, 5, 10).SpecifyKind(DateTimeKind.Local);
             yield return ConversionCase("may 10 1984", mybday, false);
-            yield return ConversionCase(mybday.ToString(CultureInfo.CurrentCulture), mybday);
+            yield return ConversionCase("5/10/1984", mybday);
             yield return ConversionCase(mybday, new DateTimeOffset(mybday));
 
             foreach (var c in GetNumericConversionCases())
                 yield return c;
-
         }
 
         private IEnumerable<object[]> GetNumericConversionCases()

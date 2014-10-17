@@ -257,7 +257,11 @@ namespace CoreTechs.Common.Database
         {
             using (var cmd = CreateCommand(conn, sql, commandType, parameters))
             using (conn.Connect())
-                return (T)cmd.ExecuteScalar();
+            {
+                var scalar = cmd.ExecuteScalar(); 
+                var converted = scalar.ConvertTo<T>();
+                return converted;
+            }
         }
 
         /// <summary>
@@ -278,7 +282,11 @@ namespace CoreTechs.Common.Database
         {
             using (var cmd = CreateCommand(conn, sql, commandType, parameters))
             using (await conn.ConnectAsync(cancellationToken))
-                return (T)await cmd.ExecuteScalarAsync(cancellationToken);
+            {
+                var scalar = await cmd.ExecuteScalarAsync(cancellationToken);
+                var converted = scalar.ConvertTo<T>();
+                return converted;
+            }
         }
 
         /// <summary>
