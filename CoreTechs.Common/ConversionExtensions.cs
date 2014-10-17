@@ -47,7 +47,7 @@ namespace CoreTechs.Common
             if (targetType == typeof(string) && obj != null)
                 return obj.ToString();
 
-            var exceptions = new[] {attempt2, attempt3, attempt4}
+            var exceptions = new[] {attempt1, attempt2, attempt3, attempt4}
                 .Where(x => x != null)
                 .Select(x => x.Exception).ToArray();
 
