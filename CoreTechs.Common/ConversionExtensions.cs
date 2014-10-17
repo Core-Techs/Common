@@ -53,52 +53,5 @@ namespace CoreTechs.Common
 
             throw new InvalidCastException("Conversion failed", new AggregateException(exceptions));
         }
-
-  /*      public static object ConvertTo(this object obj, Type targetType)
-        {
-            if (targetType.IsInstanceOfType(obj))
-                return obj;
-
-            if (obj == DBNull.Value)
-                obj = null;
-
-            if (obj == null && (!targetType.IsValueType || targetType.IsNullable()))
-                return null;
-
-            var converter = TypeDescriptor.GetConverter(targetType);
-            
-            Exception changeTypeEx, convertEx;
-            object result;
-
-            try
-            {
-                result = converter.ConvertFrom(obj);
-                return result;
-            }
-            catch(Exception ex)
-            {
-                convertEx = ex;
-                // TypeDescriptor converter didn't work
-            }
-
-            if (targetType.IsNullable())
-                targetType = Nullable.GetUnderlyingType(targetType);
-
-            try
-            {
-                result = Convert.ChangeType(obj, targetType);
-                return result;
-            }
-            catch(Exception ex)
-            {
-                changeTypeEx = ex;
-                // Convert.ChangeType didn't work
-            }
-
-            if (targetType == typeof (string) && obj != null)
-                return obj.ToString();
-
-            throw new InvalidCastException("Conversion failed", new AggregateException(changeTypeEx, convertEx));
-        }*/
     }
 }
