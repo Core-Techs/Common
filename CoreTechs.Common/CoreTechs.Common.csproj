@@ -59,6 +59,7 @@
     <Compile Include="EnumerableExtensions.cs" />
     <Compile Include="FileSystemExtensions.cs" />
     <Compile Include="Length.cs" />
+    <Compile Include="LRUCache.cs" />
     <Compile Include="MessageLoop.cs" />
     <Compile Include="Memoizer.cs" />
     <Compile Include="DateTimeOffsetConverter.cs" />

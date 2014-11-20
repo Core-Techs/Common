@@ -52,6 +52,7 @@
     <Compile Include="DatabaseRelatedTests.cs" />
     <Compile Include="Enumerable\Tests.cs" />
     <Compile Include="FileSystemTests.cs" />
+    <Compile Include="LRUCacheTests.cs" />
     <Compile Include="MsgLoopTests.cs" />
     <Compile Include="DateTimeSpanTests.cs" />
     <Compile Include="ReflectionTests.cs" />
