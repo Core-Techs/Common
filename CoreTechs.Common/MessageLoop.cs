@@ -42,15 +42,19 @@ namespace CoreTechs.Common
 
             _task = Task.Run(() =>
             {
-                var getState = Attempt.Get(stateFactory);
+                T state;
 
-                if (getState.Failed)
+                try
                 {
-                    readyExitCtor.SetException(getState.Exception);
-                    throw getState.Exception;
+                    state = stateFactory();
+                }
+                catch (Exception ex)
+                {
+                    readyExitCtor.SetException(ex);
+                    throw;
                 }
 
-                using (disposeState ? getState as IDisposable : null)
+                using (disposeState ? state as IDisposable : null)
                 {
                     readyExitCtor.SetResult(true);
 
@@ -59,7 +63,7 @@ namespace CoreTechs.Common
                         var result = new MessageResult();
                         try
                         {
-                            result.Value = msg.Factory(getState.Value);
+                            result.Value = msg.Factory(state);
                         }
                         catch (Exception ex)
                         {
