@@ -11,7 +11,18 @@ namespace CoreTechs.Common
         /// Disposal exceptions will not prevent disposal of other elements.
         /// The entire enumerable will be traversed before the first disposal.
         /// </summary>
+        [Obsolete("Use DisposeAllTheThings instead!", true)]
         public static void Dispose(this IEnumerable<IDisposable> disposables)
+        {
+            disposables.DisposeAllTheThings();
+        }
+
+        /// <summary>
+        /// Disposes each IDisposable in enumerated order.
+        /// Disposal exceptions will not prevent disposal of other elements.
+        /// The entire enumerable will be traversed before the first disposal.
+        /// </summary>
+        public static void DisposeAllTheThings(this IEnumerable<IDisposable> disposables)
         {
             if (disposables == null)
                 throw new ArgumentNullException("disposables");
@@ -19,7 +30,7 @@ namespace CoreTechs.Common
             var dispose = disposables
                 .Where(x => x != null)
                 .Aggregate<IDisposable, Action>(
-                    ()=>{},
+                    () => { },
                     (a, d) => () =>
                     {
                         using (d) a();

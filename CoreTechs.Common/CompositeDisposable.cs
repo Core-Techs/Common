@@ -38,7 +38,7 @@ namespace CoreTechs.Common
 
             try
             {
-                _disposables.Dispose();
+                _disposables.DisposeAllTheThings();
             }
             finally
             {
