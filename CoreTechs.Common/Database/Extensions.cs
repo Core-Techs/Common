@@ -361,7 +361,7 @@ namespace CoreTechs.Common.Database
             if (conn == null) throw new ArgumentNullException("conn");
             if (sql == null) throw new ArgumentNullException("sql");
 
-            var dataset = new DataSet();
+            var dataset = new DataSet {EnforceConstraints = false};
             using (var cmd = CreateCommand(conn, sql, commandType, parameters))
             using (conn.Connect())
             using (var reader = cmd.ExecuteReader(commandBehavior))
@@ -387,7 +387,8 @@ namespace CoreTechs.Common.Database
             if (conn == null) throw new ArgumentNullException("conn");
             if (sql == null) throw new ArgumentNullException("sql");
 
-            var dataset = new DataSet();
+            var dataset = new DataSet {EnforceConstraints = false};
+            
             using (var cmd = CreateCommand(conn, sql, commandType, parameters))
             using (await conn.ConnectAsync(cancellationToken))
             using (var reader = await cmd.ExecuteReaderAsync(commandBehavior, cancellationToken))
@@ -520,8 +521,8 @@ namespace CoreTechs.Common.Database
             do
             {
                 var table = new DataTable();
+                dataset.Tables.Add(table); // add before load so dataset options take effect
                 table.Load(dataReader);
-                dataset.Tables.Add(table);
 
             } while (!dataReader.IsClosed);
         }
