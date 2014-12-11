@@ -505,8 +505,9 @@ namespace CoreTechs.Common.Database
             cmd.CommandType = cmdType;
             cmd.CommandText = sql;
 
-            foreach (var dbParameter in parameters)
-                cmd.Parameters.Add(dbParameter);
+            if(parameters != null)
+                foreach (var dbParameter in parameters)
+                    cmd.Parameters.Add(dbParameter);
 
             return cmd;
         }
