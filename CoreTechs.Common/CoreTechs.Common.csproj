@@ -47,13 +47,13 @@
     <Compile Include="BeepScope.cs" />
     <Compile Include="Characters.cs" />
     <Compile Include="CompositeDisposable.cs" />
-    <Compile Include="ConversionExtensions.cs" />
     <Compile Include="Database\ConnectionScope.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Database\Extensions.cs" />
     <Compile Include="DateTimeExtensions.cs" />
     <Compile Include="Database\DisconnectionScope.cs" />
     <Compile Include="Database\DynamicDataRow.cs" />
+    <Compile Include="DbNullConverter.cs" />
     <Compile Include="DisposableExtensions.cs" />
     <Compile Include="EnumConverter.cs" />
     <Compile Include="EnumerableExtensions.cs" />
@@ -90,6 +90,7 @@
     <Compile Include="Text\DelimitedTextExtensions.cs" />
     <Compile Include="Text\ICsvWritable.cs" />
     <Compile Include="Text\Record.cs" />
+    <Compile Include="ConversionExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

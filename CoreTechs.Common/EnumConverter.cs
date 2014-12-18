@@ -23,15 +23,7 @@ namespace CoreTechs.Common
 
         public static void Register()
         {
-            var converterType = typeof(EnumConverter);
-            Memoizer.InternalInstance.Value.Get(converterType,
-                () =>
-                {
-                    TypeDescriptor.AddAttributes(typeof (Enum),
-                        new TypeConverterAttribute(converterType));
-
-                    return 0;
-                });
+            ConversionExtensions.RegisterTypeConverter(typeof(EnumConverter), typeof(Enum));
         }
 
         public EnumConverter(Type type)

@@ -1,57 +1,152 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
+using CoreTechs.Common.Reflection;
 
 namespace CoreTechs.Common
 {
     public static class ConversionExtensions
     {
+        public static void RegisterTypeConverter(Type typeConverterType, Type appliedToType)
+        {
+            if (typeConverterType == null) throw new ArgumentNullException("typeConverter");
+            if (appliedToType == null) throw new ArgumentNullException("appliedToType");
+
+            if (!typeof (TypeConverter).IsAssignableFrom(typeConverterType))
+                throw new ArgumentOutOfRangeException("typeConverterType",
+                    string.Format("{1} is not assignable from {0}", typeConverterType.FullName,
+                        typeof (TypeConverter).FullName));
+
+            var cacheKey = new
+            {
+                typeConverterType,
+                appliedToType
+            };
+
+            // using Cache to ensure one time registration
+            Cache.Get(cacheKey,
+                () => TypeDescriptor.AddAttributes(appliedToType, new TypeConverterAttribute(typeConverterType)));
+
+        }
+
+
         public static void RegisterAllCustomTypeConverters()
         {
+            DbNullConverter.Register();
             DateTimeOffsetConverter.Register();
             EnumConverter.Register();
         }
 
-        public static T ConvertTo<T>(this object obj)
+        private static Memoizer Cache
         {
-            var converted = obj.ConvertTo(typeof (T));
-            return (T) converted;
+            get { return Memoizer.InternalInstance.Value; }
         }
 
-        public static object ConvertTo(this object obj, Type targetType)
+        public static T ConvertTo<T>(this object value)
         {
-            if (targetType.IsInstanceOfType(obj))
-                return obj;
+            return (T)value.ConvertTo(typeof(T));
+        }
 
-            if (obj == DBNull.Value)
-                obj = null;
+        public static object ConvertTo(this object value, Type destinationType)
+        {
+            if (destinationType == null) throw new ArgumentNullException("destinationType");
 
-            var targetConv = TypeDescriptor.GetConverter(targetType);
-            TypeConverter sourceConv = obj != null ? TypeDescriptor.GetConverter(obj.GetType()) : null;
+            if (destinationType.IsInstanceOfType(value))
+                return value;
 
-            var attempt1 = Attempt.Get(() => targetConv.ConvertFrom(obj));
-            if (attempt1.Succeeded)
-                return attempt1.Value;
+            // if the dest type can contain null
+            // and the value is null
+            // just return null
+            var destCanStoreNull = !destinationType.IsValueType || destinationType.IsNullable();
+            if (destCanStoreNull && value == null)
+                return null;
 
-            Attempt<object> attempt2 = null;
-            if (sourceConv != null)
-                attempt2 = Attempt.Get(() => sourceConv.ConvertTo(obj, targetType));
+            if (value == null)
+                throw new ArgumentNullException("value");
 
-            if (attempt2 != null && attempt2.Succeeded)
-                return attempt2.Value;
+            var sourceType = value.GetType();
+            var cacheKey = new
+            {
+                sourceType,
+                destinationType
+            };
 
-            var attempt3 = Attempt.Get(() => Convert.ChangeType(obj, targetType));
-            if (attempt3.Succeeded)
-                return attempt3.Value;
+            var converted = false;
+            object convertedValue = null;
+            var exs = new List<Exception>();
 
-            if (targetType == typeof(string) && obj != null)
-                return obj.ToString();
+            var converter = Cache.Get(cacheKey,
+                () =>
+                {
+                    foreach (var func in GetConversionFuncs(sourceType, destinationType))
+                    {
+                        try
+                        {
+                            convertedValue = func(value);
+                            converted = true;
+                            return func;
+                        }
+                        catch (Exception ex)
+                        {
+                            exs.Add(ex);
+                        }
+                    }
 
-            var exceptions = new[] { attempt1, attempt2, attempt3}
-                .Where(x => x != null)
-                .Select(x => x.Exception).ToArray();
+                    return null;
+                });
 
-            throw new InvalidCastException("Conversion failed", new AggregateException(exceptions));
+            if (converter == null)
+                throw new AggregateException(exs);
+
+            return converted ? convertedValue : converter(value);
+        }
+
+        private static IEnumerable<Func<object, object>> GetConversionFuncs(Type sourceType, Type destType)
+        {
+            // if the types are compatible, don't convert
+            if (destType.IsAssignableFrom(sourceType))
+                yield return x => x;
+
+            foreach (var f in GetCoreConversionFuncs(sourceType, destType))
+                yield return f;
+
+            if (sourceType.IsNullable())
+                foreach (var f in GetCoreConversionFuncs(Nullable.GetUnderlyingType(sourceType), destType))
+                    yield return f;
+
+            if (destType.IsNullable())
+                foreach (var f in GetCoreConversionFuncs(sourceType, Nullable.GetUnderlyingType(destType)))
+                    yield return f;
+
+            if (sourceType.IsNullable() && destType.IsNullable())
+                foreach (var f in GetCoreConversionFuncs(
+                    Nullable.GetUnderlyingType(sourceType),
+                    Nullable.GetUnderlyingType(destType)))
+                    yield return f;
+
+            // last ditch effort:
+            // if the destination is string
+            // call tostring
+            if (destType == typeof(string))
+                yield return x => x == null ? null : x.ToString();
+        }
+
+        private static IEnumerable<Func<object, object>> GetCoreConversionFuncs(Type sourceType, Type destType)
+        {
+            yield return x =>
+            {
+                var converter = TypeDescriptor.GetConverter(destType);
+                return converter.ConvertFrom(x);
+            };
+
+            yield return x =>
+            {
+                var converter = TypeDescriptor.GetConverter(sourceType);
+                return converter.ConvertTo(x, destType);
+            };
+
+            yield return x => Convert.ChangeType(x, destType);
+
         }
     }
 }

@@ -11,15 +11,7 @@ namespace CoreTechs.Common
     {
         public static void Register()
         {
-            var converterType = typeof(DateTimeOffsetConverter);
-            Memoizer.InternalInstance.Value.Get(converterType,
-                () =>
-                {
-                    TypeDescriptor.AddAttributes(typeof(DateTimeOffset),
-                        new TypeConverterAttribute(converterType));
-
-                    return 0;
-                });
+            ConversionExtensions.RegisterTypeConverter(typeof(DateTimeOffsetConverter), typeof(DateTimeOffset));
         }
 
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)

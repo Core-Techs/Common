@@ -25,7 +25,7 @@ namespace CoreTechs.Common
         /// <param name="namespace">
         /// A namespace for the cache key. 
         /// This is automatically set to the caller's member name when no value is passed in.</param>
-        public T Get<T>(object keyData,Func<T> factory,  [CallerMemberName] string @namespace = null)
+        public T Get<T>(object keyData, Func<T> factory,  [CallerMemberName] string @namespace = null)
         {
             var cacheKey = new {@namespace, keyData};
             return (T) Cache.GetOrAdd(cacheKey, _ => factory());
