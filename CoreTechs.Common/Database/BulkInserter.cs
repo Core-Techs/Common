@@ -188,7 +188,10 @@ namespace CoreTechs.Common.Database
                 cmd.CommandText = string.Format("select top 0 * from {0}", _sbc.DestinationTableName);
 
                 using (var reader = cmd.ExecuteReader())
+                {
                     dt.Load(reader);
+                    reader.Close();
+                }
             }
 
             if (RemoveColumns != null)

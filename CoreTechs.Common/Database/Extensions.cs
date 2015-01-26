@@ -365,7 +365,10 @@ namespace CoreTechs.Common.Database
             using (var cmd = CreateCommand(conn, sql, commandType, parameters))
             using (conn.Connect())
             using (var reader = cmd.ExecuteReader(commandBehavior))
+            {
                 dataset.Load(reader);
+                reader.Close();
+            }
 
             return dataset;
         }
@@ -392,7 +395,10 @@ namespace CoreTechs.Common.Database
             using (var cmd = CreateCommand(conn, sql, commandType, parameters))
             using (await conn.ConnectAsync(cancellationToken))
             using (var reader = await cmd.ExecuteReaderAsync(commandBehavior, cancellationToken))
+            {
                 dataset.Load(reader);
+                reader.Close();
+            }
 
             return dataset;
         }
