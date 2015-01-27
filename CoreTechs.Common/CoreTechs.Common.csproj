@@ -59,6 +59,7 @@
     <Compile Include="EnumConverter.cs" />
     <Compile Include="EnumerableExtensions.cs" />
     <Compile Include="FileSystemExtensions.cs" />
+    <Compile Include="GenericDisposable.cs" />
     <Compile Include="Length.cs" />
     <Compile Include="LRUCache.cs" />
     <Compile Include="MessageLoop.cs" />

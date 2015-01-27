@@ -38,5 +38,10 @@ namespace CoreTechs.Common
 
             dispose();
         }
+
+        public static GenericDisposable<T> AsDisposable<T>(this T obj, Action<T> onDispose)
+        {
+            return new GenericDisposable<T>(obj, onDispose);
+        }
     }
 }
