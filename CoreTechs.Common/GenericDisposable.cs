@@ -17,10 +17,12 @@ namespace CoreTechs.Common
 
         public void Dispose()
         {
+            if (Disposed)
+                return;
             lock (_mutex)
             {
                 if (Disposed)
-                    throw new ObjectDisposedException("Already disposed");
+                    return;
 
                 try
                 {
