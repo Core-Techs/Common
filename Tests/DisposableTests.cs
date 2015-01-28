@@ -26,13 +26,16 @@ namespace Tests
         }
 
         [Test]
-        public void CantDisposeGenericDisposableMoreThanOnce()
+        public void CanDisposeGenericDisposableMoreThanOnceWithNoEffect()
         {
-            var d = this.AsDisposable(_ => { });
+            var num = 0;
+            var d = this.AsDisposable(_ => { ++num; });
             Assert.False(d.Disposed);
             d.Dispose();
+            Assert.AreEqual(num, 1);
             Assert.True(d.Disposed);
-            Assert.Throws<ObjectDisposedException>(() => d.Dispose());
+            d.Dispose();
+            Assert.AreEqual(num, 1);
         }
     }
 }
