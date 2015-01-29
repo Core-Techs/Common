@@ -149,5 +149,15 @@ namespace CoreTechs.Common
         {
             return !Equals(left, right);
         }
+
+        public static ByteSize operator +(ByteSize left, ByteSize right)
+        {
+            return new ByteSize(left.Bytes + right.Bytes);
+        }
+
+        public static ByteSize operator -(ByteSize left, ByteSize right)
+        {
+            return new ByteSize(left.Bytes - right.Bytes);
+        }
     }
 }
