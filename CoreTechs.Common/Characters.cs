@@ -122,7 +122,7 @@ namespace CoreTechs.Common
             public const string AllLetters = LowerLetters + UpperLetters;
             public const string AllLettersAndDigits = AllLetters + Digits;
             public const string Symbols = "~`$^+=<>|";
-            public const string Punctuation = @"!@#%&*()_-?,./:"";'{}[]\'";
+            public const string Punctuation = @"!@#%&*()_-?,./:"";'{}[]\";
             public const string All = AllLettersAndDigits + Symbols + Punctuation;
         }
     }
