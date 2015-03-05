@@ -307,5 +307,36 @@ namespace CoreTechs.Common
         {
             return Regex.Replace(input, pattern, replacement, options);
         }
+
+        /// <summary>
+        /// Converts a sequence of hex characters to bytes.
+        /// Non hex characters are treated as delimiters.
+        /// Groups of hex characters will be split on every 2nd character.
+        /// Any sequence of characters will produce a sequence of bytes.
+        /// Examples of the following input will produce [25,75,125,175,225].
+        ///     19-4B-7D-AF-E1
+        ///     19:4B:7D:AF:E1
+        ///     19 4B 7D AF E1
+        ///     19xyz4Bxyz7DxyzAFxyzE1
+        /// </summary>
+        /// <param name="chars"></param>
+        /// <returns></returns>
+        public static IEnumerable<byte> AsHexBytes(this IEnumerable<char> chars)
+        {
+            if (chars == null) throw new ArgumentNullException("chars");
+
+            return chars.Select(char.ToUpperInvariant)
+                // sequence is uppercase
+
+                .SplitWhere(c => !(c >= 'A' && c <= 'F' || c >= '0' && c <= '9'))
+                // sequence is split on non-hex characters
+
+                .SelectMany(c => c.Buffer(2))
+                .Select(cs => string.Concat(cs))
+                // sequence is strings of length 1 or 2
+
+                .Select(x => Convert.ToByte(x, 16));
+            // sequence is bytes
+        }
     }
 }

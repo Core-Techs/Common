@@ -217,7 +217,8 @@ namespace CoreTechs.Common
         /// The starting position is returned to once a target is found or the end of the stream is reached.
         /// </summary>
         /// <param name="targetFound">The string that was found first or null if no target was found.</param>
-        public static long CountBytesUntilAny(this Stream stream, string[] targets, out string targetFound, Encoding encoding = null)
+        public static long CountBytesUntilAny(this Stream stream, string[] targets, out string targetFound,
+            Encoding encoding = null)
         {
             encoding = encoding ?? Encoding.Default;
             var bytes = targets.Select(x => encoding.GetBytes(x)).ToArray();
@@ -234,7 +235,8 @@ namespace CoreTechs.Common
         /// <param name="positionAfterTarget">True to seek to the end of the target after enumeration; false to keep position at beginning of target.</param>
         /// <param name="encoding">The encoding used to decode the target string.</param>
         /// <returns>An enumerable of bytes.</returns>
-        public static IEnumerable<byte> EnumerateBytesUntil(this Stream stream, string target, bool positionAfterTarget = false, Encoding encoding = null)
+        public static IEnumerable<byte> EnumerateBytesUntil(this Stream stream, string target,
+            bool positionAfterTarget = false, Encoding encoding = null)
         {
             return EnumerateBytesUntilAny(stream, new[] { target }, positionAfterTarget, encoding);
         }
@@ -246,7 +248,8 @@ namespace CoreTechs.Common
         /// <param name="target">The target to search for.</param>
         /// <param name="positionAfterTarget">True to seek to the end of the target after enumeration; false to keep position at beginning of target.</param>
         /// <returns>An enumerable of bytes.</returns>
-        public static IEnumerable<byte> EnumerateBytesUntil(this Stream stream, byte[] target, bool positionAfterTarget = false)
+        public static IEnumerable<byte> EnumerateBytesUntil(this Stream stream, byte[] target,
+            bool positionAfterTarget = false)
         {
             return EnumerateBytesUntilAny(stream, new[] { target }, positionAfterTarget);
         }
@@ -259,7 +262,8 @@ namespace CoreTechs.Common
         /// <param name="targets">The targets to search for.</param>
         /// <param name="positionAfterTarget">True to seek to the end of the found target after enumeration; false to keep position at beginning of target.</param>
         /// <returns>An enumerable of bytes.</returns>
-        public static IEnumerable<byte> EnumerateBytesUntilAny(this Stream stream, byte[][] targets, bool positionAfterTarget = false)
+        public static IEnumerable<byte> EnumerateBytesUntilAny(this Stream stream, byte[][] targets,
+            bool positionAfterTarget = false)
         {
             byte[] targetFound;
             var count = stream.CountBytesUntilAny(targets, out targetFound);
@@ -278,7 +282,8 @@ namespace CoreTechs.Common
         /// <param name="positionAfterTarget">True to seek to the end of the found target after enumeration; false to keep position at beginning of target.</param>
         /// <param name="encoding">The encoding used to decode the target strings.</param>
         /// <returns>An enumerable of bytes.</returns>
-        public static IEnumerable<byte> EnumerateBytesUntilAny(this Stream stream, string[] targets, bool positionAfterTarget = false, Encoding encoding = null)
+        public static IEnumerable<byte> EnumerateBytesUntilAny(this Stream stream, string[] targets,
+            bool positionAfterTarget = false, Encoding encoding = null)
         {
             string targetFound;
             var count = stream.CountBytesUntilAny(targets, out targetFound, encoding);
