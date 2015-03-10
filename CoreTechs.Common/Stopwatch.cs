@@ -1,14 +1,15 @@
 ﻿using System;
+using Debug = System.Diagnostics.Debug;
 
 namespace CoreTechs.Common
 {
     /// <summary>
-    /// Much like System.Diagnostics.Stopwatch, but you can set the started and stopped times directly.
+    /// Much like System.Diagnostics.Stopwatch, but the time elapsed can be directly manipulated.
     /// </summary>
     public class Stopwatch
     {
         public DateTimeOffset? Started { get; set; }
-        public DateTimeOffset? Stopped { get; set; }
+        private TimeSpan _time = TimeSpan.Zero;
 
         public static Stopwatch StartNew()
         {
@@ -19,42 +20,49 @@ namespace CoreTechs.Common
 
         public bool IsRunning
         {
-            get
-            {
-                return Started.HasValue && !Stopped.HasValue;
-            }
+            get { return Started.HasValue; }
         }
 
         public TimeSpan Elapsed
         {
             get
             {
-                if (Started == null)
-                    return TimeSpan.Zero;
+                if (!IsRunning) return _time;
 
-                if (Stopped == null)
-                    return DateTimeOffset.Now - Started.Value;
+                Debug.Assert(Started != null, "Started != null");
+                return _time + (DateTimeOffset.Now - Started.Value);
+            }
+            set
+            {
+                _time = value;
 
-                return Stopped.Value - Started.Value;
+                if (IsRunning)
+                    Started = DateTimeOffset.Now;
             }
         }
 
         public void Start()
         {
-            if (IsRunning) return;
+            if (IsRunning) 
+                return;
+
             Started = DateTimeOffset.Now;
-            Stopped = null;
         }
 
         public void Stop()
         {
-            if (!IsRunning) return;
-            Stopped = DateTimeOffset.Now;
+            if (!IsRunning)
+                return;
+
+            Debug.Assert(Started != null, "Started != null");
+            _time += (DateTimeOffset.Now - Started.Value);
+            Started = null;
         }
 
         public void Reset()
         {
-            Started = Stopped = null;
+            Started = null;
+            _time = TimeSpan.Zero;
         }
 
         public void Restart()
