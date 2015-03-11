@@ -130,6 +130,7 @@ namespace Tests.Text
                 var it = rdr.ReadCsvWithHeader().GetEnumerator();
 
                 var record = it.GetNextOrDefault();
+
                 Assert.AreEqual("Ronnie", record["Name"]);
                 Assert.AreEqual("30", record["Age"]);
                 Assert.AreEqual("Male", record["Gender"]);
