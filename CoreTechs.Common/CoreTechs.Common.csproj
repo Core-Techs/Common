@@ -47,6 +47,7 @@
     <Compile Include="BeepScope.cs" />
     <Compile Include="ByteSize.cs" />
     <Compile Include="Characters.cs" />
+    <Compile Include="PreFetchingEnumerable.cs" />
     <Compile Include="CompositeDisposable.cs" />
     <Compile Include="Database\ConnectionScope.cs" />
     <Compile Include="Constants.cs" />

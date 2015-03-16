@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace CoreTechs.Common
 {
@@ -226,6 +227,26 @@ namespace CoreTechs.Common
             }
 
             if (accumulated.Any()) yield return accumulated.ToArray();
+        }
+
+        /// <summary>
+        /// Wraps another <see cref="IEnumerable{T}"/> so that a background task can
+        /// pre-fetch items from the underlying sequence into a buffer that the consumer
+        /// can then enumerate.
+        /// </summary>
+        /// <param name="source">
+        /// The underlying enumerable sequence. 
+        /// The source sequence is enumerated on demand (when the wrapping <see cref="PreFetchingEnumerable{T}"/> is enumerated).</param>
+        /// <param name="capacity">
+        /// The bounded capacity for the buffer.
+        /// When set to null, the background task will enumerate the source without pausing to wait on the consumer to read from the buffer.
+        /// The default value of 2 allows the producer thread to pre-fetch a single element before it is requested by the consumer.
+        /// Increasing the value will allow more items to be pre-fetched from the source enumerable.
+        /// Be careful to not exhaust memory resources.
+        /// </param>
+        public static PreFetchingEnumerable<T> PreFetch<T>(this IEnumerable<T> source, int? capacity = 2)
+        {
+            return new PreFetchingEnumerable<T>(source, capacity);
         }
     }
 }
