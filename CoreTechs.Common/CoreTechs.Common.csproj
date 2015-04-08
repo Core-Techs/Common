@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BeepScope.cs" />
+    <Compile Include="BufferedEnumerator.cs" />
     <Compile Include="ByteSize.cs" />
     <Compile Include="Characters.cs" />
     <Compile Include="PreFetchingEnumerable.cs" />

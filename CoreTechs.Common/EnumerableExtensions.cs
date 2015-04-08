@@ -248,5 +248,12 @@ namespace CoreTechs.Common
         {
             return new PreFetchingEnumerable<T>(source, capacity);
         }
+
+        public static BufferedEnumerator<T> GetBufferedEnumerator<T>(this IEnumerable<T> enumerable, int? capacity = null)
+        {
+            if (enumerable == null) throw new ArgumentNullException("enumerable");
+
+            return new BufferedEnumerator<T>(enumerable.GetEnumerator(), capacity, true);
+        }
     }
 }
