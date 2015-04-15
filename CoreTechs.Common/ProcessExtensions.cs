@@ -21,6 +21,7 @@ namespace CoreTechs.Common
             var info = process.StartInfo;
             info.UseShellExecute = false;
             info.CreateNoWindow = true;
+            info.ErrorDialog = false;
 
             if (onOutput == null)
                 return process.Start();
@@ -34,8 +35,8 @@ namespace CoreTechs.Common
 
             info.RedirectStandardOutput = true;
             info.RedirectStandardError = true;
-            process.OutputDataReceived += (s, e) => onOutput(new ProcessOutput(e.Data, false));
-            process.ErrorDataReceived += (s, e) => onOutput(new ProcessOutput(e.Data, true));
+            process.OutputDataReceived += (s, e) => { if (e.Data != null) onOutput(new ProcessOutput(e.Data, false)); };
+            process.ErrorDataReceived += (s, e) => { if (e.Data != null) onOutput(new ProcessOutput(e.Data, true)); };
 
             var started = process.Start();
             process.BeginOutputReadLine();
