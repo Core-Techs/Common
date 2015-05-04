@@ -98,5 +98,75 @@ namespace CoreTechs.Common
         {
             return new DateTimeOffset(dt);
         }
+
+        public static DateTime SetYear(this DateTime dt, int year)
+        {
+            return new DateTime(year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, dt.Millisecond);
+        }
+
+        public static DateTime SetMonth(this DateTime dt, int month)
+        {
+            return new DateTime(dt.Year, month, dt.Day, dt.Hour, dt.Minute, dt.Second, dt.Millisecond);
+        }
+
+        public static DateTime SetDay(this DateTime dt, int day)
+        {
+            return new DateTime(dt.Year, dt.Month, day, dt.Hour, dt.Minute, dt.Second, dt.Millisecond);
+        }
+
+        public static DateTime SetHour(this DateTime dt, int hour)
+        {
+            return new DateTime(dt.Year, dt.Month, dt.Day, hour, dt.Minute, dt.Second, dt.Millisecond);
+        }
+
+        public static DateTime SetMinute(this DateTime dt, int minute)
+        {
+            return new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, minute, dt.Second, dt.Millisecond);
+        }
+
+        public static DateTime SetSecond(this DateTime dt, int second)
+        {
+            return new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, second, dt.Millisecond);
+        }
+
+        public static DateTime SetMillisecond(this DateTime dt, int millisecond)
+        {
+            return new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, millisecond);
+        }
+
+        public static DateTimeOffset SetYear(this DateTimeOffset dt, int year)
+        {
+            return new DateTimeOffset(year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, dt.Millisecond,dt.Offset);
+        }
+
+        public static DateTimeOffset SetMonth(this DateTimeOffset dt, int month)
+        {
+            return new DateTimeOffset(dt.Year, month, dt.Day, dt.Hour, dt.Minute, dt.Second, dt.Millisecond, dt.Offset);
+        }
+
+        public static DateTimeOffset SetDay(this DateTimeOffset dt, int day)
+        {
+            return new DateTimeOffset(dt.Year, dt.Month, day, dt.Hour, dt.Minute, dt.Second, dt.Millisecond, dt.Offset);
+        }
+
+        public static DateTimeOffset SetHour(this DateTimeOffset dt, int hour)
+        {
+            return new DateTimeOffset(dt.Year, dt.Month, dt.Day, hour, dt.Minute, dt.Second, dt.Millisecond, dt.Offset);
+        }
+
+        public static DateTimeOffset SetMinute(this DateTimeOffset dt, int minute)
+        {
+            return new DateTimeOffset(dt.Year, dt.Month, dt.Day, dt.Hour, minute, dt.Second, dt.Millisecond, dt.Offset);
+        }
+
+        public static DateTimeOffset SetSecond(this DateTimeOffset dt, int second)
+        {
+            return new DateTimeOffset(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, second, dt.Millisecond, dt.Offset);
+        }
+
+        public static DateTimeOffset SetMillisecond(this DateTimeOffset dt, int millisecond)
+        {
+            return new DateTimeOffset(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, millisecond, dt.Offset);
+        }
     }
 }
