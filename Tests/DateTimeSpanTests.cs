@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Data;
 using CoreTechs.Common;
-using CoreTechs.Common.Database;
 using NUnit.Framework;
 
 namespace Tests

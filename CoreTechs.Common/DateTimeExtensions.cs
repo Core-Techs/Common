@@ -168,5 +168,10 @@ namespace CoreTechs.Common
         {
             return new DateTimeOffset(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, millisecond, dt.Offset);
         }
+
+        public static TimeSpan Abs(this TimeSpan timeSpan)
+        {
+            return timeSpan < TimeSpan.Zero ? timeSpan.Negate() : timeSpan;
+        }
     }
 }

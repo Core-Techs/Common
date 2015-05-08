@@ -6,12 +6,12 @@ namespace CoreTechs.Common
     {
         private readonly object _mutex = new object();
         private readonly Action<T> _onDispose;
-        private T _obj;
+        public T Value { get; private set; }
         public bool Disposed { get; private set; }
 
-        public GenericDisposable(T obj, Action<T> onDispose)
+        public GenericDisposable(T value, Action<T> onDispose)
         {
-            _obj = obj;
+            Value = value;
             _onDispose = onDispose;
         }
 
@@ -19,22 +19,16 @@ namespace CoreTechs.Common
         {
             if (Disposed)
                 return;
+
             lock (_mutex)
             {
                 if (Disposed)
                     return;
 
-                try
-                {
-                    if (_onDispose != null)
-                        _onDispose(_obj);
+                if (_onDispose != null)
+                    _onDispose(Value);
 
-                    Disposed = true;
-                }
-                finally
-                {
-                    _obj = default(T);
-                } 
+                Disposed = true;
             }
         }
     }
