@@ -9,6 +9,16 @@ namespace CoreTechs.Common
 {
     public static class SortingExtensions
     {
+        public static IOrderedEnumerable<T> Order<T>(this IEnumerable<T> source) where T: IComparable
+        {
+            return source.OrderBy(x => x);
+        }
+
+        public static IOrderedEnumerable<T> OrderDescending<T>(this IEnumerable<T> source) where T : IComparable
+        {
+            return source.OrderByDescending(x => x);
+        }
+
         public static IOrderedQueryable<T> OrderBy<T>(this IQueryable<T> source, params string[] sortExpressions)
         {
             return source.OrderBy(sortExpressions.Select(SortDescriptor.Parse));
