@@ -268,6 +268,8 @@ namespace CoreTechs.Common
 
             if (tailLength == null)
             {
+                // tail length is count - 1
+
                 foreach (var item in seq.Take(1))
                     yield return item;
 
@@ -276,6 +278,19 @@ namespace CoreTechs.Common
 
             if (tailLength < 0)
                 throw new ArgumentOutOfRangeException("tailLength");
+
+            var arr = seq as IList<T>;
+            if (arr != null)
+            {
+                // count is known. no need to buffer.
+
+                for (var i = 0; i < arr.Count - tailLength; i++)
+                    yield return arr[i];
+
+                yield break;
+            }
+
+            // count is unknown. store items in the linked list.
 
             var list = new LinkedList<T>();
 
@@ -289,6 +304,50 @@ namespace CoreTechs.Common
                     list.RemoveFirst();
                 }
             }
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="seq">The source sequence</param>
+        /// <param name="tailLength">The length of the tail.</param>
+        public static IEnumerable<T> Tail<T>(this IEnumerable<T> seq, int? tailLength = null)
+        {
+            if (seq == null) 
+                throw new ArgumentNullException("seq");
+
+            if (tailLength == null)
+            {
+                foreach (var item in seq.Skip(1))
+                    yield return item;
+
+                yield break;
+            }
+
+            var arr = seq as IList<T>;
+            if (arr != null)
+            {
+                // count is known. no need to buffer.
+
+                for (var i = arr.Count - tailLength.Value; i < arr.Count; i++)
+                    yield return arr[i];
+
+                yield break;
+            }
+
+            // count is unknown. store items into the linked list.
+
+            var list = new LinkedList<T>();
+
+            foreach (var item in seq)
+            {
+                list.AddLast(item);
+
+                if (list.Count > tailLength)
+                    list.RemoveFirst();
+            }
+
+            foreach (var item in list)
+                yield return item;
         }
     }
 }
