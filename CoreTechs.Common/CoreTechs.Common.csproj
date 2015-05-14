@@ -70,6 +70,7 @@
     <Compile Include="NumberExtensions.cs" />
     <Compile Include="Predicate.cs" />
     <Compile Include="ProcessExtensions.cs" />
+    <Compile Include="RangeExtensions.cs" />
     <Compile Include="Reflection\ReflectionExtensions.cs" />
     <Compile Include="RepeatScope.cs" />
     <Compile Include="ObjectExtensions.cs" />

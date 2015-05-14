@@ -255,5 +255,43 @@ namespace CoreTechs.Common
 
             return new BufferedEnumerator<T>(enumerable.GetEnumerator(), capacity, true);
         }
+
+        /// <summary>
+        /// Produces a sequence that excludes the last elements of the source sequence.
+        /// </summary>
+        /// <param name="seq">The source sequence</param>
+        /// <param name="tailLength">The length of the tail to be excluded.</param>
+        public static IEnumerable<T> ExceptTail<T>(this IEnumerable<T> seq, int? tailLength = null)
+        {
+            if (seq == null) 
+                throw new ArgumentNullException("seq");
+
+            if (tailLength == null)
+            {
+                foreach (var item in seq.Take(1))
+                    yield return item;
+
+                yield break;
+            }
+
+            if (tailLength < 0)
+                throw new ArgumentOutOfRangeException("tailLength");
+
+            var list = new LinkedList<T>();
+
+            using (var it = seq.GetEnumerator())
+            {
+                while (it.MoveNext())
+                {
+                    list.AddLast(it.Current);
+
+                    if (list.Count > tailLength)
+                    {
+                        yield return list.First.Value;
+                        list.RemoveFirst();
+                    }
+                }
+            }
+        }
     }
 }
