@@ -279,17 +279,14 @@ namespace CoreTechs.Common
 
             var list = new LinkedList<T>();
 
-            using (var it = seq.GetEnumerator())
+            foreach (var item in seq)
             {
-                while (it.MoveNext())
-                {
-                    list.AddLast(it.Current);
+                list.AddLast(item);
 
-                    if (list.Count > tailLength)
-                    {
-                        yield return list.First.Value;
-                        list.RemoveFirst();
-                    }
+                if (list.Count > tailLength)
+                {
+                    yield return list.First.Value;
+                    list.RemoveFirst();
                 }
             }
         }
