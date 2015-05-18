@@ -188,7 +188,7 @@ namespace CoreTechs.Common.Database
             if (conn == null) throw new ArgumentNullException("conn");
             if (sql == null) throw new ArgumentNullException("sql");
 
-            return Scalar<T>(conn, sql, CommandType.Text, parameters);
+            return Scalar<T>(conn, sql, CommandType.Text, null, parameters);
         }
 
         /// <summary>
@@ -210,7 +210,7 @@ namespace CoreTechs.Common.Database
             if (conn == null) throw new ArgumentNullException("conn");
             if (sql == null) throw new ArgumentNullException("sql");
 
-            return ScalarAsync<T>(conn, sql, CommandType.Text, cancellationToken, parameters);
+            return ScalarAsync<T>(conn, sql, CommandType.Text, null, cancellationToken, parameters);
         }
 
         /// <summary>
@@ -222,7 +222,7 @@ namespace CoreTechs.Common.Database
             if (conn == null) throw new ArgumentNullException("conn");
             if (procedureName == null) throw new ArgumentNullException("procedureName");
 
-            return Scalar<T>(conn, procedureName, CommandType.StoredProcedure, parameters);
+            return Scalar<T>(conn, procedureName, CommandType.StoredProcedure,null, parameters);
         }
 
 
@@ -245,20 +245,20 @@ namespace CoreTechs.Common.Database
             if (conn == null) throw new ArgumentNullException("conn");
             if (procedureName == null) throw new ArgumentNullException("procedureName");
 
-            return ScalarAsync<T>(conn, procedureName, CommandType.StoredProcedure, cancellationToken, parameters);
+            return ScalarAsync<T>(conn, procedureName, CommandType.StoredProcedure, null, cancellationToken, parameters);
         }
 
         /// <summary>
         /// Executes the sql query and returns the first value in the first row of the result.
         /// </summary>
         /// <exception cref="DataException">Thrown if no rows are returned for the query.</exception>
-        public static T Scalar<T>(this IDbConnection conn, string sql, CommandType commandType,
+        public static T Scalar<T>(this IDbConnection conn, string sql, CommandType commandType, TimeSpan? commandTimeout,
             params DbParameter[] parameters)
         {
-            using (var cmd = CreateCommand(conn, sql, commandType, parameters))
+            using (var cmd = CreateCommand(conn, sql, commandType, commandTimeout, parameters))
             using (conn.Connect())
             {
-                var scalar = cmd.ExecuteScalar(); 
+                var scalar = cmd.ExecuteScalar();
                 var converted = scalar.ConvertTo<T>();
                 return converted;
             }
@@ -268,19 +268,19 @@ namespace CoreTechs.Common.Database
         /// Executes the sql query and returns the first value in the first row of the result.
         /// </summary>
         /// <exception cref="DataException">Thrown if no rows are returned for the query.</exception>
-        public static Task<T> ScalarAsync<T>(this IDbConnection conn, string sql, CommandType commandType,
+        public static Task<T> ScalarAsync<T>(this IDbConnection conn, string sql, CommandType commandType, TimeSpan? commandTimeout,
             params DbParameter[] parameters)
         {
-            return conn.ScalarAsync<T>(sql, commandType, CancellationToken.None, parameters);
+            return conn.ScalarAsync<T>(sql, commandType, commandTimeout, CancellationToken.None, parameters);
         }
 
         /// <summary>
         /// Executes the sql query and returns the first value in the first row of the result.
         /// </summary>
         /// <exception cref="DataException">Thrown if no rows are returned for the query.</exception>
-        public static async Task<T> ScalarAsync<T>(this IDbConnection conn, string sql, CommandType commandType, CancellationToken cancellationToken, params DbParameter[] parameters)
+        public static async Task<T> ScalarAsync<T>(this IDbConnection conn, string sql, CommandType commandType, TimeSpan? commandTimeout, CancellationToken cancellationToken, params DbParameter[] parameters)
         {
-            using (var cmd = CreateCommand(conn, sql, commandType, parameters))
+            using (var cmd = CreateCommand(conn, sql, commandType, commandTimeout, parameters))
             using (await conn.ConnectAsync(cancellationToken))
             {
                 var scalar = await cmd.ExecuteScalarAsync(cancellationToken);
@@ -297,7 +297,7 @@ namespace CoreTechs.Common.Database
             if (conn == null) throw new ArgumentNullException("conn");
             if (sql == null) throw new ArgumentNullException("sql");
 
-            return Query(conn, sql, CommandType.Text, CommandBehavior.Default, parameters);
+            return Query(conn, sql, CommandType.Text, CommandBehavior.Default, null, parameters);
         }
 
 
@@ -319,7 +319,7 @@ namespace CoreTechs.Common.Database
             if (conn == null) throw new ArgumentNullException("conn");
             if (sql == null) throw new ArgumentNullException("sql");
 
-            return QueryAsync(conn, sql, CommandType.Text, CommandBehavior.Default, cancellationToken, parameters);
+            return QueryAsync(conn, sql, CommandType.Text, CommandBehavior.Default, null, cancellationToken, parameters);
         }
 
         /// <summary>
@@ -329,7 +329,7 @@ namespace CoreTechs.Common.Database
         {
             if (conn == null) throw new ArgumentNullException("conn");
             if (procedureName == null) throw new ArgumentNullException("procedureName");
-            return Query(conn, procedureName, CommandType.StoredProcedure, CommandBehavior.Default, parameters);
+            return Query(conn, procedureName, CommandType.StoredProcedure, CommandBehavior.Default, null, parameters);
         }
 
         /// <summary>
@@ -349,20 +349,21 @@ namespace CoreTechs.Common.Database
         {
             if (conn == null) throw new ArgumentNullException("conn");
             if (procedureName == null) throw new ArgumentNullException("procedureName");
-            return QueryAsync(conn, procedureName, CommandType.StoredProcedure, CommandBehavior.Default, cancellationToken, parameters);
+            return QueryAsync(conn, procedureName, CommandType.StoredProcedure, CommandBehavior.Default, null,
+                cancellationToken, parameters);
         }
 
         /// <summary>
         /// Executes the sql and returns all result sets.
         /// </summary>
-        public static DataSet Query(this IDbConnection conn, string sql, CommandType commandType, CommandBehavior commandBehavior,
+        public static DataSet Query(this IDbConnection conn, string sql, CommandType commandType, CommandBehavior commandBehavior, TimeSpan? commandTimeout,
             params DbParameter[] parameters)
         {
             if (conn == null) throw new ArgumentNullException("conn");
             if (sql == null) throw new ArgumentNullException("sql");
 
-            var dataset = new DataSet {EnforceConstraints = false};
-            using (var cmd = CreateCommand(conn, sql, commandType, parameters))
+            var dataset = new DataSet { EnforceConstraints = false };
+            using (var cmd = CreateCommand(conn, sql, commandType, commandTimeout, parameters))
             using (conn.Connect())
             using (var reader = cmd.ExecuteReader(commandBehavior))
             {
@@ -376,23 +377,23 @@ namespace CoreTechs.Common.Database
         /// <summary>
         /// Executes the sql and returns all result sets.
         /// </summary>
-        public static Task<DataSet> QueryAsync(this IDbConnection conn, string sql, CommandType commandType,
+        public static Task<DataSet> QueryAsync(this IDbConnection conn, string sql, CommandType commandType,TimeSpan? commandTimeout,
             params DbParameter[] parameters)
         {
-            return QueryAsync(conn, sql, commandType, CommandBehavior.Default, CancellationToken.None, parameters);
+            return QueryAsync(conn, sql, commandType, CommandBehavior.Default, commandTimeout, CancellationToken.None, parameters);
         }
 
         /// <summary>
         /// Executes the sql and returns all result sets.
         /// </summary>
-        public static async Task<DataSet> QueryAsync(this IDbConnection conn, string sql, CommandType commandType, CommandBehavior commandBehavior, CancellationToken cancellationToken, params DbParameter[] parameters)
+        public static async Task<DataSet> QueryAsync(this IDbConnection conn, string sql, CommandType commandType, CommandBehavior commandBehavior,TimeSpan? commandTimeout, CancellationToken cancellationToken, params DbParameter[] parameters)
         {
             if (conn == null) throw new ArgumentNullException("conn");
             if (sql == null) throw new ArgumentNullException("sql");
 
-            var dataset = new DataSet {EnforceConstraints = false};
-            
-            using (var cmd = CreateCommand(conn, sql, commandType, parameters))
+            var dataset = new DataSet { EnforceConstraints = false };
+
+            using (var cmd = CreateCommand(conn, sql, commandType, commandTimeout, parameters))
             using (await conn.ConnectAsync(cancellationToken))
             using (var reader = await cmd.ExecuteReaderAsync(commandBehavior, cancellationToken))
             {
@@ -411,7 +412,7 @@ namespace CoreTechs.Common.Database
             if (conn == null) throw new ArgumentNullException("conn");
             if (sql == null) throw new ArgumentNullException("sql");
 
-            Execute(conn, sql, CommandType.Text, parameters);
+            Execute(conn, sql, CommandType.Text, null, parameters);
         }
 
         /// <summary>
@@ -422,7 +423,7 @@ namespace CoreTechs.Common.Database
             if (conn == null) throw new ArgumentNullException("conn");
             if (sql == null) throw new ArgumentNullException("sql");
 
-            await ExecuteAsync(conn, sql, CommandType.Text, cancellationToken, parameters);
+            await ExecuteAsync(conn, sql, CommandType.Text, null, cancellationToken, parameters);
         }
 
         /// <summary>
@@ -441,7 +442,7 @@ namespace CoreTechs.Common.Database
             if (conn == null) throw new ArgumentNullException("conn");
             if (procedureName == null) throw new ArgumentNullException("procedureName");
 
-            Execute(conn, procedureName, CommandType.StoredProcedure, parameters);
+            Execute(conn, procedureName, CommandType.StoredProcedure, null, parameters);
         }
 
         /// <summary>
@@ -461,16 +462,16 @@ namespace CoreTechs.Common.Database
             if (conn == null) throw new ArgumentNullException("conn");
             if (procedureName == null) throw new ArgumentNullException("procedureName");
 
-            return ExecuteAsync(conn, procedureName, CommandType.StoredProcedure, cancellationToken, parameters);
+            return ExecuteAsync(conn, procedureName, CommandType.StoredProcedure,null, cancellationToken, parameters);
         }
 
         /// <summary>
         /// Executes the sql.
         /// </summary>
-        public static void Execute(this IDbConnection conn, string sql, CommandType commandType,
+        public static void Execute(this IDbConnection conn, string sql, CommandType commandType,TimeSpan? commandTimeout,
             params DbParameter[] parameters)
         {
-            using (var cmd = CreateCommand(conn, sql, commandType, parameters))
+            using (var cmd = CreateCommand(conn, sql, commandType,commandTimeout, parameters))
             using (conn.Connect())
                 cmd.ExecuteNonQuery();
         }
@@ -478,18 +479,18 @@ namespace CoreTechs.Common.Database
         /// <summary>
         /// Executes the sql.
         /// </summary>
-        public static Task ExecuteAsync(this IDbConnection conn, string sql, CommandType commandType,
+        public static Task ExecuteAsync(this IDbConnection conn, string sql, CommandType commandType, TimeSpan? commandTimeout,
             params DbParameter[] parameters)
         {
-            return conn.ExecuteAsync(sql, commandType, CancellationToken.None, parameters);
+            return conn.ExecuteAsync(sql, commandType, commandTimeout, CancellationToken.None, parameters);
         }
 
         /// <summary>
         /// Executes the sql.
         /// </summary>
-        public static async Task ExecuteAsync(this IDbConnection conn, string sql, CommandType commandType, CancellationToken cancellationToken, params DbParameter[] parameters)
+        public static async Task ExecuteAsync(this IDbConnection conn, string sql, CommandType commandType, TimeSpan? commandTimeout, CancellationToken cancellationToken, params DbParameter[] parameters)
         {
-            using (var cmd = CreateCommand(conn, sql, commandType, parameters))
+            using (var cmd = CreateCommand(conn, sql, commandType, commandTimeout, parameters))
             using (await conn.ConnectAsync(cancellationToken))
                 await cmd.ExecuteNonQueryAsync(cancellationToken);
         }
@@ -504,14 +505,17 @@ namespace CoreTechs.Common.Database
             return e;
         }
 
-        private static IDbCommand CreateCommand(IDbConnection conn, string sql, CommandType cmdType,
+        private static IDbCommand CreateCommand(IDbConnection conn, string sql, CommandType cmdType, TimeSpan? commandTimeout,
             params DbParameter[] parameters)
         {
             var cmd = conn.CreateCommand();
             cmd.CommandType = cmdType;
             cmd.CommandText = sql;
 
-            if(parameters != null)
+            if (commandTimeout.HasValue)
+                cmd.CommandTimeout = (int)commandTimeout.Value.TotalSeconds;
+
+            if (parameters != null)
                 foreach (var dbParameter in parameters)
                     cmd.Parameters.Add(dbParameter);
 
