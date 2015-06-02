@@ -48,6 +48,7 @@
     <Compile Include="BufferedEnumerator.cs" />
     <Compile Include="ByteSize.cs" />
     <Compile Include="Characters.cs" />
+    <Compile Include="DelegateEqualityComparer.cs" />
     <Compile Include="PreFetchingEnumerable.cs" />
     <Compile Include="CompositeDisposable.cs" />
     <Compile Include="Database\ConnectionScope.cs" />

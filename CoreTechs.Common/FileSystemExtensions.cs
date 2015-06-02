@@ -224,6 +224,9 @@ namespace CoreTechs.Common
 
         public static bool AreSame(this DirectoryInfo a, DirectoryInfo b)
         {
+            if (ReferenceEquals(a, b))
+                return true;
+
             if (!a.Name.Equals(b.Name, StringComparison.OrdinalIgnoreCase))
                 return false;
 
@@ -238,7 +241,7 @@ namespace CoreTechs.Common
 
         public static bool AreSame(this FileInfo a, FileInfo b)
         {
-            return a.FullName.Equals(b.FullName, StringComparison.OrdinalIgnoreCase);
+            return ReferenceEquals(a, b) || a.FullName.Equals(b.FullName, StringComparison.OrdinalIgnoreCase);
         }
 
         public static string GetRelativePathFrom(this FileSystemInfo to, FileSystemInfo from)
