@@ -37,10 +37,18 @@ namespace CoreTechs.Common
                 yield return source.Current;
         }
 
-        public static IEnumerable<T> AsEnumerable<T>(this IEnumerator<T> enumerator)
+        public static IEnumerable<T> AsEnumerable<T>(this IEnumerator<T> enumerator, bool primed = false, bool disposeEnumerator = false)
         {
-            while (enumerator.MoveNext())
-                yield return enumerator.Current;
+            if (enumerator == null) throw new ArgumentNullException("enumerator");
+
+            using (disposeEnumerator ? enumerator : null)
+            {
+                if (primed)
+                    yield return enumerator.Current;
+
+                while (enumerator.MoveNext())
+                    yield return enumerator.Current;
+            }
         }
 
         /// <summary>
@@ -191,7 +199,7 @@ namespace CoreTechs.Common
         public static IEnumerable<T> Take<T>(this IEnumerable<T> enumerable, long count)
         {
             if (enumerable == null) throw new ArgumentNullException("enumerable");
-            
+
             var it = enumerable.GetEnumerator();
             for (long i = 0; i < count && it.MoveNext(); i++)
                 yield return it.Current;
@@ -263,7 +271,7 @@ namespace CoreTechs.Common
         /// <param name="tailLength">The length of the tail to be excluded.</param>
         public static IEnumerable<T> ExceptTail<T>(this IEnumerable<T> seq, int? tailLength = null)
         {
-            if (seq == null) 
+            if (seq == null)
                 throw new ArgumentNullException("seq");
 
             if (tailLength == null)
@@ -312,7 +320,7 @@ namespace CoreTechs.Common
         /// <param name="tailLength">The length of the tail.</param>
         public static IEnumerable<T> Tail<T>(this IEnumerable<T> seq, int? tailLength = null)
         {
-            if (seq == null) 
+            if (seq == null)
                 throw new ArgumentNullException("seq");
 
             if (tailLength == null)
