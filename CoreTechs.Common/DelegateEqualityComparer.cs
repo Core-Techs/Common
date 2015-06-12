@@ -17,11 +17,17 @@ namespace CoreTechs.Common
 
         public bool Equals(T x, T y)
         {
+            if (ReferenceEquals(x, y))
+                return true;
+            if (x == null || y == null)
+                return false;
             return _equals(x, y);
         }
 
         public int GetHashCode(T obj)
         {
+            if (obj == null)
+                return 0;
             return _hash(obj);
         }
     }

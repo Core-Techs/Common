@@ -44,6 +44,48 @@ namespace Tests
             Assert.That(result, Is.EqualTo(1));
         }
 
+        [Test]
+        public void NullWithNonNullIsAlwaysUnequal()
+        {
+            var otherClass = new ExampleClass();
+            var trueComparer = new DelegateEqualityComparer<ExampleClass>((c1, c2) => true);
+
+            var result = trueComparer.Equals(null, otherClass);
+
+            Assert.That(result, Is.False);
+        }
+
+        [Test]
+        public void NullsAreEqual()
+        {
+            var falseComparer = new DelegateEqualityComparer<ExampleClass>((c1, c2) => false);
+
+            var result = falseComparer.Equals(null, null);
+
+            Assert.That(result, Is.True);
+        }
+
+        [Test]
+        public void SelfIsAlwaysEqualWithSelf()
+        {
+            var self = new ExampleClass();
+            var falseComparer = new DelegateEqualityComparer<ExampleClass>((c1, c2) => false);
+
+            var result = falseComparer.Equals(self, self);
+
+            Assert.That(result, Is.True);
+        }
+
+        [Test]
+        public void NullsHaveHashOfZero()
+        {
+            var comparer = new DelegateEqualityComparer<ExampleClass>((c1, c2) => false, c => 1);
+
+            var result = comparer.GetHashCode(null);
+
+            Assert.That(result, Is.EqualTo(0));
+        }
+
         private class ExampleClass
         {
             public int Number { get; set; }
