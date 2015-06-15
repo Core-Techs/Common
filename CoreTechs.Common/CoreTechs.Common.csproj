@@ -48,6 +48,7 @@
     <Compile Include="BufferedEnumerator.cs" />
     <Compile Include="ByteSize.cs" />
     <Compile Include="Characters.cs" />
+    <Compile Include="Database\SqlDataTransfer.cs" />
     <Compile Include="DelegateEqualityComparer.cs" />
     <Compile Include="PreFetchingEnumerable.cs" />
     <Compile Include="CompositeDisposable.cs" />
