@@ -54,6 +54,8 @@
     <Compile Include="DisposableTests.cs" />
     <Compile Include="Enumerable\Tests.cs" />
     <Compile Include="FileSystemTests.cs" />
+    <Compile Include="IdentifiedCollection\UsingIdentifiedCollectionForEntitiesWithIntegerId.cs" />
+    <Compile Include="IdentifiedCollection\UsingIdentifiedCollectionForEntitiesWithNullableId.cs" />
     <Compile Include="LRUCacheTests.cs" />
     <Compile Include="MsgLoopTests.cs" />
     <Compile Include="DateTimeSpanTests.cs" />
