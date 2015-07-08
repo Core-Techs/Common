@@ -2,7 +2,7 @@ using System;
 
 namespace CoreTechs.Common
 {
-    public class ByteSize : IEquatable<ByteSize>
+    public class ByteSize : IEquatable<ByteSize>, IComparable<ByteSize>
     {
         public static class ConversionFactors
         {
@@ -125,6 +125,11 @@ namespace CoreTechs.Common
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
             return _bytes == other._bytes;
+        }
+
+        public int CompareTo(ByteSize other)
+        {
+            return _bytes.CompareTo(other._bytes);
         }
 
         public override bool Equals(object obj)
