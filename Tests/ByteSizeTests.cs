@@ -26,5 +26,20 @@ namespace Tests
 
             Assert.AreEqual(ByteSize.FromGigabytes(1.5), c);
         }
+
+        [Test]
+        public void CanCompare()
+        {
+            var a = ByteSize.FromGigabytes(3);
+            var b = ByteSize.FromGigabytes(1.5);
+
+            Assert.True(a > b);
+            Assert.True(a >= b);
+            Assert.True(a >= a);
+            Assert.True(a <= a);
+
+            Assert.False(a < b);
+            Assert.False(a <= b);
+        }
     }
 }

@@ -164,5 +164,25 @@ namespace CoreTechs.Common
         {
             return new ByteSize(left.Bytes - right.Bytes);
         }
+
+        public static bool operator <(ByteSize left, ByteSize right)
+        {
+            return left._bytes < right._bytes;
+        }
+
+        public static bool operator >(ByteSize left, ByteSize right)
+        {
+            return left._bytes > right._bytes;
+        }
+
+        public static bool operator <=(ByteSize left, ByteSize right)
+        {
+            return left._bytes <= right._bytes;
+        }
+
+        public static bool operator >=(ByteSize left, ByteSize right)
+        {
+            return left._bytes >= right._bytes;
+        }
     }
 }

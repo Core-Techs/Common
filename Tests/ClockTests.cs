@@ -8,12 +8,6 @@ namespace Tests
     internal class ClockTests
     {
         [Test]
-        public void CanGetNowFromSystemClock()
-        {
-            Assert.AreEqual(DateTimeOffset.Now, SystemClock.Instance.Now);
-        }
-
-        [Test]
         public void TestClockIsThreadSafe()
         {
             const int n = 10000;

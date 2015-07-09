@@ -36,7 +36,7 @@ namespace Tests
         [TestCase("5/10/2015",1,"1/10/2015")]
         [TestCase("5/10/2015",5,"5/10/2015")]
         [TestCase("5/31/2015",12,"12/31/2015")]
-        [TestCase("5/31/2015",2,"2/31/2015")]
+        
         [TestCase("5/31/2015",0,"1/1/1111", ExpectedException = typeof(ArgumentOutOfRangeException))]
         [TestCase("5/31/2015",0,"1/1/1111", ExpectedException = typeof(ArgumentOutOfRangeException))]
         public void CanSetMonth(DateTime dt, int month, DateTime expected)
