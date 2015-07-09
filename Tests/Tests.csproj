@@ -51,6 +51,7 @@
     <Compile Include="ByteSizeTests.cs" />
     <Compile Include="ClockTests.cs" />
     <Compile Include="DatabaseRelatedTests.cs" />
+    <Compile Include="DelegateEqualityComparerTests.cs" />
     <Compile Include="DisposableTests.cs" />
     <Compile Include="Enumerable\Tests.cs" />
     <Compile Include="FileSystemTests.cs" />

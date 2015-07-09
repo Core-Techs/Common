@@ -357,5 +357,32 @@ namespace CoreTechs.Common
             foreach (var item in list)
                 yield return item;
         }
+
+        /// <summary>
+        /// Gets the distinct elements of sequence based on what equalsImpl decides are equal elements.
+        /// </summary>
+        /// <remarks>Provide a hashImpl for more speed.</remarks>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="seq">The sequence that is being enumerated</param>
+        /// <param name="equalsImpl">
+        ///     An implementation of function that tests equality of the type emitted by the enumerable
+        /// </param>
+        /// <param name="hashImpl">
+        ///     Optional. An implementation that returns a hash that can be used to improve performance
+        /// </param>
+        /// <exception cref="System.ArgumentNullException">When either seq or equalsImpl are null</exception>
+        /// <returns></returns>
+        public static IEnumerable<T> Distinct<T>(this IEnumerable<T> seq,
+                                                 Func<T, T, bool> equalsImpl,
+                                                 Func<T, int> hashImpl = null)
+        {
+            if (seq == null)
+                throw new ArgumentNullException("seq");
+            if (equalsImpl == null)
+                throw new ArgumentNullException("equalsImpl");
+
+            var comparer = new DelegateEqualityComparer<T>(equalsImpl, hashImpl);
+            return seq.Distinct(comparer);
+        }
     }
 }

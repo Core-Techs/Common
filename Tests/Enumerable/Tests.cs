@@ -93,12 +93,56 @@ namespace Tests.Enumerable
 
         }
 
+        private ExampleClass[] _exampleList;
+
+        [SetUp]
+        public void SetUpExampleListForDistinctTests()
+        {
+            _exampleList = new[]
+            {
+                new ExampleClass(1, "Hat"),
+                new ExampleClass(1, "Shoe"),
+            };
+        }
+
+        [Test]
+        public void CanGetDistinctElementsOnNumber()
+        {
+            Func<ExampleClass, ExampleClass, bool> equalityOnNumberImpl = (c1, c2) => c1.Number == c2.Number;
+
+            var distinctOnNumber = _exampleList.Distinct(equalityOnNumberImpl).ToList();
+
+            Assert.That(distinctOnNumber, Has.Count.EqualTo(1));
+        }
+
+        [Test]
+        public void CanGetDistinctElementsOnWord()
+        {
+            Func<ExampleClass, ExampleClass, bool> equalityOnWordImpl = (c1, c2) => string.Equals(c1.Word, c2.Word);
+
+            var distinctOnWord = _exampleList.Distinct(equalityOnWordImpl).ToList();
+
+            Assert.That(distinctOnWord, Has.Count.EqualTo(2));
+        }
+
         IEnumerable<long> CreateSequence()
         {
             while (true)
             {
                 yield return Environment.TickCount;
             }
+        }
+
+        private class ExampleClass
+        {
+            public ExampleClass(int number, string word)
+            {
+                Number = number;
+                Word = word;
+            }
+
+            public int Number { get; set; }
+            public string Word { get; set; }
         }
     }
 }
