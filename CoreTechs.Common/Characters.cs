@@ -8,7 +8,10 @@ namespace CoreTechs.Common
     {
         public static IEnumerable<char> All
         {
-            get { return Enumerable.Range(char.MinValue, char.MaxValue + 1).Select(i => (char)i); }
+            get
+            {
+                return char.MinValue.To(char.MaxValue);
+            }
         }
 
         public static IEnumerable<char> Letters

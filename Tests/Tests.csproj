@@ -53,6 +53,7 @@
     <Compile Include="DatabaseRelatedTests.cs" />
     <Compile Include="DelegateEqualityComparerTests.cs" />
     <Compile Include="DisposableTests.cs" />
+    <Compile Include="Enumerable\RangeTests.cs" />
     <Compile Include="Enumerable\Tests.cs" />
     <Compile Include="FileSystemTests.cs" />
     <Compile Include="IdentifiedCollection\UsingIdentifiedCollectionForEntitiesWithIntegerId.cs" />

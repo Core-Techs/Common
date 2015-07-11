@@ -64,22 +64,49 @@ namespace CoreTechs.Common
 
         public static IEnumerable<DateTime> To(this DateTime i, DateTime to, TimeSpan step)
         {
-            return i.To(to, (d, s) => d.Add(TimeSpan.FromTicks((long)s)), step.Ticks);
+            return i.To(_ => to, step);
         }
 
         public static IEnumerable<DateTimeOffset> To(this DateTimeOffset i, DateTimeOffset to, TimeSpan step)
         {
-            return i.To(to, (d, s) => d.Add(TimeSpan.FromTicks((long)s)), step.Ticks);
+            return i.To(_ => to, step);
         }
 
         public static IEnumerable<TimeSpan> To(this TimeSpan i, TimeSpan to, TimeSpan step)
         {
-            return i.To(to, (t, s) => t + TimeSpan.FromTicks((long)s), step.Ticks);
+            return i.To(_ => to, step);
+        }
+
+        public static IEnumerable<DateTime> To(this DateTime i, Func<DateTime,DateTime> toFunc, TimeSpan step)
+        {
+            return i.To(toFunc, (d, s) => d.Add(TimeSpan.FromTicks((long) s)), step.Ticks);
+        }
+
+        public static IEnumerable<DateTimeOffset> To(this DateTimeOffset i, Func<DateTimeOffset,DateTimeOffset> toFunc, TimeSpan step)
+        {
+            return i.To(toFunc, (d, s) => d.Add(TimeSpan.FromTicks((long) s)), step.Ticks);
+        }
+
+        public static IEnumerable<TimeSpan> To(this TimeSpan i, Func<TimeSpan, TimeSpan> toFunc, TimeSpan step)
+        {
+            return i.To(toFunc, (t, s) => t + TimeSpan.FromTicks((long)s), step.Ticks);
+        }
+
+        public static IEnumerable<char> To(this char i, char to, int step = 1)
+        {
+            return i.To(to, (c, s) => (char) (c + s), step);
+        }
+
+        public static IEnumerable<T> To<T>(this T i, Func<T, T> toFunc, Func<T, decimal, T> stepper, decimal step = 1)
+            where T : IComparable
+        {
+            var to = toFunc(i);
+            return To(i, to, stepper, step);
         }
 
         public static IEnumerable<T> To<T>(this T i, T to, Func<T, decimal, T> stepper, decimal step = 1) where T : IComparable
         {
-            var c1 = i.CompareTo(to);
+            var c1 = Compare(i, to);
             var c2 = c1;
 
             step = c1 == -1 ? Math.Abs(step) :
@@ -90,8 +117,22 @@ namespace CoreTechs.Common
             {
                 yield return i;
                 i = stepper(i, step);
-                c2 = i.CompareTo(to);
+                c2 = Compare(i, to);
             }
+        }
+
+        /// <summary>
+        /// This function only returns -1, 0, or 1.
+        /// Some implementations of IComparable (<see cref="char"/>)
+        /// return the actual difference between the 2 objects.
+        /// That behavior broke the range producing algorithm.
+        /// </summary>
+        private static int Compare<T>(T a, T b) where T : IComparable
+        {
+            var result = a.CompareTo(b);
+            if (result < 0) return -1;
+            if (result > 0) return 1;
+            return 0;
         }
     }
 }
