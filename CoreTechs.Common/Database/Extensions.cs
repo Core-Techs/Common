@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using CoreTechs.Common.Reflection;
+using System.Data.Entity;
 
 namespace CoreTechs.Common.Database
 {
@@ -586,6 +588,50 @@ namespace CoreTechs.Common.Database
         {
             if (dataSet == null) throw new ArgumentNullException("dataSet");
             return dataSet.AsEnumerable().Select(row => row.Create<T>());
+        }
+
+
+
+        /*
+         * Credit to Graham O'Neale
+         * http://stackoverflow.com/questions/3642371/how-to-update-only-one-field-using-entity-framework
+         */
+        /// <summary>
+        /// Sets each provided property to Modified. Changes are not saved to the database.
+        /// </summary>       
+        /// <param name="context">The database context</param>
+        /// <param name="entity">The entity being updated. This entity cannot already be attached to the Entity graph.</param>
+        /// <param name="properties"> A list of property names to be set to modified. </param>
+        /// <returns>True if no error was thrown.</returns>
+        public static bool Update<T>(this DbContext context, T entity, params string[] properties) where T : class, new()
+        {
+            context.Set<T>().Attach(entity);
+            foreach (var property in properties)
+            {
+                context.Entry(entity).Property(property).IsModified = true;
+            }
+            return true;
+        }
+
+        /*
+         * Credit to Ladislav Mrnka
+         * http://stackoverflow.com/questions/5749110/readonly-properties-in-ef-4-1/5749469#5749469
+         */
+        /// <summary>
+        /// Sets each provided property to Modified. Changes are not saved to the database.
+        /// </summary>
+        /// <param name="context">The database context</param>
+        /// <param name="entity">The entity being updated. This entity cannot already be attached to the Entity graph.</param>
+        /// <param name="properties"> A list of expressions providing the properties to set as modified.</param>
+        /// <returns>True if no error was thrown.</returns>
+        public static bool Update<T>(this DbContext context, T entity, params Expression<Func<T, object>>[] properties) where T : class, new()
+        {
+            context.Set<T>().Attach(entity);
+            foreach (var selector in properties)
+            {
+                context.Entry(entity).Property(selector).IsModified = true;
+            }
+            return true;
         }
 
     }
