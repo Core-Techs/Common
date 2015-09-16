@@ -51,6 +51,7 @@
     <Compile Include="Database\SqlDataTransfer.cs" />
     <Compile Include="DelegateEqualityComparer.cs" />
     <Compile Include="IdentifiedCollection.cs" />
+    <Compile Include="OrderedDictionary.cs" />
     <Compile Include="PreFetchingEnumerable.cs" />
     <Compile Include="CompositeDisposable.cs" />
     <Compile Include="Database\ConnectionScope.cs" />

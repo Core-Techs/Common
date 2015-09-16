@@ -76,8 +76,8 @@ namespace CoreTechs.Common
         /// </returns>
         public delegate TKey KeyFinder(TItem item);
 
-        private readonly Dictionary<TKey, TItem> _dictionary;
-        private readonly List<TItem> _items;
+        protected readonly Dictionary<TKey, TItem> Dictionary;
+        protected readonly List<TItem> Items;
         private readonly KeyFinder _keyFinder;
 
         /// <summary>
@@ -104,51 +104,51 @@ namespace CoreTechs.Common
         {
             if (keyFinder == null) throw new ArgumentNullException("keyFinder");
             _keyFinder = keyFinder;
-            _items = new List<TItem>();
-            _dictionary = new Dictionary<TKey, TItem>(keyComparer ?? EqualityComparer<TKey>.Default);
+            Items = new List<TItem>();
+            Dictionary = new Dictionary<TKey, TItem>(keyComparer ?? EqualityComparer<TKey>.Default);
         }
 
         #region ICollection Implementation
-        public int Count { get { return _items.Count; } }
+        public int Count { get { return Items.Count; } }
         public bool IsReadOnly { get { return false; } }
 
         public void Add(TItem item)
         {
             AddNonNullKeyFor(item);
-            _items.Add(item);
+            Items.Add(item);
         }
 
         public bool Remove(TItem item)
         {
             var key = _keyFinder(item);
-            if (key == null) return _items.Remove(item);
+            if (key == null) return Items.Remove(item);
 
-            return _dictionary.Remove(key) && _items.Remove(item);
+            return Dictionary.Remove(key) && Items.Remove(item);
         }
 
         public void Clear()
         {
-            _dictionary.Clear();
-            _items.Clear();
+            Dictionary.Clear();
+            Items.Clear();
         }
 
         public bool Contains(TItem item)
         {
             var key = _keyFinder(item);
-            if (key == null) return _items.Contains(item);
+            if (key == null) return Items.Contains(item);
 
             TItem itemFromDictionary;
-            return _dictionary.TryGetValue(key, out itemFromDictionary) && EqualityComparer<TItem>.Default.Equals(item, itemFromDictionary);
+            return Dictionary.TryGetValue(key, out itemFromDictionary) && EqualityComparer<TItem>.Default.Equals(item, itemFromDictionary);
         }
 
         public void CopyTo(TItem[] array, int arrayIndex)
         {
-            _items.CopyTo(array, arrayIndex);
+            Items.CopyTo(array, arrayIndex);
         }
 
         public IEnumerator<TItem> GetEnumerator()
         {
-            return _items.GetEnumerator();
+            return Items.GetEnumerator();
         }
         IEnumerator IEnumerable.GetEnumerator()
         {
@@ -181,7 +181,7 @@ namespace CoreTechs.Common
             }
 
             TItem existingItem;
-            if (!_dictionary.TryGetValue(key, out existingItem))
+            if (!Dictionary.TryGetValue(key, out existingItem))
             {
                 Add(item);
                 return UpsertResult.Inserted;
@@ -190,43 +190,43 @@ namespace CoreTechs.Common
             if (ReferenceEquals(item, existingItem))
                 return UpsertResult.Updated;
 
-            var indexOfExistingItem = _items.IndexOf(existingItem);
-            _dictionary[key] = item;
-            _items[@indexOfExistingItem] = item;
+            var indexOfExistingItem = Items.IndexOf(existingItem);
+            Dictionary[key] = item;
+            Items[@indexOfExistingItem] = item;
             return UpsertResult.Updated;
         }
 
         public bool Remove(TKey key)
         {
             TItem value;
-            return _dictionary.TryGetValue(key, out value) && Remove(value);
+            return Dictionary.TryGetValue(key, out value) && Remove(value);
         }
 
         public bool ContainsKey(TKey key)
         {
-            return _dictionary.ContainsKey(key);
+            return Dictionary.ContainsKey(key);
         }
 
         public bool TryGetValue(TKey key, out TItem value)
         {
-            return _dictionary.TryGetValue(key, out value);
+            return Dictionary.TryGetValue(key, out value);
         }
 
         public TItem this[TKey key]
         {
-            get { return _dictionary[key]; }
+            get { return Dictionary[key]; }
         }
 
         public IReadOnlyDictionary<TKey, TItem> AsReadOnlyDictionary()
         {
-            return _dictionary;
+            return Dictionary;
         }
         #endregion Dictionary-like Functionality
 
         private void AddNonNullKeyFor(TItem item)
         {
             var key = _keyFinder(item);
-            if (key != null) _dictionary.Add(key, item);
+            if (key != null) Dictionary.Add(key, item);
         }
     }
 }
