@@ -35,6 +35,27 @@ namespace CoreTechs.Common
         }
 
         /// <summary>
+        /// Invokes the action, suppressing any thrown exception.
+        /// </summary>
+        /// <returns>The result of the invoked action.</returns>
+        public static async Task<Attempt> DoAsync(Func<Task> asyncAction)
+        {
+            var begin = DateTimeOffset.Now;
+            ExceptionDispatchInfo exInfo = null;
+
+            try
+            {
+                await asyncAction().ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                exInfo = ExceptionDispatchInfo.Capture(ex);
+            }
+
+            return new Attempt(begin, exInfo);
+        }
+
+        /// <summary>
         /// Invokes the factory, suppressing any thrown exception.
         /// </summary>
         /// <param name="default">The result value when not successful.</param>
@@ -46,6 +67,29 @@ namespace CoreTechs.Common
             try
             {
                 result = factory();
+            }
+            catch (Exception ex)
+            {
+                var exInfo = ExceptionDispatchInfo.Capture(ex);
+                return new Attempt<T>(begin, @default, exInfo);
+            }
+
+            return new Attempt<T>(begin, result);
+
+        }
+
+        /// <summary>
+        /// Invokes the factory, suppressing any thrown exception.
+        /// </summary>
+        /// <param name="default">The result value when not successful.</param>
+        public static async Task<Attempt<T>> GetAsync<T>(Func<Task<T>> asyncFactory, T @default = default(T))
+        {
+            var begin = DateTimeOffset.Now;
+            T result;
+
+            try
+            {
+                result = await asyncFactory().ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -153,6 +197,14 @@ namespace CoreTechs.Common
             {
                 while (true) yield return new Lazy<Attempt>(() => Attempt.Do(action));
             }
+            
+            /// <summary>
+            /// Repeatedly yields a lazy invocation attempt of the action as an enumerable.
+            /// </summary>
+            public static IEnumerable<Lazy<Task<Attempt>>> DoAsync(Func<Task> action)
+            {
+                while (true) yield return new Lazy<Task<Attempt>>(() => Attempt.DoAsync(action));
+            }
 
             /// <summary>
             /// Repeatedly yields a lazy invocation attempt of the factory as an enumerable.
@@ -161,6 +213,15 @@ namespace CoreTechs.Common
             public static IEnumerable<Lazy<Attempt<T>>> Get<T>(Func<T> factory, T @default = default(T))
             {
                 while (true) yield return new Lazy<Attempt<T>>(() => Attempt.Get(factory, @default));
+            }
+
+            /// <summary>
+            /// Repeatedly yields a lazy invocation attempt of the factory as an enumerable.
+            /// </summary>
+            /// <param name="default">The result value when not successful.</param>
+            public static IEnumerable<Lazy<Task<Attempt<T>>>> GetAsync<T>(Func<Task<T>> factory, T @default = default(T))
+            {
+                while (true) yield return new Lazy<Task<Attempt<T>>>(() => Attempt.GetAsync(factory, @default));
             }
         }
     }
@@ -292,6 +353,17 @@ namespace CoreTechs.Common
         }
 
         /// <summary>
+        /// Invokes the factory, using the source as input, suppressing any thrown exception.
+        /// </summary>
+        /// <param name="default">The result value when not successful.</param>
+        public static Task<Attempt<TResult>> AttemptGetAsync<TSource, TResult>(this TSource source,
+            Func<TSource, Task<TResult>> factory,
+            TResult @default = default(TResult))
+        {
+            return Attempt.GetAsync(() => factory(source));
+        }
+
+        /// <summary>
         /// Delays iteration when the predicate is satisfied.
         /// </summary>                  
         /// <param name="delayAdjustment">A function that can alter the delay between iterations.</param>        
@@ -317,6 +389,8 @@ namespace CoreTechs.Common
                     yield break;
             }
         }
+
+    
 
         /// <summary>
         /// Delays further attempts after a failure.
@@ -360,6 +434,22 @@ namespace CoreTechs.Common
         }
 
         /// <summary>
+        /// Attempts the operation until success or no further attempts remain, in which case an exception will be thrown.
+        /// </summary>
+        /// <param name="lazyAttempts">The operation attempts.</param>
+        /// <param name="message">The message used when throwing a <see cref="RepeatedFailureException"/> after all attempts have failed.</param>
+        /// <param name="maxRetainedAttempts">The max number of attempts to return on success or to include when throwing a <see cref="RepeatedFailureException"/> after all attempts have failed.</param>
+        /// <exception cref="RepeatedFailureException" />
+        public static async Task<Attempts<T>> ThrowIfCantSucceedAsync<T>(this IEnumerable<Lazy<Task<T>>> lazyAttempts,
+            string message = null,
+            int? maxRetainedAttempts = null) where T : Attempt
+        {
+            var attempts = await lazyAttempts.ExecuteAsync(maxRetainedAttempts).ConfigureAwait(false);
+            if (!attempts.Succeeded) throw attempts.BuildException(message);
+            return attempts;
+        }
+
+        /// <summary>
         /// Gets the value of the first successful attempt or the default value.
         /// </summary>
         public static T GetValueOrDefault<T>(this IEnumerable<Attempt<T>> attempts)
@@ -376,9 +466,32 @@ namespace CoreTechs.Common
         /// <summary>
         /// Gets the value of the first successful attempt or the default value.
         /// </summary>
+        public async static Task<T> GetValueOrDefaultAsync<T>(this IEnumerable<Task<Attempt<T>>> attempts)
+        {
+            var value = default(T);
+            foreach (var task in attempts)
+            {
+                var attempt = await task.ConfigureAwait(false);
+                value = attempt.Value;
+                if (attempt.Succeeded) break;
+            }
+            return value;
+        }
+
+        /// <summary>
+        /// Gets the value of the first successful attempt or the default value.
+        /// </summary>
         public static T GetValueOrDefault<T>(this IEnumerable<Lazy<Attempt<T>>> lazyAttempts)
         {
             return lazyAttempts.Select(x => x.Value).GetValueOrDefault();
+        }
+
+        /// <summary>
+        /// Gets the value of the first successful attempt or the default value.
+        /// </summary>
+        public static Task<T> GetValueOrDefaultAsync<T>(this IEnumerable<Lazy<Task<Attempt<T>>>> lazyAttempts)
+        {
+            return lazyAttempts.Select(lazyTask => lazyTask.Value).GetValueOrDefaultAsync();
         }
 
         /// <summary>
@@ -392,6 +505,25 @@ namespace CoreTechs.Common
             var attempts = new Attempts<T> { Capacity = maxReturnAttempts };
             foreach (var attempt in lazyAttempts.Select(x => x.Value))
             {
+                attempts.Add(attempt);
+                if (attempt.Succeeded) break;
+            }
+            attempts.EndDateTime = DateTimeOffset.Now;
+            return attempts;
+        }
+
+        /// <summary>
+        /// Invokes lazy attempts until success or all attempts fail.
+        /// </summary>
+        /// <param name="maxReturnAttempts">The maximum number of attempts to return. When specified only the most recent attempts will be returned.</param>
+        /// <returns>An array of the attempts.</returns>
+        async public static Task<Attempts<T>> ExecuteAsync<T>(this IEnumerable<Lazy<Task<T>>> lazyAttempts, int? maxReturnAttempts = null)
+            where T : Attempt
+        {
+            var attempts = new Attempts<T> { Capacity = maxReturnAttempts };
+            foreach (var lazyAttempt in lazyAttempts)
+            {
+                var attempt = await lazyAttempt.Value.ConfigureAwait(false);
                 attempts.Add(attempt);
                 if (attempt.Succeeded) break;
             }
@@ -496,6 +628,9 @@ namespace CoreTechs.Common
                 return item;
             });
         }
+
+    
+
 
         /// <summary>
         /// Repeatedly yields a lazy invocation attempt of the factory as an enumerable.

@@ -1,6 +1,7 @@
 using System;
 using System.Data.SqlTypes;
 using System.Linq;
+using System.Threading.Tasks;
 using CoreTechs.Common;
 using NUnit.Framework;
 
@@ -71,8 +72,8 @@ namespace Tests
         public void CanThrowWhenPredicateSatisfied()
         {
 
-           Assert.Throws<DivideByZeroException>(() =>
-               Attempt.Get(DivByZero).ThrowIf(a => true));
+            Assert.Throws<DivideByZeroException>(() =>
+                Attempt.Get(DivByZero).ThrowIf(a => true));
         }
 
         [Test]
@@ -95,10 +96,10 @@ namespace Tests
         [Test]
         public void NoThrowWhenExceptionIsNotExactly()
         {
-                Attempt.Do(() =>
-                {
-                    throw new SqlAlreadyFilledException();
-                }).ThrowIfExceptionIsExactly<SqlTypeException>();
+            Attempt.Do(() =>
+            {
+                throw new SqlAlreadyFilledException();
+            }).ThrowIfExceptionIsExactly<SqlTypeException>();
         }
 
         [Test]
@@ -146,7 +147,71 @@ namespace Tests
                 Attempt.Repeatedly.Get(DivByZero).CatchWhere(x => false).ToArray());
         }
 
+        [Test]
+        async public Task CanDoAsync()
+        {
+            var value = 0;
+            var attempt = await Attempt.DoAsync(() => Task.Run(() => value = 123));
+            Assert.True(attempt.Succeeded);
+            Assert.AreEqual(123, value);
+        }
 
-      
+        [Test]
+        async public Task CanGetAsync()
+        {
+            var attempt = await Attempt.GetAsync(() => Task.FromResult(123));
+            Assert.True(attempt.Succeeded);
+            Assert.AreEqual(123, attempt.Value);
+        }
+
+        [Test]
+        async public Task CanGetAsync2()
+        {
+            var attempt = await 123.AttemptGetAsync(Task.FromResult);
+            Assert.True(attempt.Succeeded);
+            Assert.AreEqual(123, attempt.Value);
+        }
+
+        [Test]
+        async public Task CanRepeatedlyDoAsync()
+        {
+            var value = 0;
+
+            await Attempt.Repeatedly.DoAsync(() =>
+            {
+                return  Task.Run(() =>
+                {
+                    if (RNG.NextBool(.99))
+                        throw new ApplicationException("FAILED!");
+
+                    value = 123;
+                });
+            }).ExecuteAsync();
+
+            Assert.AreEqual(123,value);
+        }
+
+        [Test]
+        async public Task CanRepeatedlyGetAsync()
+        {
+            var failures = 0;
+            var attempts = await Attempt.Repeatedly.GetAsync(() =>
+            {
+              return Task.Run(() =>
+                {
+                    if (RNG.NextBool(.99))
+                    {
+                        failures++;
+                        throw new ApplicationException("FAILED!");
+                    }
+
+                    return 123;
+                });
+            }).ExecuteAsync();
+
+            Console.WriteLine(failures);
+            Assert.AreEqual(123,attempts.GetValueOrDefault());
+        }
+     
     }
 }
