@@ -9,9 +9,21 @@ namespace Tests.Enumerable
     public class Tests
     {
         [Test]
+        public void CanBufferEnumerable()
+        {
+            var buffers = 1.To(35).Buffer(10).Select(b => b.ToArray()).ToArray();
+            
+            CollectionAssert.AreEqual(1.To(10), buffers[0]);
+            CollectionAssert.AreEqual(11.To(20), buffers[1]);
+            CollectionAssert.AreEqual(21.To(30), buffers[2]);
+            CollectionAssert.AreEqual(31.To(35), buffers[3]);
+        }
+
+        [Test]
         public void CanSplitEnumerable()
         {
             var e = new int?[] { -1, -1, 1, null, 2, -1, 1, -1 };
+            var result = e.Split(-1).ToArray();
             CollectionAssert.AreEqual(new[]
             {
                 new int?[0],
@@ -20,7 +32,7 @@ namespace Tests.Enumerable
                 new int?[]{1},
                 new int?[0],
                 
-            }, e.Split(-1));
+            }, result);
         }
 
         [Test]

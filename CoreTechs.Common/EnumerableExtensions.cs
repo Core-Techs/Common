@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace CoreTechs.Common
 {
@@ -25,16 +24,21 @@ namespace CoreTechs.Common
 
         public static IEnumerable<IEnumerable<T>> Buffer<T>(this IEnumerable<T> source, int bufferSize)
         {
-            using (var enumerator = source.GetEnumerator())
-                while (enumerator.MoveNext())
-                    yield return YieldBufferElements(enumerator, bufferSize - 1);
+            return source.Consume(x => x.Take(bufferSize));
         }
 
-        private static IEnumerable<T> YieldBufferElements<T>(IEnumerator<T> source, int bufferSize)
+        /// <summary>
+        /// Calls the supplied func on the source sequence until it has been consumed.
+        /// Your func will receive a sequence beginning where the previous invocation left off.
+        /// </summary>
+        public static IEnumerable<TResult> Consume<TSource, TResult>(this IEnumerable<TSource> seq, Func<IEnumerable<TSource>, TResult> func)
         {
-            yield return source.Current;
-            for (var i = 0; i < bufferSize && source.MoveNext(); i++)
-                yield return source.Current;
+            if (seq == null) throw new ArgumentNullException("seq");
+            if (func == null) throw new ArgumentNullException("func");
+
+            using (var it = seq.GetEnumerator())
+                while (it.MoveNext())
+                    yield return func(it.AsEnumerable(true, false));
         }
 
         public static IEnumerable<T> AsEnumerable<T>(this IEnumerator<T> enumerator, bool primed = false, bool disposeEnumerator = false)
@@ -190,10 +194,11 @@ namespace CoreTechs.Common
         /// <summary>
         /// Gets the last n items of the enumerable.
         /// </summary>
+        [Obsolete("Use Tail instead", false)]
         public static IEnumerable<T> TakeLast<T>(this IEnumerable<T> source, int count)
         {
             if (source == null) throw new ArgumentNullException("source");
-            return source.Reverse().Take(count).Reverse();
+            return Tail(source, count);
         }
 
         public static IEnumerable<T> Take<T>(this IEnumerable<T> enumerable, long count)
@@ -209,7 +214,8 @@ namespace CoreTechs.Common
         {
             if (enumerable == null) throw new ArgumentNullException("enumerable");
 
-            foreach (var x in enumerable) { }
+            foreach (var item in enumerable)
+                item.Noop();
         }
 
         public static IEnumerable<T[]> AccumulateUntil<T>(this IEnumerable<T> source,
