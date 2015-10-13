@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -27,9 +28,9 @@ namespace CoreTechs.Common.Database
     /// </summary>
     public class BulkInserter<T> : IDisposable where T : class
     {
-
+        
         public string[] RemoveColumns { get; set; }
-
+        public IEqualityComparer<string> ColumnNameComparer { get; set; }
 
         public event EventHandler<BulkInsertEventArgs<T>> PreBulkInsert;
         public void OnPreBulkInsert(BulkInsertEventArgs<T> e)
@@ -51,8 +52,7 @@ namespace CoreTechs.Common.Database
         public int BufferSize { get { return _bufferSize; } }
         public int InsertedCount { get; private set; }
 
-        private readonly Lazy<Dictionary<string, Func<T, object>>> _props =
-            new Lazy<Dictionary<string, Func<T, object>>>(GetPropertyInformation);
+        private readonly Lazy<Dictionary<string, Func<T, object>>> _props;
 
         private readonly Lazy<DataTable> _dt;
 
@@ -70,9 +70,11 @@ namespace CoreTechs.Common.Database
             if (connection == null) throw new ArgumentNullException("connection");
             if (sqlBulkCopy == null) throw new ArgumentNullException("sqlBulkCopy");
 
+
             _bufferSize = bufferSize;
             _connection = connection;
             _sbc = sqlBulkCopy;
+            _props = new Lazy<Dictionary<string, Func<T, object>>>(GetPropertyInformation);
             _dt = new Lazy<DataTable>(CreateDataTable);
         }
 
@@ -99,7 +101,7 @@ namespace CoreTechs.Common.Database
 
             // get columns that have a matching property
             var cols = _dt.Value.Columns.Cast<DataColumn>()
-                .Where(x => _props.Value.ContainsKey(x.ColumnName))
+                .Where(x => _props.Value.ContainsKey(x.ColumnName) )
                 .Select(x => new { Column = x, Getter = _props.Value[x.ColumnName] })
                 .Where(x => x.Getter != null)
                 .ToArray();
@@ -163,9 +165,10 @@ namespace CoreTechs.Common.Database
             InsertedCount = 0;
         }
 
-        private static Dictionary<string, Func<T, object>> GetPropertyInformation()
+        private Dictionary<string, Func<T, object>> GetPropertyInformation()
         {
-            return typeof(T).GetProperties().ToDictionary(x => x.Name, CreatePropertyGetter);
+            return typeof (T).GetProperties()
+                .ToDictionary(x => x.Name, CreatePropertyGetter, ColumnNameComparer ?? StringComparer.OrdinalIgnoreCase);
         }
 
         private static Func<T, object> CreatePropertyGetter(PropertyInfo propertyInfo)
@@ -182,6 +185,7 @@ namespace CoreTechs.Common.Database
         private DataTable CreateDataTable()
         {
             var dt = new DataTable();
+            //DataTable destSchema;
             using (var cmd = _connection.CreateCommand())
             {
                 cmd.Transaction = _tran;
@@ -189,6 +193,7 @@ namespace CoreTechs.Common.Database
 
                 using (var reader = cmd.ExecuteReader())
                 {
+                    //destSchema = reader.GetSchemaTable();
                     dt.Load(reader);
                     reader.Close();
                 }
@@ -197,6 +202,19 @@ namespace CoreTechs.Common.Database
             if (RemoveColumns != null)
                 foreach (var col in RemoveColumns)
                     dt.Columns.Remove(col);
+/*
+            var columns = from destRow in destSchema.AsEnumerable()
+                          let isReadOnly = destRow.Field<bool>("IsReadOnly")
+                          let isAutoIncrement = destRow.Field<bool>("IsAutoIncrement")
+                          let isIdentity = destRow.Field<bool>("IsIdentity")
+                          //let isRowVersion = destRow.Field<bool>("IsRowVersion") insertable?
+                          let name = destRow.Field<string>("ColumnName")
+                          where !isReadOnly || isIdentity || isAutoIncrement
+                          join sourceRow in sourceSchema.AsEnumerable() on name equals sourceRow.Field<string>("ColumnName")
+                          select name;
+
+            foreach (var column in columns)
+                bcp.ColumnMappings.Add(column, column);*/
 
             return dt;
         }

@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="AttemptTests.cs" />
     <Compile Include="BeepScopeTests.cs" />
+    <Compile Include="BulkInserterTests.cs" />
     <Compile Include="ByteSizeTests.cs" />
     <Compile Include="ClockTests.cs" />
     <Compile Include="DatabaseRelatedTests.cs" />
