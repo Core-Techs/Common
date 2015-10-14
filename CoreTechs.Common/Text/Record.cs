@@ -15,8 +15,8 @@ namespace CoreTechs.Common.Text
 
         public Record(IEnumerable<string> names, string[] data, IEqualityComparer<string> stringComparer)
         {
-            if (names == null) throw new ArgumentNullException("names");
-            if (data == null) throw new ArgumentNullException("data");
+            if (names == null) throw new ArgumentNullException(nameof(names));
+            if (data == null) throw new ArgumentNullException(nameof(data));
 
             _dict = new Dictionary<string, string>(stringComparer);
             _data = data;
@@ -44,10 +44,7 @@ namespace CoreTechs.Common.Text
             return ((IEnumerable) _dict).GetEnumerator();
         }
 
-        public int Count
-        {
-            get { return _data.Length; }
-        }
+        public int Count => _data.Length;
 
         public bool ContainsKey(string key)
         {
@@ -59,24 +56,12 @@ namespace CoreTechs.Common.Text
             return _dict.TryGetValue(key, out value);
         }
 
-        public string this[string key]
-        {
-            get { return _dict[key]; }
-        }
+        public string this[string key] => _dict[key];
 
-        public string this[int index]
-        {
-            get { return _data[index]; }
-        }
+        public string this[int index] => _data[index];
 
-        public IEnumerable<string> Keys
-        {
-            get { return _dict.Keys; }
-        }
+        public IEnumerable<string> Keys => _dict.Keys;
 
-        public IEnumerable<string> Values
-        {
-            get { return _dict.Values; }
-        }
+        public IEnumerable<string> Values => _dict.Values;
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Configuration;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace CoreTechs.Common
@@ -12,7 +11,7 @@ namespace CoreTechs.Common
 
         public AppSettings(IAppSettingsProvider appSettingsProvider)
         {
-            if (appSettingsProvider == null) throw new ArgumentNullException("appSettingsProvider");
+            if (appSettingsProvider == null) throw new ArgumentNullException(nameof(appSettingsProvider));
             _appSettingsProvider = appSettingsProvider;
         }
 
@@ -26,7 +25,7 @@ namespace CoreTechs.Common
 
             if (setting == null)
                 throw new SettingsPropertyNotFoundException(
-                    string.Format("The setting with name '{0}' was not found.", name));
+                    $"The setting with name '{name}' was not found.");
 
             return setting;
         }
@@ -34,6 +33,7 @@ namespace CoreTechs.Common
         public T GetRequiredSetting<T>(Func<string, T> parser, [CallerMemberName] string name = null)
         {
             // setting must be defined in config
+            Debug.Assert(name != null, "name != null");
             var setting = GetRequiredSetting(name);
 
             try
@@ -43,9 +43,7 @@ namespace CoreTechs.Common
             catch (Exception ex)
             {
                 throw new FormatException(
-                    string.Format("The AppSetting '{0}' was not formatted correctly. The specified value was '{1}'",
-                        name,
-                        setting), ex);
+                    $"The AppSetting '{name}' was not formatted correctly. The specified value was '{setting}'", ex);
             }
         }
 
@@ -74,8 +72,9 @@ namespace CoreTechs.Common
         {
             var type = typeof(TEnum);
             if (!type.IsEnum)
-                throw new ArgumentException(string.Format("'{0}' is not an enum type", type.FullName));
+                throw new ArgumentException($"'{type.FullName}' is not an enum type");
 
+            Debug.Assert(name != null, "name != null");
             return GetSettingOrDefault(s => (TEnum)Enum.Parse(type, s, ignoreCase), @default, name);
         }
     }
@@ -87,7 +86,7 @@ namespace CoreTechs.Common
         {
             get
             {
-                if (name == null) throw new ArgumentNullException("name");
+                if (name == null) throw new ArgumentNullException(nameof(name));
                 return ConfigurationManager.AppSettings[name];
             }
         }

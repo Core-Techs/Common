@@ -18,10 +18,7 @@ namespace CoreTechs.Common
             return sw;
         }
 
-        public bool IsRunning
-        {
-            get { return Started.HasValue; }
-        }
+        public bool IsRunning => Started.HasValue;
 
         public TimeSpan Elapsed
         {

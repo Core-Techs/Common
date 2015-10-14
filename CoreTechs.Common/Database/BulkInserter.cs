@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -9,20 +8,6 @@ using System.Reflection;
 
 namespace CoreTechs.Common.Database
 {
-    public class BulkInsertEventArgs<T> : EventArgs
-    {
-        public T[] Items { get; private set; }
-        public DataTable DataTable { get; set; }
-
-        public BulkInsertEventArgs(T[] items, DataTable dataTable)
-        {
-            if (items == null) throw new ArgumentNullException("items");
-            if (dataTable == null) throw new ArgumentNullException("dataTable");
-            Items = items.ToArray();
-            DataTable = dataTable;
-        }
-    }
-
     /// <summary>
     /// Performs buffered bulk inserts into a sql server table using objects instead of DataRows. :)
     /// </summary>
@@ -36,20 +21,20 @@ namespace CoreTechs.Common.Database
         public void OnPreBulkInsert(BulkInsertEventArgs<T> e)
         {
             var handler = PreBulkInsert;
-            if (handler != null) handler(this, e);
+            handler?.Invoke(this, e);
         }
 
         public event EventHandler<BulkInsertEventArgs<T>> PostBulkInsert;
         public void OnPostBulkInsert(BulkInsertEventArgs<T> e)
         {
             var handler = PostBulkInsert;
-            if (handler != null) handler(this, e);
+            handler?.Invoke(this, e);
         }
 
         private const int DefaultBufferSize = 2000;
         private readonly SqlConnection _connection;
-        private readonly int _bufferSize;
-        public int BufferSize { get { return _bufferSize; } }
+        public int BufferSize { get; }
+
         public int InsertedCount { get; private set; }
 
         private readonly Lazy<Dictionary<string, Func<T, object>>> _props;
@@ -67,11 +52,11 @@ namespace CoreTechs.Common.Database
         /// <param name="bufferSize">Number of rows to bulk insert at a time. The default is 2000.</param>
         public BulkInserter(SqlConnection connection, SqlBulkCopy sqlBulkCopy, int bufferSize = DefaultBufferSize)
         {
-            if (connection == null) throw new ArgumentNullException("connection");
-            if (sqlBulkCopy == null) throw new ArgumentNullException("sqlBulkCopy");
+            if (connection == null) throw new ArgumentNullException(nameof(connection));
+            if (sqlBulkCopy == null) throw new ArgumentNullException(nameof(sqlBulkCopy));
 
 
-            _bufferSize = bufferSize;
+            BufferSize = bufferSize;
             _connection = connection;
             _sbc = sqlBulkCopy;
             _props = new Lazy<Dictionary<string, Func<T, object>>>(GetPropertyInformation);
@@ -97,7 +82,7 @@ namespace CoreTechs.Common.Database
         /// <param name="items">The items to be inserted.</param>
         public void Insert(IEnumerable<T> items)
         {
-            if (items == null) throw new ArgumentNullException("items");
+            if (items == null) throw new ArgumentNullException(nameof(items));
 
             // get columns that have a matching property
             var cols = _dt.Value.Columns.Cast<DataColumn>()
@@ -140,11 +125,11 @@ namespace CoreTechs.Common.Database
         /// <param name="item">The item to be inserted.</param>
         public void Insert(T item)
         {
-            if (item == null) throw new ArgumentNullException("item");
+            if (item == null) throw new ArgumentNullException(nameof(item));
 
             _queue.Add(item);
 
-            if (_queue.Count == _bufferSize)
+            if (_queue.Count == BufferSize)
                 Flush();
         }
 
@@ -185,15 +170,13 @@ namespace CoreTechs.Common.Database
         private DataTable CreateDataTable()
         {
             var dt = new DataTable();
-            //DataTable destSchema;
             using (var cmd = _connection.CreateCommand())
             {
                 cmd.Transaction = _tran;
-                cmd.CommandText = string.Format("select top 0 * from {0}", _sbc.DestinationTableName);
+                cmd.CommandText = $"SELECT * FROM {_sbc.DestinationTableName}";
 
-                using (var reader = cmd.ExecuteReader())
+                using (var reader = cmd.ExecuteReader(CommandBehavior.SchemaOnly))
                 {
-                    //destSchema = reader.GetSchemaTable();
                     dt.Load(reader);
                     reader.Close();
                 }
@@ -202,19 +185,6 @@ namespace CoreTechs.Common.Database
             if (RemoveColumns != null)
                 foreach (var col in RemoveColumns)
                     dt.Columns.Remove(col);
-/*
-            var columns = from destRow in destSchema.AsEnumerable()
-                          let isReadOnly = destRow.Field<bool>("IsReadOnly")
-                          let isAutoIncrement = destRow.Field<bool>("IsAutoIncrement")
-                          let isIdentity = destRow.Field<bool>("IsIdentity")
-                          //let isRowVersion = destRow.Field<bool>("IsRowVersion") insertable?
-                          let name = destRow.Field<string>("ColumnName")
-                          where !isReadOnly || isIdentity || isAutoIncrement
-                          join sourceRow in sourceSchema.AsEnumerable() on name equals sourceRow.Field<string>("ColumnName")
-                          select name;
-
-            foreach (var column in columns)
-                bcp.ColumnMappings.Add(column, column);*/
 
             return dt;
         }
@@ -223,6 +193,20 @@ namespace CoreTechs.Common.Database
         {
             if (_constructedSqlBulkCopy)
                 using (_sbc) _sbc.Close();
+        }
+    }
+
+    public class BulkInsertEventArgs<T> : EventArgs
+    {
+        public T[] Items { get; private set; }
+        public DataTable DataTable { get; set; }
+
+        public BulkInsertEventArgs(T[] items, DataTable dataTable)
+        {
+            if (items == null) throw new ArgumentNullException(nameof(items));
+            if (dataTable == null) throw new ArgumentNullException(nameof(dataTable));
+            Items = items.ToArray();
+            DataTable = dataTable;
         }
     }
 }

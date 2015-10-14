@@ -37,15 +37,12 @@ namespace CoreTechs.Common
                 if (TryGetValue(key, out value))
                     return value;
                 
-                throw new KeyNotFoundException(string.Format("The key \"{0}\" was not found.", key));
+                throw new KeyNotFoundException($"The key \"{key}\" was not found.");
             }
             set { Upsert(new KeyValuePair<TKey, TValue>(key, value)); }
         }
 
-        public ICollection<TKey> Keys
-        {
-            get { return Dictionary.Keys; }
-        }
+        public ICollection<TKey> Keys => Dictionary.Keys;
 
         public ICollection<TValue> Values
         {

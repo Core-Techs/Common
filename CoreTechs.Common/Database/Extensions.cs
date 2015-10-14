@@ -13,7 +13,7 @@ namespace CoreTechs.Common.Database
     {
         public static Task OpenAsync(this IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (connection == null) throw new ArgumentNullException("connection");
+            if (connection == null) throw new ArgumentNullException(nameof(connection));
 
             var dbConn = connection as DbConnection;
 
@@ -25,7 +25,7 @@ namespace CoreTechs.Common.Database
 
         public static Task ExecuteNonQueryAsync(this IDbCommand command, CancellationToken cancellationToken = default (CancellationToken))
         {
-            if (command == null) throw new ArgumentNullException("command");
+            if (command == null) throw new ArgumentNullException(nameof(command));
 
             var dbCmd = command as DbCommand;
             if (dbCmd == null)
@@ -36,7 +36,7 @@ namespace CoreTechs.Common.Database
 
         public static Task<DbDataReader> ExecuteReaderAsync(this IDbCommand command, CommandBehavior commandBehavior = CommandBehavior.Default, CancellationToken cancellationToken = default (CancellationToken))
         {
-            if (command == null) throw new ArgumentNullException("command");
+            if (command == null) throw new ArgumentNullException(nameof(command));
 
             var dbCmd = command as DbCommand;
             if (dbCmd == null)
@@ -47,7 +47,7 @@ namespace CoreTechs.Common.Database
 
         public static Task<object> ExecuteScalarAsync(this IDbCommand command, CancellationToken cancellationToken = default (CancellationToken))
         {
-            if (command == null) throw new ArgumentNullException("command");
+            if (command == null) throw new ArgumentNullException(nameof(command));
 
             var dbCmd = command as DbCommand;
             if (dbCmd == null)
@@ -101,7 +101,7 @@ namespace CoreTechs.Common.Database
         /// </summary>
         public static DataColumn GetColumn(this DataRow row, string columnName)
         {
-            if (columnName == null) throw new ArgumentNullException("columnName");
+            if (columnName == null) throw new ArgumentNullException(nameof(columnName));
             return row.HasColumn(columnName) ? row.Table.Columns[columnName] : null;
         }
 
@@ -118,7 +118,7 @@ namespace CoreTechs.Common.Database
         /// </summary>
         public static bool HasColumn(this DataRow row, string columnName)
         {
-            if (columnName == null) throw new ArgumentNullException("columnName");
+            if (columnName == null) throw new ArgumentNullException(nameof(columnName));
             return row.Table.Columns.Contains(columnName);
         }
 
@@ -132,13 +132,13 @@ namespace CoreTechs.Common.Database
 
         public static dynamic AsDynamic(this DataRow row)
         {
-            if (row == null) throw new ArgumentNullException("row");
+            if (row == null) throw new ArgumentNullException(nameof(row));
             return new DynamicDataRow(row);
         }
 
         public static IEnumerable<dynamic> AsDynamic(this IEnumerable<DataRow> rows)
         {
-            if (rows == null) throw new ArgumentNullException("rows");
+            if (rows == null) throw new ArgumentNullException(nameof(rows));
             return rows.Select(r => r.AsDynamic());
         }
 
@@ -149,7 +149,7 @@ namespace CoreTechs.Common.Database
         /// </summary>
         public static ConnectionScope Connect(this IDbConnection connection)
         {
-            if (connection == null) throw new ArgumentNullException("connection");
+            if (connection == null) throw new ArgumentNullException(nameof(connection));
             var scope = new ConnectionScope(connection);
             scope.Open();
             return scope;
@@ -162,7 +162,7 @@ namespace CoreTechs.Common.Database
         /// </summary>
         public static async Task<ConnectionScope> ConnectAsync(this IDbConnection connection, CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (connection == null) throw new ArgumentNullException("connection");
+            if (connection == null) throw new ArgumentNullException(nameof(connection));
             var scope = new ConnectionScope(connection);
             await scope.OpenAsync(cancellationToken);
             return scope;
@@ -175,7 +175,7 @@ namespace CoreTechs.Common.Database
         /// </summary>
         public static DisconnectionScope Disconnect(this IDbConnection connection)
         {
-            if (connection == null) throw new ArgumentNullException("connection");
+            if (connection == null) throw new ArgumentNullException(nameof(connection));
             return new DisconnectionScope(connection);
         }
 
@@ -185,8 +185,8 @@ namespace CoreTechs.Common.Database
         /// <exception cref="DataException">Thrown if no rows are returned for the query.</exception>
         public static T ScalarSql<T>(this IDbConnection conn, string sql, params DbParameter[] parameters)
         {
-            if (conn == null) throw new ArgumentNullException("conn");
-            if (sql == null) throw new ArgumentNullException("sql");
+            if (conn == null) throw new ArgumentNullException(nameof(conn));
+            if (sql == null) throw new ArgumentNullException(nameof(sql));
 
             return Scalar<T>(conn, sql, CommandType.Text, null, null, parameters);
         }
@@ -207,8 +207,8 @@ namespace CoreTechs.Common.Database
         /// <exception cref="DataException">Thrown if no rows are returned for the query.</exception>
         public static Task<T> ScalarSqlAsync<T>(this IDbConnection conn, string sql, CancellationToken cancellationToken, params DbParameter[] parameters)
         {
-            if (conn == null) throw new ArgumentNullException("conn");
-            if (sql == null) throw new ArgumentNullException("sql");
+            if (conn == null) throw new ArgumentNullException(nameof(conn));
+            if (sql == null) throw new ArgumentNullException(nameof(sql));
 
             return ScalarAsync<T>(conn, sql, CommandType.Text, null, null, cancellationToken, parameters);
         }
@@ -219,8 +219,8 @@ namespace CoreTechs.Common.Database
         /// <exception cref="DataException">Thrown if no rows are returned for the query.</exception>
         public static T ScalarProc<T>(this IDbConnection conn, string procedureName, params DbParameter[] parameters)
         {
-            if (conn == null) throw new ArgumentNullException("conn");
-            if (procedureName == null) throw new ArgumentNullException("procedureName");
+            if (conn == null) throw new ArgumentNullException(nameof(conn));
+            if (procedureName == null) throw new ArgumentNullException(nameof(procedureName));
 
             return Scalar<T>(conn, procedureName, CommandType.StoredProcedure, null, null, parameters);
         }
@@ -242,8 +242,8 @@ namespace CoreTechs.Common.Database
         /// <exception cref="DataException">Thrown if no rows are returned for the query.</exception>
         public static Task<T> ScalarProcAsync<T>(this IDbConnection conn, string procedureName, CancellationToken cancellationToken, params DbParameter[] parameters)
         {
-            if (conn == null) throw new ArgumentNullException("conn");
-            if (procedureName == null) throw new ArgumentNullException("procedureName");
+            if (conn == null) throw new ArgumentNullException(nameof(conn));
+            if (procedureName == null) throw new ArgumentNullException(nameof(procedureName));
 
             return ScalarAsync<T>(conn, procedureName, CommandType.StoredProcedure, null, null, cancellationToken, parameters);
         }
@@ -294,8 +294,8 @@ namespace CoreTechs.Common.Database
         /// </summary>
         public static DataSet QuerySql(this IDbConnection conn, string sql, params DbParameter[] parameters)
         {
-            if (conn == null) throw new ArgumentNullException("conn");
-            if (sql == null) throw new ArgumentNullException("sql");
+            if (conn == null) throw new ArgumentNullException(nameof(conn));
+            if (sql == null) throw new ArgumentNullException(nameof(sql));
 
             return Query(conn, sql, CommandType.Text, CommandBehavior.Default, null,null, parameters);
         }
@@ -316,8 +316,8 @@ namespace CoreTechs.Common.Database
         public static Task<DataSet> QuerySqlAsync(this IDbConnection conn, string sql, CancellationToken cancellationToken,
             params DbParameter[] parameters)
         {
-            if (conn == null) throw new ArgumentNullException("conn");
-            if (sql == null) throw new ArgumentNullException("sql");
+            if (conn == null) throw new ArgumentNullException(nameof(conn));
+            if (sql == null) throw new ArgumentNullException(nameof(sql));
 
             return QueryAsync(conn, sql, CommandType.Text, CommandBehavior.Default, null,null, cancellationToken, parameters);
         }
@@ -327,8 +327,8 @@ namespace CoreTechs.Common.Database
         /// </summary>
         public static DataSet QueryProc(this IDbConnection conn, string procedureName, params DbParameter[] parameters)
         {
-            if (conn == null) throw new ArgumentNullException("conn");
-            if (procedureName == null) throw new ArgumentNullException("procedureName");
+            if (conn == null) throw new ArgumentNullException(nameof(conn));
+            if (procedureName == null) throw new ArgumentNullException(nameof(procedureName));
             return Query(conn, procedureName, CommandType.StoredProcedure, CommandBehavior.Default, null,null, parameters);
         }
 
@@ -347,8 +347,8 @@ namespace CoreTechs.Common.Database
         public static Task<DataSet> QueryProcAsync(this IDbConnection conn, string procedureName, CancellationToken cancellationToken,
             params DbParameter[] parameters)
         {
-            if (conn == null) throw new ArgumentNullException("conn");
-            if (procedureName == null) throw new ArgumentNullException("procedureName");
+            if (conn == null) throw new ArgumentNullException(nameof(conn));
+            if (procedureName == null) throw new ArgumentNullException(nameof(procedureName));
             return QueryAsync(conn, procedureName, CommandType.StoredProcedure, CommandBehavior.Default, null, null,
                 cancellationToken, parameters);
         }
@@ -358,8 +358,8 @@ namespace CoreTechs.Common.Database
         /// </summary>
         public static DataSet Query(this IDbConnection conn, string sql, CommandType commandType, CommandBehavior commandBehavior, TimeSpan? commandTimeout, IDbTransaction transaction, params DbParameter[] parameters)
         {
-            if (conn == null) throw new ArgumentNullException("conn");
-            if (sql == null) throw new ArgumentNullException("sql");
+            if (conn == null) throw new ArgumentNullException(nameof(conn));
+            if (sql == null) throw new ArgumentNullException(nameof(sql));
 
             var dataset = new DataSet { EnforceConstraints = false };
             using (var cmd = CreateCommand(conn, sql, commandType, commandTimeout, transaction, parameters))
@@ -387,8 +387,8 @@ namespace CoreTechs.Common.Database
         /// </summary>
         public static async Task<DataSet> QueryAsync(this IDbConnection conn, string sql, CommandType commandType, CommandBehavior commandBehavior, TimeSpan? commandTimeout, IDbTransaction transaction, CancellationToken cancellationToken, params DbParameter[] parameters)
         {
-            if (conn == null) throw new ArgumentNullException("conn");
-            if (sql == null) throw new ArgumentNullException("sql");
+            if (conn == null) throw new ArgumentNullException(nameof(conn));
+            if (sql == null) throw new ArgumentNullException(nameof(sql));
 
             var dataset = new DataSet { EnforceConstraints = false };
 
@@ -408,8 +408,8 @@ namespace CoreTechs.Common.Database
         /// </summary>
         public static void ExecuteSql(this IDbConnection conn, string sql, params DbParameter[] parameters)
         {
-            if (conn == null) throw new ArgumentNullException("conn");
-            if (sql == null) throw new ArgumentNullException("sql");
+            if (conn == null) throw new ArgumentNullException(nameof(conn));
+            if (sql == null) throw new ArgumentNullException(nameof(sql));
 
             Execute(conn, sql, CommandType.Text, null,null, parameters);
         }
@@ -419,8 +419,8 @@ namespace CoreTechs.Common.Database
         /// </summary>
         public static async Task ExecuteSqlAsync(this IDbConnection conn, string sql, CancellationToken cancellationToken, params DbParameter[] parameters)
         {
-            if (conn == null) throw new ArgumentNullException("conn");
-            if (sql == null) throw new ArgumentNullException("sql");
+            if (conn == null) throw new ArgumentNullException(nameof(conn));
+            if (sql == null) throw new ArgumentNullException(nameof(sql));
 
             await ExecuteAsync(conn, sql, CommandType.Text, null,null, cancellationToken, parameters);
         }
@@ -438,8 +438,8 @@ namespace CoreTechs.Common.Database
         /// </summary>
         public static void ExecuteProc(this IDbConnection conn, string procedureName, params DbParameter[] parameters)
         {
-            if (conn == null) throw new ArgumentNullException("conn");
-            if (procedureName == null) throw new ArgumentNullException("procedureName");
+            if (conn == null) throw new ArgumentNullException(nameof(conn));
+            if (procedureName == null) throw new ArgumentNullException(nameof(procedureName));
 
             Execute(conn, procedureName, CommandType.StoredProcedure, null,null, parameters);
         }
@@ -458,8 +458,8 @@ namespace CoreTechs.Common.Database
         /// </summary>
         public static Task ExecuteProcAsync(this IDbConnection conn, string procedureName, CancellationToken cancellationToken, params DbParameter[] parameters)
         {
-            if (conn == null) throw new ArgumentNullException("conn");
-            if (procedureName == null) throw new ArgumentNullException("procedureName");
+            if (conn == null) throw new ArgumentNullException(nameof(conn));
+            if (procedureName == null) throw new ArgumentNullException(nameof(procedureName));
 
             return ExecuteAsync(conn, procedureName, CommandType.StoredProcedure, null,null, cancellationToken, parameters);
         }
@@ -546,7 +546,7 @@ namespace CoreTechs.Common.Database
         /// </summary>
         public static IEnumerable<DataRow> AsEnumerable(this DataSet dataset)
         {
-            if (dataset == null) throw new ArgumentNullException("dataset");
+            if (dataset == null) throw new ArgumentNullException(nameof(dataset));
             return dataset.Tables.Cast<DataTable>().SelectMany(t => t.AsEnumerable());
         }
 
@@ -556,7 +556,7 @@ namespace CoreTechs.Common.Database
         /// </summary>
         public static IEnumerable<dynamic> AsDynamic(this DataSet dataset)
         {
-            if (dataset == null) throw new ArgumentNullException("dataset");
+            if (dataset == null) throw new ArgumentNullException(nameof(dataset));
             return dataset.AsEnumerable().Select(x => x.AsDynamic());
         }
 
@@ -566,7 +566,7 @@ namespace CoreTechs.Common.Database
         /// </summary>
         public static IEnumerable<dynamic> AsDynamic(this DataTable dataTable)
         {
-            if (dataTable == null) throw new ArgumentNullException("dataTable");
+            if (dataTable == null) throw new ArgumentNullException(nameof(dataTable));
             return dataTable.AsEnumerable().Select(x => x.AsDynamic());
         }
 
@@ -575,7 +575,7 @@ namespace CoreTechs.Common.Database
         /// </summary>
         public static IEnumerable<T> AsEnumerable<T>(this DataTable dataTable) where T : class, new()
         {
-            if (dataTable == null) throw new ArgumentNullException("dataTable");
+            if (dataTable == null) throw new ArgumentNullException(nameof(dataTable));
             return dataTable.AsEnumerable().Select(row => row.Create<T>());
         }
 
@@ -584,7 +584,7 @@ namespace CoreTechs.Common.Database
         /// </summary>
         public static IEnumerable<T> AsEnumerable<T>(this DataSet dataSet) where T : class, new()
         {
-            if (dataSet == null) throw new ArgumentNullException("dataSet");
+            if (dataSet == null) throw new ArgumentNullException(nameof(dataSet));
             return dataSet.AsEnumerable().Select(row => row.Create<T>());
         }
 

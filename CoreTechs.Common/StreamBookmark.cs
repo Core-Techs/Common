@@ -10,19 +10,18 @@ namespace CoreTechs.Common
     public class StreamBookmark : IDisposable
     {
         private readonly Stream _stream;
-        private readonly long _position;
 
-        public long Position { get { return _position; } }
+        public long Position { get; }
 
         public StreamBookmark(Stream stream)
         {
             _stream = stream;
-            _position = stream.Position;
+            Position = stream.Position;
         }
 
         public void Dispose()
         {
-            _stream.Seek(_position, SeekOrigin.Begin);
+            _stream.Seek(Position, SeekOrigin.Begin);
         }
     }
 }

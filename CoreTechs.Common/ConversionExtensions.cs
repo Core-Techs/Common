@@ -10,10 +10,10 @@ namespace CoreTechs.Common
         public static void RegisterTypeConverter(Type typeConverterType, Type appliedToType)
         {
             if (typeConverterType == null) throw new ArgumentNullException("typeConverter");
-            if (appliedToType == null) throw new ArgumentNullException("appliedToType");
+            if (appliedToType == null) throw new ArgumentNullException(nameof(appliedToType));
 
             if (!typeof (TypeConverter).IsAssignableFrom(typeConverterType))
-                throw new ArgumentOutOfRangeException("typeConverterType",
+                throw new ArgumentOutOfRangeException(nameof(typeConverterType),
                     string.Format("{1} is not assignable from {0}", typeConverterType.FullName,
                         typeof (TypeConverter).FullName));
 
@@ -37,10 +37,7 @@ namespace CoreTechs.Common
             EnumConverter.Register();
         }
 
-        private static Memoizer Cache
-        {
-            get { return Memoizer.InternalInstance.Value; }
-        }
+        private static Memoizer Cache => Memoizer.InternalInstance.Value;
 
         public static T ConvertTo<T>(this object value)
         {
@@ -49,7 +46,7 @@ namespace CoreTechs.Common
 
         public static object ConvertTo(this object value, Type destinationType)
         {
-            if (destinationType == null) throw new ArgumentNullException("destinationType");
+            if (destinationType == null) throw new ArgumentNullException(nameof(destinationType));
 
             if (destinationType.IsInstanceOfType(value))
                 return value;
@@ -62,7 +59,7 @@ namespace CoreTechs.Common
                 return null;
 
             if (value == null)
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
 
             var sourceType = value.GetType();
             var cacheKey = new

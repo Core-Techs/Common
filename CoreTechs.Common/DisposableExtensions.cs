@@ -25,7 +25,7 @@ namespace CoreTechs.Common
         public static void DisposeAllTheThings(this IEnumerable<IDisposable> disposables)
         {
             if (disposables == null)
-                throw new ArgumentNullException("disposables");
+                throw new ArgumentNullException(nameof(disposables));
 
             var dispose = disposables
                 .Where(x => x != null)

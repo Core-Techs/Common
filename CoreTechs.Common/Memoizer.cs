@@ -32,10 +32,7 @@ namespace CoreTechs.Common
         }
 
         private static readonly Lazy<Memoizer> LazyInstance = new Lazy<Memoizer>(() => new Memoizer());
-        public static Memoizer Instance
-        {
-            get { return LazyInstance.Value; }
-        }
+        public static Memoizer Instance => LazyInstance.Value;
 
         /// <summary>
         /// Used by this library.

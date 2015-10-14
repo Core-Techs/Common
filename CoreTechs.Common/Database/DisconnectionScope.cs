@@ -14,7 +14,7 @@ namespace CoreTechs.Common.Database
 
         public DisconnectionScope(IDbConnection connection)
         {
-            if (connection == null) throw new ArgumentNullException("connection");
+            if (connection == null) throw new ArgumentNullException(nameof(connection));
 
             _connection = connection;
             _initState = connection.State;

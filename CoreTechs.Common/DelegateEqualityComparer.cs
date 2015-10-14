@@ -10,7 +10,7 @@ namespace CoreTechs.Common
 
         public DelegateEqualityComparer(Func<T, T, bool> @equals, Func<T, int> hash = null)
         {
-            if (@equals == null) throw new ArgumentNullException("equals");
+            if (@equals == null) throw new ArgumentNullException(nameof(@equals));
             _equals = @equals;
             _hash = hash ?? (_ => 0);
         }

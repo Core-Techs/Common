@@ -107,26 +107,17 @@ namespace CoreTechs.Common
         /// <summary>
         /// True if an exception was not thrown; false otherwise.
         /// </summary>
-        public bool Succeeded
-        {
-            get { return _exDispatchInfo == null; }
-        }
+        public bool Succeeded => _exDispatchInfo == null;
 
         /// <summary>
         /// True if an exception was thrown; false otherwise.
         /// </summary>
-        public bool Failed
-        {
-            get { return !Succeeded; }
-        }
+        public bool Failed => !Succeeded;
 
         /// <summary>
         /// The exception that was thrown.
         /// </summary>
-        public Exception Exception
-        {
-            get { return _exDispatchInfo == null ? null : _exDispatchInfo.SourceException; }
-        }
+        public Exception Exception => _exDispatchInfo == null ? null : _exDispatchInfo.SourceException;
 
         /// <summary>
         /// Throws the exception if present.
@@ -151,13 +142,7 @@ namespace CoreTechs.Common
         /// <summary>
         /// How long the attempt took.
         /// </summary>
-        public TimeSpan Duration
-        {
-            get
-            {
-                return _lazyDuration.Value;
-            }
-        }
+        public TimeSpan Duration => _lazyDuration.Value;
 
         internal Attempt(DateTimeOffset beginDateTime, ExceptionDispatchInfo exInfo = null)
         {
@@ -267,10 +252,7 @@ namespace CoreTechs.Common
         /// <summary>
         /// The succeeding attempt. Will be null if all attempts failed.
         /// </summary>
-        public T Success
-        {
-            get { return Succeeded ? _attempts.Last.Value : null; }
-        }
+        public T Success => Succeeded ? _attempts.Last.Value : null;
 
         /// <summary>
         /// When attempts began.
@@ -285,10 +267,7 @@ namespace CoreTechs.Common
         /// <summary>
         /// Duration of all attempts.
         /// </summary>
-        public TimeSpan Duration
-        {
-            get { return EndDateTime - BeginDateTime; }
-        }
+        public TimeSpan Duration => EndDateTime - BeginDateTime;
 
         /// <summary>
         /// Total number of attempts.
@@ -303,13 +282,7 @@ namespace CoreTechs.Common
         /// <summary>
         /// True if an attempt succeeded; false otherwise.
         /// </summary>
-        public bool Succeeded
-        {
-            get
-            {
-                return _attempts.Count > 0 && _attempts.Last.Value.Succeeded;
-            }
-        }
+        public bool Succeeded => _attempts.Count > 0 && _attempts.Last.Value.Succeeded;
 
         public Attempts()
         {
@@ -591,7 +564,7 @@ namespace CoreTechs.Common
         public static IEnumerable<Lazy<T>> UsingStrategy<T>(this IEnumerable<Lazy<T>> lazyAttempts,
             IRetryStrategy strategy, CancellationToken cancellationToken) where T : Attempt
         {
-            if (strategy == null) throw new ArgumentNullException("strategy");
+            if (strategy == null) throw new ArgumentNullException(nameof(strategy));
 
             if (strategy.AttemptLimit > 0)
                 lazyAttempts = lazyAttempts.Take(strategy.AttemptLimit.Value);
@@ -656,8 +629,8 @@ namespace CoreTechs.Common
         /// </summary>
         public static T CatchIf<T>(this T attempt, Func<T, bool> predicate) where T : Attempt
         {
-            if (attempt == null) throw new ArgumentNullException("attempt");
-            if (predicate == null) throw new ArgumentNullException("predicate");
+            if (attempt == null) throw new ArgumentNullException(nameof(attempt));
+            if (predicate == null) throw new ArgumentNullException(nameof(predicate));
 
             if (attempt.Failed && !predicate(attempt))
                 attempt.ThrowIfFailed();
@@ -670,8 +643,8 @@ namespace CoreTechs.Common
         /// </summary>
         public static T ThrowIf<T>(this T attempt, Func<T, bool> predicate) where T : Attempt
         {
-            if (attempt == null) throw new ArgumentNullException("attempt");
-            if (predicate == null) throw new ArgumentNullException("predicate");
+            if (attempt == null) throw new ArgumentNullException(nameof(attempt));
+            if (predicate == null) throw new ArgumentNullException(nameof(predicate));
             return attempt.CatchIf(predicate.Invert());
         }
     }

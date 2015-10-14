@@ -17,7 +17,7 @@ namespace CoreTechs.Common
 
         private void InitMutex(Guid appGuid)
         {
-            var mutexId = string.Format("Global\\{{{0}}}", appGuid);
+            var mutexId = $"Global\\{{{appGuid}}}";
             _mutex = new Mutex(false, mutexId);
 
             var allowEveryoneRule = new MutexAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null), MutexRights.FullControl, AccessControlType.Allow);

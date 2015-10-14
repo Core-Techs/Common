@@ -14,14 +14,14 @@ namespace CoreTechs.Common
 
         public static byte[] Encode(this string s, Encoding encoding = null)
         {
-            if (s == null) throw new ArgumentNullException("s");
+            if (s == null) throw new ArgumentNullException(nameof(s));
             encoding = encoding ?? Encoding.Default;
             return encoding.GetBytes(s);
         }
 
         public static string Decode(this IEnumerable<byte> bytes, Encoding encoding = null)
         {
-            if (bytes == null) throw new ArgumentNullException("bytes");
+            if (bytes == null) throw new ArgumentNullException(nameof(bytes));
             encoding = encoding ?? Encoding.Default;
             return encoding.GetString(bytes.ToArray());
         }
@@ -31,8 +31,8 @@ namespace CoreTechs.Common
         /// </summary>
         public static string Join(this IEnumerable source, string separator = ", ")
         {
-            if (source == null) throw new ArgumentNullException("source");
-            if (separator == null) throw new ArgumentNullException("separator");
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            if (separator == null) throw new ArgumentNullException(nameof(separator));
 
             return source.Join(_ => separator);
         }
@@ -45,8 +45,8 @@ namespace CoreTechs.Common
         /// <returns>The joined string.</returns>
         public static string Join(this IEnumerable source, Func<int, string> separatorFunc)
         {
-            if (source == null) throw new ArgumentNullException("source");
-            if (separatorFunc == null) throw new ArgumentNullException("separatorFunc");
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            if (separatorFunc == null) throw new ArgumentNullException(nameof(separatorFunc));
 
             var it = source.GetEnumerator();
             if (!it.MoveNext()) return "";
@@ -143,7 +143,7 @@ namespace CoreTechs.Common
         /// </summary>
         public static string SafeSubstring(this string s, int startIndex, int length)
         {
-            if (s == null) throw new ArgumentNullException("s");
+            if (s == null) throw new ArgumentNullException(nameof(s));
 
             // originally implemented as:
             //   return string.Concat(s.Skip(startIndex).Take(length));
@@ -190,8 +190,8 @@ namespace CoreTechs.Common
         /// </summary>
         public static IEnumerable<string> SplitWhere(this string s, Func<char, bool> predicate, bool returnSplitChars = false)
         {
-            if (s == null) throw new ArgumentNullException("s");
-            if (predicate == null) throw new ArgumentNullException("predicate");
+            if (s == null) throw new ArgumentNullException(nameof(s));
+            if (predicate == null) throw new ArgumentNullException(nameof(predicate));
 
             var curr = new StringBuilder();
             foreach (var c in s)
@@ -246,13 +246,13 @@ namespace CoreTechs.Common
 
         public static StringReader ToStringReader(this string s)
         {
-            if (s == null) throw new ArgumentNullException("s");
+            if (s == null) throw new ArgumentNullException(nameof(s));
             return new StringReader(s);
         }
 
         public static string StringConcat<T>(this IEnumerable<T> source)
         {
-            if (source == null) throw new ArgumentNullException("source");
+            if (source == null) throw new ArgumentNullException(nameof(source));
 
             return string.Concat(source);
         }
@@ -265,14 +265,14 @@ namespace CoreTechs.Common
 
         public static string StringConcat<T>(this IEnumerable<T> source, string format, IFormatProvider formatProvider = null) where T: IFormattable
         {
-            if (source == null) throw new ArgumentNullException("source");
+            if (source == null) throw new ArgumentNullException(nameof(source));
 
             return source.FormatMany(format, formatProvider).StringConcat();
         }
 
         public static IEnumerable<string> ReadLines(this TextReader reader)
         {
-            if (reader == null) throw new ArgumentNullException("reader");
+            if (reader == null) throw new ArgumentNullException(nameof(reader));
             while (true )
             {
                 var line = reader.ReadLine();
@@ -285,13 +285,13 @@ namespace CoreTechs.Common
 
         public static IEnumerable<string> ReadLines(this string s)
         {
-            if (s == null) throw new ArgumentNullException("s");
+            if (s == null) throw new ArgumentNullException(nameof(s));
             return s.ToStringReader().ReadLines();
         }
 
         public static IEnumerable<char> EnumerateCharacters(this TextReader reader)
         {
-            if (reader == null) throw new ArgumentNullException("reader");
+            if (reader == null) throw new ArgumentNullException(nameof(reader));
 
             while (true)
             {
@@ -323,7 +323,7 @@ namespace CoreTechs.Common
         /// <returns></returns>
         public static IEnumerable<byte> AsHexBytes(this IEnumerable<char> chars)
         {
-            if (chars == null) throw new ArgumentNullException("chars");
+            if (chars == null) throw new ArgumentNullException(nameof(chars));
 
             return chars.Select(char.ToUpperInvariant)
                 // sequence is uppercase

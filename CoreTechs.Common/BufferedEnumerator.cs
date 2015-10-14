@@ -18,10 +18,10 @@ namespace CoreTechs.Common
 
         public BufferedEnumerator(IEnumerator<T> enumerator, int? capacity = null, bool disposeSourceEnumerator = true)
         {
-            if (enumerator == null) throw new ArgumentNullException("enumerator");
+            if (enumerator == null) throw new ArgumentNullException(nameof(enumerator));
 
             if (capacity.HasValue && capacity < 1)
-                throw new ArgumentOutOfRangeException("capacity");
+                throw new ArgumentOutOfRangeException(nameof(capacity));
 
             _enumerator = enumerator;
             _disposeSource = disposeSourceEnumerator;
@@ -81,13 +81,7 @@ namespace CoreTechs.Common
             _current = null;
         }
 
-        public T Current
-        {
-            get
-            {
-                return _current == null ? default(T) : _current.Value;
-            }
-        }
+        public T Current => _current == null ? default(T) : _current.Value;
 
         public void ClearBuffer()
         {
@@ -120,9 +114,6 @@ namespace CoreTechs.Common
                 _buffer.RemoveFirst();
         }
 
-        object IEnumerator.Current
-        {
-            get { return Current; }
-        }
+        object IEnumerator.Current => Current;
     }
 }

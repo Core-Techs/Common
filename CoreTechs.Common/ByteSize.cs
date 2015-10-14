@@ -14,11 +14,7 @@ namespace CoreTechs.Common
             public const double Petabyte = Terabyte * 1024;
         }
 
-        private readonly long _bytes;
-        public long Bytes
-        {
-            get { return _bytes; }
-        }
+        public long Bytes { get; }
 
         private double? _kb;
         public double Kilobytes
@@ -26,7 +22,7 @@ namespace CoreTechs.Common
             get
             {
                 if (!_kb.HasValue)
-                    _kb = _bytes / ConversionFactors.Kilobyte;
+                    _kb = Bytes / ConversionFactors.Kilobyte;
 
                 return _kb.Value;
             }
@@ -38,7 +34,7 @@ namespace CoreTechs.Common
             get
             {
                 if (!_mb.HasValue)
-                    _mb = _bytes / ConversionFactors.Megabyte;
+                    _mb = Bytes / ConversionFactors.Megabyte;
 
                 return _mb.Value;
             }
@@ -50,7 +46,7 @@ namespace CoreTechs.Common
             get
             {
                 if (!_gb.HasValue)
-                    _gb = _bytes / ConversionFactors.Gigabyte;
+                    _gb = Bytes / ConversionFactors.Gigabyte;
 
                 return _gb.Value;
             }
@@ -62,7 +58,7 @@ namespace CoreTechs.Common
             get
             {
                 if (!_tb.HasValue)
-                    _tb = _bytes / ConversionFactors.Terabyte;
+                    _tb = Bytes / ConversionFactors.Terabyte;
 
                 return _tb.Value;
             }
@@ -74,7 +70,7 @@ namespace CoreTechs.Common
             get
             {
                 if (!_pb.HasValue)
-                    _pb = _bytes / ConversionFactors.Petabyte;
+                    _pb = Bytes / ConversionFactors.Petabyte;
 
                 return _pb.Value;
             }
@@ -82,7 +78,7 @@ namespace CoreTechs.Common
 
         public ByteSize(long bytes)
         {
-            _bytes = bytes;
+            Bytes = bytes;
         }
 
         public static ByteSize FromBytes(long bytes)
@@ -124,12 +120,12 @@ namespace CoreTechs.Common
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return _bytes == other._bytes;
+            return Bytes == other.Bytes;
         }
 
         public int CompareTo(ByteSize other)
         {
-            return _bytes.CompareTo(other._bytes);
+            return Bytes.CompareTo(other.Bytes);
         }
 
         public override bool Equals(object obj)
@@ -142,7 +138,7 @@ namespace CoreTechs.Common
 
         public override int GetHashCode()
         {
-            return _bytes.GetHashCode();
+            return Bytes.GetHashCode();
         }
 
         public static bool operator ==(ByteSize left, ByteSize right)
@@ -167,22 +163,22 @@ namespace CoreTechs.Common
 
         public static bool operator <(ByteSize left, ByteSize right)
         {
-            return left._bytes < right._bytes;
+            return left.Bytes < right.Bytes;
         }
 
         public static bool operator >(ByteSize left, ByteSize right)
         {
-            return left._bytes > right._bytes;
+            return left.Bytes > right.Bytes;
         }
 
         public static bool operator <=(ByteSize left, ByteSize right)
         {
-            return left._bytes <= right._bytes;
+            return left.Bytes <= right.Bytes;
         }
 
         public static bool operator >=(ByteSize left, ByteSize right)
         {
-            return left._bytes >= right._bytes;
+            return left.Bytes >= right.Bytes;
         }
     }
 }

@@ -33,8 +33,8 @@ namespace CoreTechs.Common
         /// </summary>
         public static IEnumerable<TResult> Consume<TSource, TResult>(this IEnumerable<TSource> seq, Func<IEnumerable<TSource>, TResult> func)
         {
-            if (seq == null) throw new ArgumentNullException("seq");
-            if (func == null) throw new ArgumentNullException("func");
+            if (seq == null) throw new ArgumentNullException(nameof(seq));
+            if (func == null) throw new ArgumentNullException(nameof(func));
 
             using (var it = seq.GetEnumerator())
                 while (it.MoveNext())
@@ -43,7 +43,7 @@ namespace CoreTechs.Common
 
         public static IEnumerable<T> AsEnumerable<T>(this IEnumerator<T> enumerator, bool primed = false, bool disposeEnumerator = false)
         {
-            if (enumerator == null) throw new ArgumentNullException("enumerator");
+            if (enumerator == null) throw new ArgumentNullException(nameof(enumerator));
 
             using (disposeEnumerator ? enumerator : null)
             {
@@ -118,7 +118,7 @@ namespace CoreTechs.Common
         /// <thanks to="Jon Skeet">http://stackoverflow.com/a/648240/64334</thanks>
         public static T RandomElement<T>(this IEnumerable<T> source, Random rng = null)
         {
-            if (source == null) throw new ArgumentNullException("source");
+            if (source == null) throw new ArgumentNullException(nameof(source));
             rng = rng ?? RNG.Instance;
 
             var list = source as IList<T>;
@@ -142,7 +142,7 @@ namespace CoreTechs.Common
         // more efficient for collections with an indexer
         public static T RandomElement<T>(this IList<T> list, Random rng = null)
         {
-            if (list == null) throw new ArgumentNullException("list");
+            if (list == null) throw new ArgumentNullException(nameof(list));
 
             if (list.Count == 0)
                 throw new InvalidOperationException("List was empty");
@@ -155,7 +155,7 @@ namespace CoreTechs.Common
 
         public static T GetNextOrDefault<T>(this IEnumerator<T> source, T @default = default(T))
         {
-            if (source == null) throw new ArgumentNullException("source");
+            if (source == null) throw new ArgumentNullException(nameof(source));
             return !source.MoveNext() ? @default : source.Current;
         }
 
@@ -197,13 +197,13 @@ namespace CoreTechs.Common
         [Obsolete("Use Tail instead", false)]
         public static IEnumerable<T> TakeLast<T>(this IEnumerable<T> source, int count)
         {
-            if (source == null) throw new ArgumentNullException("source");
+            if (source == null) throw new ArgumentNullException(nameof(source));
             return Tail(source, count);
         }
 
         public static IEnumerable<T> Take<T>(this IEnumerable<T> enumerable, long count)
         {
-            if (enumerable == null) throw new ArgumentNullException("enumerable");
+            if (enumerable == null) throw new ArgumentNullException(nameof(enumerable));
 
             var it = enumerable.GetEnumerator();
             for (long i = 0; i < count && it.MoveNext(); i++)
@@ -212,7 +212,7 @@ namespace CoreTechs.Common
 
         public static void Enumerate(this IEnumerable enumerable)
         {
-            if (enumerable == null) throw new ArgumentNullException("enumerable");
+            if (enumerable == null) throw new ArgumentNullException(nameof(enumerable));
 
             foreach (var item in enumerable)
                 item.Noop();
@@ -265,7 +265,7 @@ namespace CoreTechs.Common
 
         public static BufferedEnumerator<T> GetBufferedEnumerator<T>(this IEnumerable<T> enumerable, int? capacity = null)
         {
-            if (enumerable == null) throw new ArgumentNullException("enumerable");
+            if (enumerable == null) throw new ArgumentNullException(nameof(enumerable));
 
             return new BufferedEnumerator<T>(enumerable.GetEnumerator(), capacity, true);
         }
@@ -278,7 +278,7 @@ namespace CoreTechs.Common
         public static IEnumerable<T> ExceptTail<T>(this IEnumerable<T> seq, int? tailLength = null)
         {
             if (seq == null)
-                throw new ArgumentNullException("seq");
+                throw new ArgumentNullException(nameof(seq));
 
             if (tailLength == null)
             {
@@ -291,7 +291,7 @@ namespace CoreTechs.Common
             }
 
             if (tailLength < 0)
-                throw new ArgumentOutOfRangeException("tailLength");
+                throw new ArgumentOutOfRangeException(nameof(tailLength));
 
             var arr = seq as IList<T>;
             if (arr != null)
@@ -327,7 +327,7 @@ namespace CoreTechs.Common
         public static IEnumerable<T> Tail<T>(this IEnumerable<T> seq, int? tailLength = null)
         {
             if (seq == null)
-                throw new ArgumentNullException("seq");
+                throw new ArgumentNullException(nameof(seq));
 
             if (tailLength == null)
             {
@@ -383,9 +383,9 @@ namespace CoreTechs.Common
                                                  Func<T, int> hashImpl = null)
         {
             if (seq == null)
-                throw new ArgumentNullException("seq");
+                throw new ArgumentNullException(nameof(seq));
             if (equalsImpl == null)
-                throw new ArgumentNullException("equalsImpl");
+                throw new ArgumentNullException(nameof(equalsImpl));
 
             var comparer = new DelegateEqualityComparer<T>(equalsImpl, hashImpl);
             return seq.Distinct(comparer);

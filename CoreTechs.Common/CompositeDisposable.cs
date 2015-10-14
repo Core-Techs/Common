@@ -18,7 +18,7 @@ namespace CoreTechs.Common
         public CompositeDisposable(IEnumerable<IDisposable> disposables)
         {
             if (disposables == null) 
-                throw new ArgumentNullException("disposables");
+                throw new ArgumentNullException(nameof(disposables));
 
             _disposables = disposables.ToArray();
         }

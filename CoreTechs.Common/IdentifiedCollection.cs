@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 
 namespace CoreTechs.Common
@@ -102,15 +101,15 @@ namespace CoreTechs.Common
         /// <param name="keyComparer">An IEqualityComparer used to distinguish keys.</param>
         public IdentifiedCollection(KeyFinder keyFinder, IEqualityComparer<TKey> keyComparer)
         {
-            if (keyFinder == null) throw new ArgumentNullException("keyFinder");
+            if (keyFinder == null) throw new ArgumentNullException(nameof(keyFinder));
             _keyFinder = keyFinder;
             Items = new List<TItem>();
             Dictionary = new Dictionary<TKey, TItem>(keyComparer ?? EqualityComparer<TKey>.Default);
         }
 
         #region ICollection Implementation
-        public int Count { get { return Items.Count; } }
-        public bool IsReadOnly { get { return false; } }
+        public int Count => Items.Count;
+        public bool IsReadOnly => false;
 
         public void Add(TItem item)
         {
@@ -212,10 +211,7 @@ namespace CoreTechs.Common
             return Dictionary.TryGetValue(key, out value);
         }
 
-        public TItem this[TKey key]
-        {
-            get { return Dictionary[key]; }
-        }
+        public TItem this[TKey key] => Dictionary[key];
 
         public IReadOnlyDictionary<TKey, TItem> AsReadOnlyDictionary()
         {

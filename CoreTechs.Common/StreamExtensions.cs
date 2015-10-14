@@ -10,7 +10,7 @@ namespace CoreTechs.Common
     {
         public static IEnumerable<byte> EnumerateBytes(this Stream stream)
         {
-            if (stream == null) throw new ArgumentNullException("stream");
+            if (stream == null) throw new ArgumentNullException(nameof(stream));
             int b;
             while ((b = stream.ReadByte()) != -1)
                 yield return (byte)b;
@@ -18,7 +18,7 @@ namespace CoreTechs.Common
 
         public static MemoryStream ToMemoryStream(this IEnumerable<byte> bytes)
         {
-            if (bytes == null) throw new ArgumentNullException("bytes");
+            if (bytes == null) throw new ArgumentNullException(nameof(bytes));
 
             return new MemoryStream(bytes.ToArray());
         }
@@ -299,7 +299,7 @@ namespace CoreTechs.Common
         /// </summary>
         public static StreamBookmark Bookmark(this Stream stream)
         {
-            if (stream == null) throw new ArgumentNullException("stream");
+            if (stream == null) throw new ArgumentNullException(nameof(stream));
             return new StreamBookmark(stream);
         }
     }

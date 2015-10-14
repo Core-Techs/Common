@@ -21,7 +21,7 @@ namespace CoreTechs.Common.Text
         /// </remarks>
         public static IEnumerable<string[]> ReadCsv(this TextReader reader, char delimiter = ',', char textQualifier = '"')
         {
-            if (reader == null) throw new ArgumentNullException("reader");
+            if (reader == null) throw new ArgumentNullException(nameof(reader));
             
             const int readNothing = -1;
             var data = new List<int>();
@@ -114,7 +114,7 @@ namespace CoreTechs.Common.Text
            char delimiter = ',',
            char textQualifier = '"')
         {
-            if (reader == null) throw new ArgumentNullException("reader");
+            if (reader == null) throw new ArgumentNullException(nameof(reader));
 
             var it = reader.ReadCsv(delimiter, textQualifier).GetEnumerator();
             if (!it.MoveNext())

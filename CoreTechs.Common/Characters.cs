@@ -6,78 +6,33 @@ namespace CoreTechs.Common
 {
     public static class Characters
     {
-        public static IEnumerable<char> All
-        {
-            get
-            {
-                return char.MinValue.To(char.MaxValue);
-            }
-        }
+        public static IEnumerable<char> All => char.MinValue.To(char.MaxValue);
 
-        public static IEnumerable<char> Letters
-        {
-            get { return All.Where(char.IsLetter); }
-        }
+        public static IEnumerable<char> Letters => All.Where(char.IsLetter);
 
-        public static IEnumerable<char> ControlCharacters
-        {
-            get { return All.Where(char.IsControl); }
-        }
+        public static IEnumerable<char> ControlCharacters => All.Where(char.IsControl);
 
-        public static IEnumerable<char> Digits
-        {
-            get { return All.Where(char.IsDigit); }
-        }
+        public static IEnumerable<char> Digits => All.Where(char.IsDigit);
 
-        public static IEnumerable<char> HighSurrogates
-        {
-            get { return All.Where(char.IsHighSurrogate); }
-        }
+        public static IEnumerable<char> HighSurrogates => All.Where(char.IsHighSurrogate);
 
-        public static IEnumerable<char> LettersAndDigits
-        {
-            get { return All.Where(char.IsLetterOrDigit); }
-        }
+        public static IEnumerable<char> LettersAndDigits => All.Where(char.IsLetterOrDigit);
 
-        public static IEnumerable<char> LowerCaseCharacters
-        {
-            get { return All.Where(char.IsLower); }
-        }
+        public static IEnumerable<char> LowerCaseCharacters => All.Where(char.IsLower);
 
-        public static IEnumerable<char> LowSurrogates
-        {
-            get { return All.Where(char.IsLowSurrogate); }
-        }
+        public static IEnumerable<char> LowSurrogates => All.Where(char.IsLowSurrogate);
 
-        public static IEnumerable<char> Numbers
-        {
-            get { return All.Where(char.IsNumber); }
-        }
+        public static IEnumerable<char> Numbers => All.Where(char.IsNumber);
 
-        public static IEnumerable<char> PunctuationCharacters
-        {
-            get { return All.Where(char.IsPunctuation); }
-        }
+        public static IEnumerable<char> PunctuationCharacters => All.Where(char.IsPunctuation);
 
-        public static IEnumerable<char> Separators
-        {
-            get { return All.Where(char.IsSeparator); }
-        }
+        public static IEnumerable<char> Separators => All.Where(char.IsSeparator);
 
-        public static IEnumerable<char> Symbols
-        {
-            get { return All.Where(char.IsSymbol); }
-        }
+        public static IEnumerable<char> Symbols => All.Where(char.IsSymbol);
 
-        public static IEnumerable<char> UpperCaseCharacters
-        {
-            get { return All.Where(char.IsUpper); }
-        }
+        public static IEnumerable<char> UpperCaseCharacters => All.Where(char.IsUpper);
 
-        public static IEnumerable<char> WhiteSpaceCharacters
-        {
-            get { return All.Where(char.IsWhiteSpace); }
-        }
+        public static IEnumerable<char> WhiteSpaceCharacters => All.Where(char.IsWhiteSpace);
 
         private static Func<char, bool> MapPredicate(CharTypes type)
         {
@@ -96,7 +51,7 @@ namespace CoreTechs.Common
                 case CharTypes.LowSurrogate: return char.IsLowSurrogate;
                 case CharTypes.Separator: return char.IsSeparator;
                 default:
-                    throw new ArgumentOutOfRangeException("type");
+                    throw new ArgumentOutOfRangeException(nameof(type));
             }
         }
 

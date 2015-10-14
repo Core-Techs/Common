@@ -36,7 +36,7 @@ namespace CoreTechs.Common
                 case DateTimePrecision.Year:
                     return new DateTime(dt.Year, 1, 1, 0, 0, 0, 0, dt.Kind);
                 default:
-                    throw new ArgumentOutOfRangeException("precision");
+                    throw new ArgumentOutOfRangeException(nameof(precision));
             }
         }
 
@@ -60,7 +60,7 @@ namespace CoreTechs.Common
                 case DateTimePrecision.Year:
                     return new DateTimeOffset(dt.Year, 1, 1, 0, 0, 0, 0, dt.Offset);
                 default:
-                    throw new ArgumentOutOfRangeException("precision");
+                    throw new ArgumentOutOfRangeException(nameof(precision));
             }
         }
 

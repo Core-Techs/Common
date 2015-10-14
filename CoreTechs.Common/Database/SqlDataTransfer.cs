@@ -21,8 +21,8 @@ namespace CoreTechs.Common.Database
 
         public SqlDataTransfer(string sourceConnectionString, string destinationConnectionString)
         {
-            if (sourceConnectionString == null) throw new ArgumentNullException("sourceConnectionString");
-            if (destinationConnectionString == null) throw new ArgumentNullException("destinationConnectionString");
+            if (sourceConnectionString == null) throw new ArgumentNullException(nameof(sourceConnectionString));
+            if (destinationConnectionString == null) throw new ArgumentNullException(nameof(destinationConnectionString));
 
             _sourceConnString = sourceConnectionString;
             _destConnString = destinationConnectionString;
@@ -46,7 +46,7 @@ namespace CoreTechs.Common.Database
         public void TransferData(string tableName, string query = null, SqlParameter[] queryParams = null, SqlBulkCopyOptions sqlBulkCopyOptions = SqlBulkCopyOptions.Default, SqlTransaction sqlTransaction = null, Action<SqlBulkCopy> sqlBulkCopyCustomizer = null, bool smartColumnMapping = true)
         {
             if (tableName == null)
-                throw new ArgumentNullException("tableName");
+                throw new ArgumentNullException(nameof(tableName));
 
             if (!tableName.Contains("["))
                 tableName = tableName.Split('.').Select(n => "[" + n + "]").Join(".");
@@ -58,7 +58,7 @@ namespace CoreTechs.Common.Database
             using (source.Connect())
             using (dest.Connect())
             {
-                query = query.IsNullOrWhiteSpace() ? string.Format("SELECT * FROM {0}", tableName) : query;
+                query = query.IsNullOrWhiteSpace() ? $"SELECT * FROM {tableName}" : query;
 
                 bcp.EnableStreaming = true;
                 bcp.DestinationTableName = tableName;
@@ -91,7 +91,7 @@ namespace CoreTechs.Common.Database
         {
             using (var cmd = dest.CreateCommand())
             {
-                cmd.CommandText = string.Format("SELECT * FROM {0}", bcp.DestinationTableName);
+                cmd.CommandText = $"SELECT * FROM {bcp.DestinationTableName}";
 
                 using (var reader = cmd.ExecuteReader(CommandBehavior.SchemaOnly))
                 {

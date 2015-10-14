@@ -32,10 +32,10 @@ namespace CoreTechs.Common
         public PreFetchingEnumerable(IEnumerable<T> source, int? capacity = 2)
         {
             if (source == null) 
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException(nameof(source));
 
             if (capacity < 1)
-                throw new ArgumentOutOfRangeException("capacity", "capacity must not be less than 1");
+                throw new ArgumentOutOfRangeException(nameof(capacity), "capacity must not be less than 1");
 
             _source = source;
             _capacity = capacity;

@@ -22,18 +22,18 @@ namespace CoreTechs.Common
         }
 
         public decimal Meters { get; private set; }
-        public decimal Kilometers { get { return Meters / ConversionFactors.Kilometer; } }
-        public decimal Centimeters { get { return Meters / ConversionFactors.Centimeter; } }
-        public decimal Millimeters { get { return Meters / ConversionFactors.Millimeter; } }
-        public decimal Inches { get { return Meters / ConversionFactors.Inch; } }
-        public decimal Feet { get { return Meters / ConversionFactors.Foot; } }
-        public decimal Yards { get { return Meters / ConversionFactors.Yard; } }
-        public decimal Miles { get { return Meters / ConversionFactors.Mile; } }
-        public decimal AstronomicalUnits { get { return Meters / ConversionFactors.AstronomicalUnit; } }
-        public decimal LightYears { get { return Meters / ConversionFactors.LightYear; } }
-        public decimal Parsecs { get { return Meters / ConversionFactors.Parsec; } }
-        public decimal HubbleLengths { get { return Meters / ConversionFactors.HubbleLength; } }
-        public decimal Cubits { get { return Meters / ConversionFactors.Cubit; } }
+        public decimal Kilometers => Meters / ConversionFactors.Kilometer;
+        public decimal Centimeters => Meters / ConversionFactors.Centimeter;
+        public decimal Millimeters => Meters / ConversionFactors.Millimeter;
+        public decimal Inches => Meters / ConversionFactors.Inch;
+        public decimal Feet => Meters / ConversionFactors.Foot;
+        public decimal Yards => Meters / ConversionFactors.Yard;
+        public decimal Miles => Meters / ConversionFactors.Mile;
+        public decimal AstronomicalUnits => Meters / ConversionFactors.AstronomicalUnit;
+        public decimal LightYears => Meters / ConversionFactors.LightYear;
+        public decimal Parsecs => Meters / ConversionFactors.Parsec;
+        public decimal HubbleLengths => Meters / ConversionFactors.HubbleLength;
+        public decimal Cubits => Meters / ConversionFactors.Cubit;
 
         private Length(decimal meters)
         {

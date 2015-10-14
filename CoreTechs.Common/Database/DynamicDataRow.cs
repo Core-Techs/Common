@@ -11,7 +11,7 @@ namespace CoreTechs.Common.Database
 
         public DynamicDataRow(DataRow row)
         {
-            if (row == null) throw new ArgumentNullException("row");
+            if (row == null) throw new ArgumentNullException(nameof(row));
             _row = row;
         }
 

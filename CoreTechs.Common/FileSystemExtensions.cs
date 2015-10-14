@@ -15,7 +15,7 @@ namespace CoreTechs.Common
         /// </summary>
         public static IEnumerable<FileSystemInfo> EnumeratePathUpToRoot(this FileSystemInfo source)
         {
-            if (source == null) throw new ArgumentNullException("source");
+            if (source == null) throw new ArgumentNullException(nameof(source));
 
             yield return source;
             var parent = source.GetParentDirectory();
@@ -31,13 +31,13 @@ namespace CoreTechs.Common
         /// </summary>
         public static IEnumerable<FileSystemInfo> EnumeratePathDownFromRoot(this FileSystemInfo source)
         {
-            if (source == null) throw new ArgumentNullException("source");
+            if (source == null) throw new ArgumentNullException(nameof(source));
             return source.EnumeratePathUpToRoot().Reverse();
         }
 
         public static IEnumerable<byte> EnumerateBytes(this FileInfo file)
         {
-            if (file == null) throw new ArgumentNullException("file");
+            if (file == null) throw new ArgumentNullException(nameof(file));
 
             using (var stream = file.OpenRead())
             {
@@ -55,7 +55,7 @@ namespace CoreTechs.Common
 
         public static bool IsDirectoryPath(this string path)
         {
-            if (path == null) throw new ArgumentNullException("path");
+            if (path == null) throw new ArgumentNullException(nameof(path));
             path = path.Trim();
 
             if (Directory.Exists(path))
@@ -86,8 +86,8 @@ namespace CoreTechs.Common
 
     public static DirectoryInfo GetSubDirectory(this DirectoryInfo directory, params string[] subDirectories)
     {
-        if (directory == null) throw new ArgumentNullException("directory");
-        if (subDirectories == null) throw new ArgumentNullException("subDirectories");
+        if (directory == null) throw new ArgumentNullException(nameof(directory));
+        if (subDirectories == null) throw new ArgumentNullException(nameof(subDirectories));
 
         var path = Path.Combine(directory.FullName, Path.Combine(subDirectories));
         var sub = new DirectoryInfo(path);
@@ -211,7 +211,7 @@ namespace CoreTechs.Common
 
         public static IEnumerable<FileInfo> WhereCanOpen(this IEnumerable<FileInfo> files)
         {
-            if (files == null) throw new ArgumentNullException("files");
+            if (files == null) throw new ArgumentNullException(nameof(files));
             return files.Where(f => f.AttemptOpen().Succeeded);
         }
 
@@ -276,7 +276,7 @@ namespace CoreTechs.Common
 
         public static DirectoryInfo EnsureExists(this DirectoryInfo dir)
         {
-            if (dir == null) throw new ArgumentNullException("dir");
+            if (dir == null) throw new ArgumentNullException(nameof(dir));
 
             if (!dir.Exists)
                 dir.Create();
@@ -289,8 +289,8 @@ namespace CoreTechs.Common
         /// </summary>
         public static bool Contains(this DirectoryInfo dir, FileSystemInfo other)
         {
-            if (dir == null) throw new ArgumentNullException("dir");
-            if (other == null) throw new ArgumentNullException("other");
+            if (dir == null) throw new ArgumentNullException(nameof(dir));
+            if (other == null) throw new ArgumentNullException(nameof(other));
 
             return other.FullName.StartsWith(dir.FullName, true, null);
 
@@ -309,8 +309,8 @@ namespace CoreTechs.Common
         /// </summary>
         public static bool ContainsDirectly(this DirectoryInfo dir, FileSystemInfo other)
         {
-            if (dir == null) throw new ArgumentNullException("dir");
-            if (other == null) throw new ArgumentNullException("other");
+            if (dir == null) throw new ArgumentNullException(nameof(dir));
+            if (other == null) throw new ArgumentNullException(nameof(other));
 
             return dir.AreSame(other.GetParentDirectory());
         }

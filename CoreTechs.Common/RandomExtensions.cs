@@ -91,7 +91,7 @@ namespace CoreTechs.Common
         public static long NextInt64(this Random random, long minValue, long maxValue)
         {
             if (maxValue <= minValue)
-                throw new ArgumentOutOfRangeException("max", "max must be > min!");
+                throw new ArgumentOutOfRangeException(nameof(maxValue), "max must be > min!");
 
             //Working with ulong so that modulo works correctly with values > long.MaxValue
             var uRange = (ulong)(maxValue - minValue);
@@ -140,7 +140,7 @@ namespace CoreTechs.Common
         public static decimal NextDecimal(this Random rng, bool? isNegative = null, byte? scale = null)
         {
             if (scale < 0 || scale > 28)
-                throw new ArgumentOutOfRangeException("scale", "0 >= scale <= 28");
+                throw new ArgumentOutOfRangeException(nameof(scale), "0 >= scale <= 28");
 
             scale = scale ?? (byte) rng.Next(29);
             var sign = isNegative ?? rng.NextBool();

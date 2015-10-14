@@ -197,7 +197,7 @@ namespace CoreTechs.Common
         protected virtual void OnOldestItemRemoved(KeyValuePair<TKey, TValue> e)
         {
             var handler = OldestItemRemoved;
-            if (handler != null) handler(this, e);
+            handler?.Invoke(this, e);
         }
 
         /// <summary>
@@ -205,8 +205,8 @@ namespace CoreTechs.Common
         /// </summary>
         public TValue Get(TKey key, Func<TKey, TValue> factory)
         {
-            if (ReferenceEquals(key, null)) throw new ArgumentNullException("key");
-            if (factory == null) throw new ArgumentNullException("factory");
+            if (ReferenceEquals(key, null)) throw new ArgumentNullException(nameof(key));
+            if (factory == null) throw new ArgumentNullException(nameof(factory));
 
             try
             {
@@ -233,8 +233,8 @@ namespace CoreTechs.Common
         /// <returns>The value.</returns>
         public async Task<TValue> GetAsync(TKey key, Func<TKey, Task<TValue>> factory)
         {
-            if (ReferenceEquals(key, null)) throw new ArgumentNullException("key");
-            if (factory == null) throw new ArgumentNullException("factory");
+            if (ReferenceEquals(key, null)) throw new ArgumentNullException(nameof(key));
+            if (factory == null) throw new ArgumentNullException(nameof(factory));
 
             LinkedListNode<KeyValuePair<TKey, TValue>> item = null, removed = null;
 

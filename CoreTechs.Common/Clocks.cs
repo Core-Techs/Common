@@ -21,7 +21,7 @@ namespace CoreTechs.Common
 
         public TestClock(DateTimeOffset initialInstant, Func<DateTimeOffset, DateTimeOffset> nextNowFunction)
         {
-            if (nextNowFunction == null) throw new ArgumentNullException("nextNowFunction");
+            if (nextNowFunction == null) throw new ArgumentNullException(nameof(nextNowFunction));
 
             _prevInstant = initialInstant;
             _nextNowFunction = prev =>
@@ -55,13 +55,8 @@ namespace CoreTechs.Common
     /// </summary>
     public class SystemClock : IClock
     {
-        public DateTimeOffset Now { get { return DateTimeOffset.Now; } }
+        public DateTimeOffset Now => DateTimeOffset.Now;
 
-        private static readonly SystemClock Clock = new SystemClock();
-
-        public static SystemClock Instance
-        {
-            get { return Clock; }
-        }
+        public static SystemClock Instance { get; } = new SystemClock();
     }
 }

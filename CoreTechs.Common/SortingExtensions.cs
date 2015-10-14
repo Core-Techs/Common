@@ -26,7 +26,7 @@ namespace CoreTechs.Common
 
         public static IOrderedQueryable<T> OrderBy<T>(this IQueryable<T> source, IEnumerable<SortDescriptor> sorts)
         {
-            if (sorts == null) throw new ArgumentNullException("sorts");
+            if (sorts == null) throw new ArgumentNullException(nameof(sorts));
 
             IOrderedQueryable<T> sorted = null;
             var i = 0;
