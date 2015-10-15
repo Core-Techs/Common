@@ -18,10 +18,10 @@ namespace Tests
             using (var conn = new SqlConnection("server=.;database=afsx;integrated security=true"))
             using(conn.Connect())
             {
-                var opts = SqlBulkCopyOptions.KeepNulls;
-                using (var bi = new BulkInserter<Record>(conn, table, copyOptions: opts,bufferSize:20000))
+                const SqlBulkCopyOptions opts = SqlBulkCopyOptions.KeepNulls;
+                using (var bi = new BulkInserter<Record>(conn, table, copyOptions: opts, bufferSize:20000))
                 {
-                    conn.ExecuteSql(string.Format("TRUNCATE TABLE {0}", table));
+                    conn.ExecuteSql($"TRUNCATE TABLE {table}");
 
                     using (
                         var reader =
