@@ -1,22 +1,11 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Linq;
-using System.Runtime.ExceptionServices;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CoreTechs.Common
 {
-
-    /// <summary>
-    /// A stateless, task-based message loop.
-    /// Commonly useful within a class that you intend to be thread-safe,
-    /// but don't want to use locks/mutexes.
-    /// 
-    /// Synchronization is achieved by sequencing interactions through the
-    /// message loop, rather than using locks.
-    /// </summary>
-    public class MessageLoop : MessageLoop<object> { }
-
     /// <summary>
     /// A task-based message loop that allows for interacting with generic state.
     /// This is useful when you need to interact with an object from multiple threads,
@@ -25,159 +14,138 @@ namespace CoreTechs.Common
     /// Synchronization is achieved by sequencing interactions through the
     /// message loop, rather than using locks.
     /// </summary>
-    public class MessageLoop<T> : IDisposable
+    public class MessageLoop<TState> : IDisposable
     {
-        private readonly Task _task;
-        private readonly BlockingCollection<Message> _msgs = new BlockingCollection<Message>();
+        private readonly Task _loopTask;
+        private readonly BlockingCollection<TaskCompletionSource<object>> _msgs;
+        private readonly Thread _loopThread;
+        private readonly TState _state;
+        private readonly IDisposable _disposableState;
 
-        public MessageLoop(T state) : this(() => state, false) { }
-        public MessageLoop() : this(() => default(T)) { }
-        public MessageLoop(Func<T> stateFactory) : this(stateFactory, true) { }
-        public MessageLoop(Func<T> stateFactory, bool disposeState)
+        public MessageLoop(Func<TState> stateFactory, bool disposeState = true, int? capacity = null)
         {
-            stateFactory = stateFactory ?? (() => default(T));
+            if (stateFactory == null) throw new ArgumentNullException(nameof(stateFactory));
 
-            var readyExitCtor = new TaskCompletionSource<bool>();
+            _msgs = capacity.HasValue
+                ? new BlockingCollection<TaskCompletionSource<object>>(capacity.Value)
+                : new BlockingCollection<TaskCompletionSource<object>>();
 
-            _task = Task.Run(() =>
+            var readyExitCtor = new TaskCompletionSource<Tuple<TState, Thread>>();
+
+            _loopTask = Task.Run(() =>
             {
-                T state;
-
                 try
                 {
-                    state = stateFactory();
+                    var state = stateFactory();
+                    readyExitCtor.SetResult(Tuple.Create(state, Thread.CurrentThread));
                 }
                 catch (Exception ex)
                 {
                     readyExitCtor.SetException(ex);
-                    throw;
+                    return;
                 }
 
-                using (disposeState ? state as IDisposable : null)
+                foreach (var msg in _msgs.GetConsumingEnumerable())
                 {
-                    readyExitCtor.SetResult(true);
-
-                    foreach (var msg in _msgs.GetConsumingEnumerable())
+                    try
                     {
-                        var result = new MessageResult();
-                        try
-                        {
-                            result.Value = msg.Factory(state);
-                        }
-                        catch (Exception ex)
-                        {
-                            result.Exception = ExceptionDispatchInfo.Capture(ex);
-                        }
-
-                        msg.CompletionSource.SetResult(result);
+                        var func = (Func<TState, Task<object>>)msg.Task.AsyncState;
+                        var result = func(_state).Result;
+                        msg.SetResult(result);
+                    }
+                    catch (AggregateException ex) when (ex.InnerExceptions.Count == 1)
+                    {
+                        msg.SetException(ex.InnerException);
+                    }
+                    catch (Exception ex)
+                    {
+                        msg.SetException(ex);
                     }
                 }
+
             });
 
             try
             {
-                readyExitCtor.Task.Wait();
+                var result = readyExitCtor.Task.Result;
+                _state = result.Item1;
+                _loopThread = result.Item2;
             }
-            catch (AggregateException ex)
+            catch (AggregateException ex) when (ex.InnerExceptions.Count == 1)
             {
-                if (ex.InnerExceptions.Count == 1)
-                    throw ex.InnerExceptions.Single();
-
-                throw;
+                throw ex.InnerException;
             }
-        }
 
-        public async Task<TResult> GetAsync<TResult>(Func<T, TResult> factory)
-        {
-            var result = await SendMessageAsync(factory);
-
-            if (result.Exception != null)
-                result.Exception.Throw();
-
-            return (TResult)result.Value;
-        }
-
-        public Task<TResult> GetAsync<TResult>(Func<TResult> factory)
-        {
-            return GetAsync(_ => factory());
-        }
-
-        public TResult Get<TResult>(Func<T, TResult> factory)
-        {
-            var result = SendMessageAsync(factory).Result;
-
-            if (result.Exception != null)
-                result.Exception.Throw();
-
-            return (TResult)result.Value;
-        }
-
-        public TResult Get<TResult>(Func<TResult> factory)
-        {
-            return Get(_ => factory());
-        }
-
-        public async Task DoAsync(Action<T> action)
-        {
-            await GetAsync(src =>
-            {
-                action(src);
-                return 0;
-            });
-        }
-
-        public Task DoAsync(Action action)
-        {
-            return DoAsync(_ => action());
-        }
-
-        public void Do(Action<T> action)
-        {
-            Get(src =>
-            {
-                action(src);
-                return 0;
-            });
-        }
-
-        public void Do(Action action)
-        {
-            Do(_ => action());
-        }
-
-        private Task<MessageResult> SendMessageAsync<TResult>(Func<T, TResult> factory)
-        {
-            var msg = new Message(src => (object)factory(src));
-            _msgs.Add(msg);
-            return msg.CompletionSource.Task;
+            if (disposeState)
+                _disposableState = _state as IDisposable;
         }
 
         public void Dispose()
         {
-            using (_task)
+            using (_loopTask)
             using (_msgs)
+            using (_disposableState)
             {
                 _msgs.CompleteAdding();
-                _task.Wait();
+                _loopTask.Wait();
             }
         }
 
-        class Message
+        public async Task<TResult> GetAsync<TResult>(Func<TState, Task<TResult>> resultFunc)
         {
-            public readonly TaskCompletionSource<MessageResult> CompletionSource
-                = new TaskCompletionSource<MessageResult>();
-            public readonly Func<T, object> Factory;
+            if (resultFunc == null) throw new ArgumentNullException(nameof(resultFunc));
 
-            public Message(Func<T, object> factory)
+            if (Thread.CurrentThread == _loopThread)
             {
-                Factory = factory;
+                // already in message loop. inline execution.
+                return await resultFunc(_state).ConfigureAwait(false);
+            }
+
+            Func<TState, Task<object>> func = async state => await resultFunc(state).ConfigureAwait(false);
+            var msg = new TaskCompletionSource<object>(func);
+            _msgs.Add(msg);
+            var result = await msg.Task.ConfigureAwait(false);
+            return (TResult)result;
+        }
+
+        public TResult Get<TResult>(Func<TState, TResult> resultFunc)
+        {
+            try
+            {
+                return GetAsync(state => Task.FromResult(resultFunc(state))).Result;
+            }
+            catch (AggregateException ex) when (ex.InnerExceptions.Count == 1)
+            {
+                throw ex.InnerException;
             }
         }
 
-        class MessageResult
+
+        public async Task DoAsync(Func<TState, Task> action)
         {
-            public object Value;
-            public ExceptionDispatchInfo Exception;
+            if (action == null) throw new ArgumentNullException(nameof(action));
+
+            await GetAsync(async state =>
+            {
+                await action(state);
+                return 0;
+            });
+        }
+
+        public void Do(Action<TState> action)
+        {
+            try
+            {
+                GetAsync(state =>
+                {
+                    action(state);
+                    return Task.FromResult(0);
+                }).Wait();
+            }
+            catch (AggregateException ex) when (ex.InnerExceptions.Count == 1)
+            {
+                throw ex.InnerException;
+            }
         }
     }
 }

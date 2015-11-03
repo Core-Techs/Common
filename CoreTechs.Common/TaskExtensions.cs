@@ -67,9 +67,6 @@ namespace CoreTechs.Common
             return taskFactory.StartNew(function, cancellationToken, creationOptions, taskScheduler);
         }
 
-        public static Task<T> ToTask<T>(this T source)
-        {
-            return Task.FromResult(source);
-        }
+        public static Task<T> ToTask<T>(this T source) => Task.FromResult(source);
     }
 }
