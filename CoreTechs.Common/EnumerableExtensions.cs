@@ -7,6 +7,11 @@ namespace CoreTechs.Common
 {
     public static class EnumerableExtensions
     {
+        public static Dictionary<TKey, int> CountBy<TElement, TKey>(this IEnumerable<TElement> sequence, Func<TElement, TKey> keyFunc)
+        {
+            return sequence.GroupBy(keyFunc).ToDictionary(g => g.Key, g => g.Count());
+        }
+
         public static IEnumerable<T> SkipWhileNot<T>(this IEnumerable<T> source, Func<T, bool> predicate)
         {
             return source.SkipWhile(x => !predicate(x));
