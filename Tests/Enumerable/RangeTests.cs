@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using CoreTechs.Common;
 using NUnit.Framework;
 
@@ -53,6 +54,14 @@ namespace Tests.Enumerable
 
             }, range);
 
+        }
+
+        [Test]
+        public void CanGenerateRangeOfAllChars()
+        {
+            var count = Characters.All.Count();
+
+            Assert.AreEqual(65536, count);
         }
 
         [Test]

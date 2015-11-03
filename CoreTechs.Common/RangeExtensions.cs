@@ -116,7 +116,14 @@ namespace CoreTechs.Common
             while (c1 == c2 || c2 == 0)
             {
                 yield return i;
-                i = stepper(i, step);
+                try
+                {
+                    i = stepper(i, step);
+                }
+                catch (OverflowException)
+                {
+                    yield break;
+                }
                 c2 = Compare(i, to);
             }
         }
