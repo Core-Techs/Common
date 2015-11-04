@@ -201,27 +201,6 @@ namespace CoreTechs.Common
         }
 
         /// <summary>
-        /// Synchronous version of GetAsync.
-        /// </summary>
-        public TValue Get(TKey key, Func<TKey, TValue> factory)
-        {
-            if (ReferenceEquals(key, null)) throw new ArgumentNullException(nameof(key));
-            if (factory == null) throw new ArgumentNullException(nameof(factory));
-
-            try
-            {
-                return GetAsync(key, k => Task.FromResult(factory(k))).Result;
-            }
-            catch (AggregateException ex)
-            {
-                if (ex.InnerExceptions.Count == 1)
-                    ExceptionDispatchInfo.Capture(ex.InnerExceptions.Single()).Throw();
-
-                throw;
-            }
-        }
-
-        /// <summary>
         /// Gets an value by key from the cache. If the key is not found
         /// the factory is invoked to produce the value and it is stored
         /// in the cache before being returned. If the cache is full 
@@ -231,7 +210,7 @@ namespace CoreTechs.Common
         /// <param name="factory">The function that's invoked to create the value
         /// when the key is not found. The function takes the key as an argument.</param>
         /// <returns>The value.</returns>
-        public async Task<TValue> GetAsync(TKey key, Func<TKey, Task<TValue>> factory)
+        public TValue Get(TKey key, Func<TKey, TValue> factory)
         {
             if (ReferenceEquals(key, null)) throw new ArgumentNullException(nameof(key));
             if (factory == null) throw new ArgumentNullException(nameof(factory));
@@ -274,7 +253,7 @@ namespace CoreTechs.Common
 
                 // key not found
                 // create the value
-                var value = await factory(key);
+                var value = factory(key);
 
                 // store in collections
                 item = List.AddFirst(new KeyValuePair<TKey, TValue>(key, value));
