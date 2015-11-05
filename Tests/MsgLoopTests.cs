@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using CoreTechs.Common;
 using NUnit.Framework;
+using static System.Console;
 
 namespace Tests
 {
@@ -141,6 +143,38 @@ namespace Tests
                 var x = loop.Get(n => loop.Get(n2 => loop.Get(n3 => n3)));
                 Assert.AreEqual(expected, x);
             }
+        }
+
+        [Test]
+        public void CanInterceptMessages()
+        {
+            var i = 0;
+
+            using (var loop = new MessageLoop<int>(() => 0, interceptor: async (s, f) =>
+            {
+                i++;
+                try
+                {
+                    var result = await f(s);
+                    return result;
+                }
+                finally
+                {
+                    i++;
+                }
+            }))
+            {
+                loop.Do(w => i++);
+                try
+                {
+                    loop.Do(w => DivZero());
+                }
+                catch 
+                {
+                }
+            }
+
+            Assert.AreEqual(5,i);
         }
     }
 }

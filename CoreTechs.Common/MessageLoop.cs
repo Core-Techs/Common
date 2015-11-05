@@ -21,10 +21,14 @@ namespace CoreTechs.Common
         private readonly Thread _loopThread;
         private readonly TState _state;
         private readonly IDisposable _disposableState;
+        private readonly Func<TState, Func<TState, Task<object>>, Task<object>> _interceptor;
 
-        public MessageLoop(Func<TState> stateFactory, bool disposeState = true, int? capacity = null)
+
+        public MessageLoop(Func<TState> stateFactory, bool disposeState = true, int? capacity = null, Func<TState, Func<TState, Task<object>>, Task<object>> interceptor = null)
         {
             if (stateFactory == null) throw new ArgumentNullException(nameof(stateFactory));
+
+            _interceptor = interceptor;
 
             _msgs = capacity.HasValue
                 ? new BlockingCollection<TaskCompletionSource<object>>(capacity.Value)
@@ -50,8 +54,12 @@ namespace CoreTechs.Common
                     try
                     {
                         var func = (Func<TState, Task<object>>)msg.Task.AsyncState;
-                        var result = func(_state).Result;
-                        msg.SetResult(result);
+
+                        var task = _interceptor == null
+                            ? func(_state)
+                            : _interceptor(_state, func);
+
+                        msg.SetResult(task.Result);
                     }
                     catch (AggregateException ex) when (ex.InnerExceptions.Count == 1)
                     {
