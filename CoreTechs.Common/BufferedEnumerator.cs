@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace CoreTechs.Common
 {
@@ -10,9 +11,9 @@ namespace CoreTechs.Common
     public class BufferedEnumerator<T> : IEnumerator<T>
     {
         private IEnumerator<T> _enumerator;
-        readonly LinkedList<T> _buffer = new LinkedList<T>();
+        private readonly LinkedList<T> _buffer = new LinkedList<T>();
         private LinkedListNode<T> _current;
-        readonly bool _disposeSource;
+        private readonly bool _disposeSource;
         private bool _disposed;
         private readonly int? _cap;
 
@@ -50,8 +51,11 @@ namespace CoreTechs.Common
 
         public bool MoveNext()
         {
-            if (_current == null || _current == _buffer.Last)
+            if (_buffer.Count == 0 || _current != null && _current == _buffer.Last)
             {
+                // buffer is empty OR current is at end of buffer
+                // need to attempt moving source enumerator
+
                 var moved = _enumerator.MoveNext();
                 if (moved)
                     _current = _buffer.AddLast(_enumerator.Current);
@@ -61,13 +65,16 @@ namespace CoreTechs.Common
                 return moved;
             }
 
-            _current = _current.Next;
+            // buffer not empty
+            // move to next or first in buffer
+
+            _current = _current == null ? _buffer.First : _current.Next;
             return true;
         }
 
         public bool MovePrevious()
         {
-            if (_current == null || _current == _buffer.First)
+            if (_current == null /*|| _current == _buffer.First*/)
                 return false;
 
             _current = _current.Previous;

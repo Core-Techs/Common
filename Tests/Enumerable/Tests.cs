@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting;
 using CoreTechs.Common;
 using NUnit.Framework;
 
@@ -12,7 +13,7 @@ namespace Tests.Enumerable
         public void CanBufferEnumerable()
         {
             var buffers = 1.To(35).Buffer(10).Select(b => b.ToArray()).ToArray();
-            
+
             CollectionAssert.AreEqual(1.To(10), buffers[0]);
             CollectionAssert.AreEqual(11.To(20), buffers[1]);
             CollectionAssert.AreEqual(21.To(30), buffers[2]);
@@ -28,10 +29,10 @@ namespace Tests.Enumerable
             {
                 new int?[0],
                 new int?[0],
-                new int?[]{1,null,2},
-                new int?[]{1},
+                new int?[] {1, null, 2},
+                new int?[] {1},
                 new int?[0],
-                
+
             }, result);
         }
 
@@ -153,8 +154,26 @@ namespace Tests.Enumerable
                 Word = word;
             }
 
-            public int Number { get; set; }
-            public string Word { get; set; }
+            public int Number { get; }
+            public string Word { get; }
+        }
+
+        [Test]
+        public void BufferedEnumTest()
+        {
+            const string seq = "ronnie";
+
+            using (var it = new BufferedEnumerator<char>(seq.GetEnumerator()))
+            {
+                Assert.AreEqual(default(char), it.Current);
+                while (it.MoveNext()) { }
+                Assert.AreEqual('e', it.Current);
+                it.MovePrevious();
+                Assert.AreEqual('i', it.Current);
+                while (it.MovePrevious()) { }
+                CollectionAssert.AreEqual(seq, it.AsEnumerable());
+                Assert.False(it.MoveNext());
+            }
         }
     }
 }
