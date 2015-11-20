@@ -9,7 +9,7 @@ namespace CoreTechs.Common
     {
         public static void RegisterTypeConverter(Type typeConverterType, Type appliedToType)
         {
-            if (typeConverterType == null) throw new ArgumentNullException("typeConverter");
+            if (typeConverterType == null) throw new ArgumentNullException(nameof(typeConverterType));
             if (appliedToType == null) throw new ArgumentNullException(nameof(appliedToType));
 
             if (!typeof (TypeConverter).IsAssignableFrom(typeConverterType))
@@ -125,7 +125,7 @@ namespace CoreTechs.Common
             // if the destination is string
             // call tostring
             if (destType == typeof(string))
-                yield return x => x == null ? null : x.ToString();
+                yield return x => x?.ToString();
         }
 
         private static IEnumerable<Func<object, object>> GetCoreConversionFuncs(Type sourceType, Type destType)

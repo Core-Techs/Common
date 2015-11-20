@@ -21,10 +21,10 @@ namespace CoreTechs.Common
         private readonly Thread _loopThread;
         private readonly TState _state;
         private readonly IDisposable _disposableState;
-        private readonly Func<TState, Func<TState, Task<object>>, Task<object>> _interceptor;
+        private readonly Func<TState, MessageContext, Task<object>> _interceptor;
 
 
-        public MessageLoop(Func<TState> stateFactory, bool disposeState = true, int? capacity = null, Func<TState, Func<TState, Task<object>>, Task<object>> interceptor = null)
+        public MessageLoop(Func<TState> stateFactory, bool disposeState = true, int? capacity = null, Func<TState, MessageContext, Task<object>> interceptor = null)
         {
             if (stateFactory == null) throw new ArgumentNullException(nameof(stateFactory));
 
@@ -50,27 +50,7 @@ namespace CoreTechs.Common
                 }
 
                 foreach (var msg in _msgs.GetConsumingEnumerable())
-                {
-                    try
-                    {
-                        var func = (Func<TState, Task<object>>)msg.Task.AsyncState;
-
-                        var task = _interceptor == null
-                            ? func(_state)
-                            : _interceptor(_state, func);
-
-                        msg.SetResult(task.Result);
-                    }
-                    catch (AggregateException ex) when (ex.InnerExceptions.Count == 1)
-                    {
-                        msg.SetException(ex.InnerException);
-                    }
-                    catch (Exception ex)
-                    {
-                        msg.SetException(ex);
-                    }
-                }
-
+                    ProcessMessage(msg);
             });
 
             try
@@ -88,6 +68,26 @@ namespace CoreTechs.Common
                 _disposableState = _state as IDisposable;
         }
 
+        private void ProcessMessage(TaskCompletionSource<object> msg)
+        {
+            try
+            {
+                var msgState = (MessageContext)msg.Task.AsyncState;
+                var task = _interceptor == null
+                    ? msgState.Func(_state)
+                    : _interceptor(_state, msgState);
+                msg.SetResult(task.Result);
+            }
+            catch (AggregateException ex) when (ex.InnerExceptions.Count == 1)
+            {
+                msg.SetException(ex.InnerException);
+            }
+            catch (Exception ex)
+            {
+                msg.SetException(ex);
+            }
+        }
+
         public void Dispose()
         {
             using (_loopTask)
@@ -103,15 +103,21 @@ namespace CoreTechs.Common
         {
             if (resultFunc == null) throw new ArgumentNullException(nameof(resultFunc));
 
+            Func<TState, Task<object>> func = async state => await resultFunc(state).ConfigureAwait(false);
+            TaskCompletionSource<object> msg;
+
             if (Thread.CurrentThread == _loopThread)
             {
                 // already in message loop. inline execution.
-                return await resultFunc(_state).ConfigureAwait(false);
+                msg = new TaskCompletionSource<object>(new MessageContext(func, true));
+                ProcessMessage(msg);
+            }
+            else
+            {
+                msg = new TaskCompletionSource<object>(new MessageContext(func, false));
+                _msgs.Add(msg);
             }
 
-            Func<TState, Task<object>> func = async state => await resultFunc(state).ConfigureAwait(false);
-            var msg = new TaskCompletionSource<object>(func);
-            _msgs.Add(msg);
             var result = await msg.Task.ConfigureAwait(false);
             return (TResult)result;
         }
@@ -154,6 +160,26 @@ namespace CoreTechs.Common
             {
                 throw ex.InnerException;
             }
+        }
+
+
+
+        public class MessageContext
+        {
+            internal MessageContext(Func<TState, Task<object>> func, bool nestedMessage)
+            {
+                Func = func;
+                NestedMessage = nestedMessage;
+            }
+
+
+            public Func<TState, Task<object>> Func { get; }
+
+            /// <summary>
+            /// True when the message is being sent from the thread that is processing messages.
+            /// </summary>
+            public bool NestedMessage { get; }
+
         }
     }
 }

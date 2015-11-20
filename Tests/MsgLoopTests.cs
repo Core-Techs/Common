@@ -150,12 +150,12 @@ namespace Tests
         {
             var i = 0;
 
-            using (var loop = new MessageLoop<int>(() => 0, interceptor: async (s, f) =>
+            using (var loop = new MessageLoop<int>(() => 0, interceptor: async (s, ctx) =>
             {
                 i++;
                 try
                 {
-                    var result = await f(s);
+                    var result = await ctx.Func(s);
                     return result;
                 }
                 finally
@@ -175,6 +175,29 @@ namespace Tests
             }
 
             Assert.AreEqual(5,i);
+        }
+
+        [Test]
+        public void CanInterceptNestedMessages()
+        {
+            var normalInterceptions = 0;
+            var nestedInterceptions = 0;
+
+            const int expected = 123;
+            using (var loop = new MessageLoop<int>(() => expected,interceptor: async (i, ctx) =>
+            {
+                if (ctx.NestedMessage) nestedInterceptions++;
+                else normalInterceptions++;
+
+                return await ctx.Func(i);
+            }))
+            {
+                var x = loop.Get(n => loop.Get(n2 => loop.Get(n3 => n3)));
+                Assert.AreEqual(expected, x);
+                Assert.AreEqual(1, normalInterceptions);
+                Assert.AreEqual(2, nestedInterceptions);
+
+            }
         }
     }
 }
