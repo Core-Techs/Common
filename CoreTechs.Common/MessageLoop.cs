@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Linq;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -16,13 +16,11 @@ namespace CoreTechs.Common
     /// </summary>
     public class MessageLoop<TState> : IDisposable
     {
-        private readonly Task _loopTask;
         private readonly BlockingCollection<TaskCompletionSource<object>> _msgs;
         private readonly Thread _loopThread;
         private readonly TState _state;
-        private readonly IDisposable _disposableState;
         private readonly Func<TState, MessageContext, Task<object>> _interceptor;
-
+        private readonly bool _disposeState;
 
         public MessageLoop(Func<TState> stateFactory, bool disposeState = true, int? capacity = null, Func<TState, MessageContext, Task<object>> interceptor = null)
         {
@@ -34,49 +32,51 @@ namespace CoreTechs.Common
                 ? new BlockingCollection<TaskCompletionSource<object>>(capacity.Value)
                 : new BlockingCollection<TaskCompletionSource<object>>();
 
-            var readyExitCtor = new TaskCompletionSource<Tuple<TState, Thread>>();
-
-            _loopTask = Task.Run(() =>
+            using (var loopReady = new ManualResetEventSlim())
             {
-                try
+                TState state = default(TState);
+                ExceptionDispatchInfo ctorEx = null;
+
+                _loopThread = new Thread(async () =>
                 {
-                    var state = stateFactory();
-                    readyExitCtor.SetResult(Tuple.Create(state, Thread.CurrentThread));
-                }
-                catch (Exception ex)
-                {
-                    readyExitCtor.SetException(ex);
-                    return;
-                }
+                    try
+                    {
+                         state = stateFactory();
+                    }
+                    catch (Exception ex)
+                    {
+                        ctorEx = ExceptionDispatchInfo.Capture(ex);                        
+                    }
+                    finally
+                    {
+                        loopReady.Set();
+                    }
 
-                foreach (var msg in _msgs.GetConsumingEnumerable())
-                    ProcessMessage(msg);
-            });
+                    foreach (var msg in _msgs.GetConsumingEnumerable())
+                        await ProcessMessageAsync(msg);
+                });
 
-            try
-            {
-                var result = readyExitCtor.Task.Result;
-                _state = result.Item1;
-                _loopThread = result.Item2;
+                _loopThread.Start();
+                loopReady.Wait();
+                ctorEx?.Throw();
+                _state = state;
             }
-            catch (AggregateException ex) when (ex.InnerExceptions.Count == 1)
-            {
-                throw ex.InnerException;
-            }
 
-            if (disposeState)
-                _disposableState = _state as IDisposable;
+            _disposeState = disposeState;
         }
+        
 
-        private void ProcessMessage(TaskCompletionSource<object> msg)
+        private async Task ProcessMessageAsync(TaskCompletionSource<object> msg)
         {
             try
             {
-                var msgState = (MessageContext)msg.Task.AsyncState;
+                var msgCtx = (MessageContext)msg.Task.AsyncState;
                 var task = _interceptor == null
-                    ? msgState.Func(_state)
-                    : _interceptor(_state, msgState);
-                msg.SetResult(task.Result);
+                    ? msgCtx.Func(_state)
+                    : _interceptor(_state, msgCtx);
+
+                var result = await task;
+                msg.SetResult(result);
             }
             catch (AggregateException ex) when (ex.InnerExceptions.Count == 1)
             {
@@ -90,27 +90,28 @@ namespace CoreTechs.Common
 
         public void Dispose()
         {
-            using (_loopTask)
+            var state = _disposeState ? _state as IDisposable : null;
+
+            using(state)            
             using (_msgs)
-            using (_disposableState)
             {
                 _msgs.CompleteAdding();
-                _loopTask.Wait();
+                _loopThread.Join();
             }
         }
 
         public async Task<TResult> GetAsync<TResult>(Func<TState, Task<TResult>> resultFunc)
         {
-            if (resultFunc == null) throw new ArgumentNullException(nameof(resultFunc));
+            if (resultFunc == null) throw new ArgumentNullException(nameof(resultFunc));            
 
-            Func<TState, Task<object>> func = async state => await resultFunc(state).ConfigureAwait(false);
+            Func<TState, Task<object>> func = async state => await resultFunc(state);
             TaskCompletionSource<object> msg;
 
             if (Thread.CurrentThread == _loopThread)
             {
                 // already in message loop. inline execution.
                 msg = new TaskCompletionSource<object>(new MessageContext(func, true));
-                ProcessMessage(msg);
+                ProcessMessageAsync(msg);
             }
             else
             {
@@ -118,22 +119,12 @@ namespace CoreTechs.Common
                 _msgs.Add(msg);
             }
 
-            var result = await msg.Task.ConfigureAwait(false);
+            var result = await msg.Task;
             return (TResult)result;
         }
 
-        public TResult Get<TResult>(Func<TState, TResult> resultFunc)
-        {
-            try
-            {
-                return GetAsync(state => Task.FromResult(resultFunc(state))).Result;
-            }
-            catch (AggregateException ex) when (ex.InnerExceptions.Count == 1)
-            {
-                throw ex.InnerException;
-            }
-        }
-
+        public Task<TResult> GetAsync<TResult>(Func<TState, TResult> resultFunc) =>
+            GetAsync(state => Task.FromResult(resultFunc(state)));
 
         public async Task DoAsync(Func<TState, Task> action)
         {
@@ -145,24 +136,12 @@ namespace CoreTechs.Common
                 return 0;
             });
         }
-
-        public void Do(Action<TState> action)
-        {
-            try
+        public Task DoAsync(Action<TState> action) =>
+            GetAsync(state =>
             {
-                GetAsync(state =>
-                {
-                    action(state);
-                    return Task.FromResult(0);
-                }).Wait();
-            }
-            catch (AggregateException ex) when (ex.InnerExceptions.Count == 1)
-            {
-                throw ex.InnerException;
-            }
-        }
-
-
+                action(state);
+                return Task.FromResult(0);
+            });
 
         public class MessageContext
         {

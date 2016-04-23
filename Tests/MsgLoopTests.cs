@@ -1,9 +1,9 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using CoreTechs.Common;
+﻿using CoreTechs.Common;
+using Nito.AsyncEx;
 using NUnit.Framework;
-using static System.Console;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Tests
 {
@@ -11,17 +11,65 @@ namespace Tests
     {
 
         [Test]
-        public void Stress()
+        public void CanGet() => AsyncContext.Run(async () =>
         {
-            const int iters = 1000;
+            using (var loop = new MessageLoop<int>(() => 1))
+            {
+                var n = await loop.GetAsync(x => x);
+                Assert.AreEqual(1, n);
+            }
+        });
 
-            var state = new Wrapper<int>();
-            using (var loop = new MessageLoop<Wrapper<int>>(() => state))
-                Parallel.For(0, iters, i => loop.Do(x => ++x.Value));
+        [Test]
+        public void CanDoAsync() => AsyncContext.Run(async () =>
+        {
+            using (var loop = new MessageLoop<int>(() => 1))
+            {
+                int n = 0;
+                await loop.DoAsync(x => n = x);
+                Assert.AreEqual(1, n);
+            }
+        });
 
-            Assert.AreEqual(iters, state.Value);
+        [Test]
+        public void CanGetAsync() => AsyncContext.Run(async () =>
+        {
+            using (var loop = new MessageLoop<int>(() => 1))
+            {
+                var n = await loop.GetAsync(x => x);
+                Assert.AreEqual(1, n);
+            }
+        });
 
-        }
+        [Test]
+        public void Stress() => AsyncContext.Run(async () =>
+        {
+            const int workerCount = 10;
+            const int iters = 100;
+
+            using (var loop = new MessageLoop<Wrapper<int>>(() => new Wrapper<int>()))
+            {
+                var workers = System.Linq.Enumerable.Range(0, workerCount)
+                .Select(i =>
+                {
+                    return Task.Run(() =>
+                    {
+                        for (int j = 0; j < iters; j++)
+                        {
+                            loop.DoAsync(w => w.Value++).Wait();
+                        }
+                    });
+                }).ToArray();
+
+                Task.WaitAll(workers);
+
+                var n = await loop.GetAsync(async x =>
+                {
+                    return await Task.FromResult(x.Value);
+                });
+                Assert.AreEqual(workerCount*iters, n);
+            }
+        });
 
         [Test]
         public void StateIsDisposed()
@@ -30,7 +78,6 @@ namespace Tests
             var state = 0.AsDisposable(_ => disposed = true);
             new MessageLoop<GenericDisposable<int>>(() => state).Dispose();
             Assert.True(disposed);
-
         }
 
         [Test]
@@ -40,87 +87,39 @@ namespace Tests
             var state = 0.AsDisposable(_ => disposed = true);
             new MessageLoop<GenericDisposable<int>>(() => state, false).Dispose();
             Assert.False(disposed);
-
-        }
-
-        [Test]
-        public async void TestGetAsync()
-        {
-            var expected = "abc123";
-            using (var loop = new MessageLoop<string>(() => expected))
-                Assert.AreEqual(expected, await loop.GetAsync(async state => state));
-        }
-
-     
-
-        [Test]
-        public void TestGet()
-        {
-            var expected = "abc123";
-            using (var loop = new MessageLoop<string>(() => expected))
-            {
-                Assert.AreEqual(expected, loop.Get(state => state));
-            }
-        }
-
-        [Test]
-        public void TestDo()
-        {
-            var expected = "abc123";
-            string actual = null;
-            using (var loop = new MessageLoop<string>(() => expected))
-                loop.Do(state => actual = state);
-
-            Assert.AreEqual(expected, actual);
-        }
-
-        [Test]
-        public async void TestDoAsync()
-        {
-            var expected = "abc123";
-            string actual = null;
-            using (var loop = new MessageLoop<string>(() => expected))
-                await loop.DoAsync(async state => actual = state);
-
-            Assert.AreEqual(expected, actual);
         }
 
         [Test, ExpectedException(typeof(DivideByZeroException))]
-        public void TestGetException()
+        public void TestGetAsyncException() => AsyncContext.Run(async () => 
         {
             using (var loop = new MessageLoop<string>(() => ""))
-                loop.Get(state => DivZero());
-        }
+                await loop.GetAsync(state => Task.FromResult(DivZero()));
+        });
+
+
 
         [Test, ExpectedException(typeof(DivideByZeroException))]
-        public async void TestGetAsyncException()
+        public void TestDoAsyncException() => AsyncContext.Run(async () =>
         {
             using (var loop = new MessageLoop<string>(() => ""))
-                await loop.GetAsync(async state => DivZero());
-        }
+                await loop.DoAsync(state => Task.FromResult(DivZero()));
+        });
 
         [Test, ExpectedException(typeof(DivideByZeroException))]
-        public async void TestDoAsyncException()
+        public void TestDoException() => AsyncContext.Run(async () =>
         {
             using (var loop = new MessageLoop<string>(() => ""))
-                await loop.DoAsync(async state => DivZero());
-        }
-
-        [Test, ExpectedException(typeof(DivideByZeroException))]
-        public void TestDoException()
-        {
-            using (var loop = new MessageLoop<string>(() => ""))
-                loop.Do(state => DivZero());
-        }
+                await loop.DoAsync(state => DivZero());
+        });
 
         private static int DivZero()
         {
             var z = 0;
-            return 1/z;
+            return 1 / z;
         }
 
         [Test]
-        public void TestStateFactoryErrorsExposed()
+        public void StateFactoryErrorsExposed()
         {
             var exception = new Exception("AHH!");
 
@@ -135,18 +134,18 @@ namespace Tests
         }
 
         [Test]
-        public void CanNestMessages()
+        public void CanNestMessages() => AsyncContext.Run(async () =>
         {
             const int expected = 123;
             using (var loop = new MessageLoop<int>(() => expected))
             {
-                var x = loop.Get(n => loop.Get(n2 => loop.Get(n3 => n3)));
+                var x = await loop.GetAsync(async n => await loop.GetAsync(async n2 => await loop.GetAsync(n3 => n3)));
                 Assert.AreEqual(expected, x);
             }
-        }
+        });
 
         [Test]
-        public void CanInterceptMessages()
+        public void CanInterceptMessages() => AsyncContext.Run(async () =>
         {
             var i = 0;
 
@@ -164,40 +163,40 @@ namespace Tests
                 }
             }))
             {
-                loop.Do(w => i++);
+                await loop.DoAsync(w => Task.FromResult(i++));
                 try
                 {
-                    loop.Do(w => DivZero());
+                    await loop.DoAsync(w => DivZero());
                 }
-                catch 
+                catch
                 {
                 }
             }
 
-            Assert.AreEqual(5,i);
-        }
+            Assert.AreEqual(5, i);
+        });
 
         [Test]
-        public void CanInterceptNestedMessages()
+        public void CanInterceptNestedMessages() => AsyncContext.Run(async () =>
         {
             var normalInterceptions = 0;
             var nestedInterceptions = 0;
 
             const int expected = 123;
-            using (var loop = new MessageLoop<int>(() => expected,interceptor: async (i, ctx) =>
+            using (var loop = new MessageLoop<int>(() => expected, interceptor: (i, ctx) =>
             {
                 if (ctx.NestedMessage) nestedInterceptions++;
                 else normalInterceptions++;
 
-                return await ctx.Func(i);
+                return ctx.Func(i);
             }))
             {
-                var x = loop.Get(n => loop.Get(n2 => loop.Get(n3 => n3)));
+                var x = await loop.GetAsync(async n => await loop.GetAsync(async n2 => await loop.GetAsync(n3 => n3)));
                 Assert.AreEqual(expected, x);
                 Assert.AreEqual(1, normalInterceptions);
                 Assert.AreEqual(2, nestedInterceptions);
 
             }
-        }
+        });
     }
 }
