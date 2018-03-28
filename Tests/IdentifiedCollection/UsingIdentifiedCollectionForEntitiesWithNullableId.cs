@@ -23,11 +23,11 @@ namespace Tests.IdentifiedCollection
             };
         }
 
-        [TestCase(1, Result = "one")]
-        [TestCase(2, Result = "two")]
-        public string CanLookUpEntitiesByKey(int key)
+        [TestCase(1, "one")]
+        [TestCase(2, "two")]
+        public void CanLookUpEntitiesByKey(int key, string result)
         {
-            return _identifiedCollection[key].Data;
+            Assert.AreEqual(result, _identifiedCollection[key].Data);
         }
 
         [TestCase(3)]

@@ -22,23 +22,23 @@ namespace Tests.IdentifiedCollection
             };
         }
 
-        [TestCase(1, Result = "one")]
-        [TestCase(2, Result = "two")]
-        [TestCase(3, Result = "three")]
-        public string CanLookUpEntitiesByKey(int key)
+        [TestCase(1, "one")]
+        [TestCase(2, "two")]
+        [TestCase(3, "three")]
+        public void CanLookUpEntitiesByKey(int key, string result)
         {
-            return _identifiedCollection[key].Data;
+            Assert.AreEqual(result, _identifiedCollection[key].Data);
         }
 
-        [TestCase(0, Result = false)]
-        [TestCase(1, Result = true)]
-        [TestCase(2, Result = true)]
-        [TestCase(3, Result = true)]
-        [TestCase(4, Result = false)]
-        [TestCase(5, Result = false)]
-        public bool CanSeeWhetherKeyIsContained(int key)
+        [TestCase(0, false)]
+        [TestCase(1,  true)]
+        [TestCase(2,  true)]
+        [TestCase(3,  true)]
+        [TestCase(4,  false)]
+        [TestCase(5,  false)]
+        public void CanSeeWhetherKeyIsContained(int key, bool result)
         {
-            return _identifiedCollection.ContainsKey(key);
+            Assert.AreEqual(result, _identifiedCollection.ContainsKey(key));
         }
 
         [TestCase(4)]

@@ -62,7 +62,7 @@ namespace Tests
             Assert.AreEqual(i, actual2);
         }
 
-        [Test, TestCaseSource("GetConversionCases")]
+        [Test, TestCaseSource(nameof(GetConversionCases))]
         public void CanConvert(Type sourceType, object value, Type targetType, object expectedValue, bool recip)
         {
             Assert.AreEqual(expectedValue, value.ConvertTo(targetType),
@@ -76,7 +76,7 @@ namespace Tests
                         value.GetType().Name));
         }
 
-        public IEnumerable<object[]> GetConversionCases()
+        public static IEnumerable<object[]> GetConversionCases()
         {
             yield return ConversionCase(DayOfWeek.Friday, (int)DayOfWeek.Friday);
             yield return ConversionCase("01:00:00", TimeSpan.FromHours(1));
@@ -90,7 +90,7 @@ namespace Tests
                 yield return c;
         }
 
-        private IEnumerable<object[]> GetNumericConversionCases()
+        private static IEnumerable<object[]> GetNumericConversionCases()
         {
             var values = new Object[]
             {

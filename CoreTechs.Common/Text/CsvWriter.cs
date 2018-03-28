@@ -56,7 +56,7 @@ namespace CoreTechs.Common.Text
 
         public CsvWriter AddField(object obj)
         {
-            var s = obj as string ?? obj.ToString();
+            var s = obj as string ?? obj?.ToString() ?? "";
 
             bool hasTq;
             var txt = (hasTq = s.Any(c => c == _tq))

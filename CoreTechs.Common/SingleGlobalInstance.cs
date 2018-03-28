@@ -12,7 +12,7 @@ namespace CoreTechs.Common
     public class SingleGlobalInstance : IDisposable
     {
         private const int DefaultTimeout = 1;
-        public bool HasHandle = false;
+        public bool HasHandle { get; private set; } = false;
         private Mutex _mutex;
 
         private void InitMutex(Guid appGuid)
@@ -20,7 +20,7 @@ namespace CoreTechs.Common
             var mutexId = $"Global\\{{{appGuid}}}";
             _mutex = new Mutex(false, mutexId);
 
-            var allowEveryoneRule = new MutexAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null), MutexRights.FullControl, AccessControlType.Allow);
+            var allowEveryoneRule = new MutexAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid,  null), MutexRights.FullControl, AccessControlType.Allow);
             var securitySettings = new MutexSecurity();
             securitySettings.AddAccessRule(allowEveryoneRule);
             _mutex.SetAccessControl(securitySettings);

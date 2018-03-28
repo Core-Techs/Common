@@ -67,7 +67,7 @@ namespace Tests
                 {
                     return await Task.FromResult(x.Value);
                 });
-                Assert.AreEqual(workerCount*iters, n);
+                Assert.AreEqual(workerCount * iters, n);
             }
         });
 
@@ -89,27 +89,41 @@ namespace Tests
             Assert.False(disposed);
         }
 
-        [Test, ExpectedException(typeof(DivideByZeroException))]
-        public void TestGetAsyncException() => AsyncContext.Run(async () => 
+        [Test]
+        public void TestGetAsyncException() => AsyncContext.Run(async () =>
         {
-            using (var loop = new MessageLoop<string>(() => ""))
-                await loop.GetAsync(state => Task.FromResult(DivZero()));
+            async Task test()
+            {
+                using (var loop = new MessageLoop<string>(() => ""))
+                    await loop.GetAsync(state => Task.FromResult(DivZero()));
+            }
+
+            Assert.ThrowsAsync<DivideByZeroException>(test);
         });
 
 
 
-        [Test, ExpectedException(typeof(DivideByZeroException))]
+        [Test]
         public void TestDoAsyncException() => AsyncContext.Run(async () =>
         {
-            using (var loop = new MessageLoop<string>(() => ""))
-                await loop.DoAsync(state => Task.FromResult(DivZero()));
+            async Task test()
+            {
+                using (var loop = new MessageLoop<string>(() => ""))
+                    await loop.DoAsync(state => Task.FromResult(DivZero()));
+            }
+            Assert.ThrowsAsync<DivideByZeroException>(test);
         });
 
-        [Test, ExpectedException(typeof(DivideByZeroException))]
+        [Test]
         public void TestDoException() => AsyncContext.Run(async () =>
         {
-            using (var loop = new MessageLoop<string>(() => ""))
-                await loop.DoAsync(state => DivZero());
+            async Task test()
+            {
+                using (var loop = new MessageLoop<string>(() => ""))
+                    await loop.DoAsync(state => DivZero());
+            }
+
+            Assert.ThrowsAsync<DivideByZeroException>(test);
         });
 
         private static int DivZero()
