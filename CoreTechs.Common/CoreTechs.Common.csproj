@@ -1,114 +1,31 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{0B33F543-6523-453D-A0C7-522B96DC0341}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CoreTechs.Common</RootNamespace>
-    <AssemblyName>CoreTechs.Common</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Copyright>Copyright ©  2019</Copyright>
+    <Version>22.0.0</Version>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors />
+    <Company />
+    <PackageId>CoreTechs.Common</PackageId>
+    <Product>CoreTechs.Common</Product>
+    <Title>CoreTechs.Common</Title>
+    <Description>a .Net Standard version of CoreTechs.Common</Description>
+    <PackageReleaseNotes>
+      Converted from CoreTechs.Common v.21.0.1.0 (.Net Framework).
+      Known Issue: SpeechScope class is currently not available as System.Speech.Synthesis is still not available in .Net Standard.
+    </PackageReleaseNotes>
+    <PackageLicenseUrl>MIT</PackageLicenseUrl>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Security" />
-    <Reference Include="System.Speech" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.0" />
+    <PackageReference Include="System.Security.AccessControl" Version="4.7.0" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="4.7.0" />
+    <PackageReference Include="System.Security.Principal" Version="4.3.0" />
+    <PackageReference Include="System.Threading.AccessControl" Version="4.7.0" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="BeepScope.cs" />
-    <Compile Include="BufferedEnumerator.cs" />
-    <Compile Include="ByteSize.cs" />
-    <Compile Include="Characters.cs" />
-    <Compile Include="Database\SqlDataTransfer.cs" />
-    <Compile Include="DelegateEqualityComparer.cs" />
-    <Compile Include="EnumerableStream.cs" />
-    <Compile Include="IdentifiedCollection.cs" />
-    <Compile Include="OrderedDictionary.cs" />
-    <Compile Include="PreFetchingEnumerable.cs" />
-    <Compile Include="CompositeDisposable.cs" />
-    <Compile Include="Database\ConnectionScope.cs" />
-    <Compile Include="Constants.cs" />
-    <Compile Include="Database\Extensions.cs" />
-    <Compile Include="DateTimeExtensions.cs" />
-    <Compile Include="Database\DisconnectionScope.cs" />
-    <Compile Include="Database\DynamicDataRow.cs" />
-    <Compile Include="DbNullConverter.cs" />
-    <Compile Include="DisposableExtensions.cs" />
-    <Compile Include="EnumConverter.cs" />
-    <Compile Include="EnumerableExtensions.cs" />
-    <Compile Include="FileSystemExtensions.cs" />
-    <Compile Include="GenericDisposable.cs" />
-    <Compile Include="Length.cs" />
-    <Compile Include="LRUCache.cs" />
-    <Compile Include="MessageLoop.cs" />
-    <Compile Include="Memoizer.cs" />
-    <Compile Include="DateTimeOffsetConverter.cs" />
-    <Compile Include="NumberExtensions.cs" />
-    <Compile Include="Predicate.cs" />
-    <Compile Include="ProcessExtensions.cs" />
-    <Compile Include="RangeExtensions.cs" />
-    <Compile Include="Reflection\ReflectionExtensions.cs" />
-    <Compile Include="RepeatScope.cs" />
-    <Compile Include="ObjectExtensions.cs" />
-    <Compile Include="RandomExtensions.cs" />
-    <Compile Include="Reflection\Types.cs" />
-    <Compile Include="Sequence.cs" />
-    <Compile Include="SpeechScope.cs" />
-    <Compile Include="Database\BulkInserter.cs" />
-    <Compile Include="SortingExtensions.cs" />
-    <Compile Include="AppSettings.cs" />
-    <Compile Include="Attempt.cs" />
-    <Compile Include="ConnectionStrings.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RNG.cs" />
-    <Compile Include="SingleGlobalInstance.cs" />
-    <Compile Include="Stopwatch.cs" />
-    <Compile Include="StreamBookmark.cs" />
-    <Compile Include="StreamExtensions.cs" />
-    <Compile Include="StringExtensions.cs" />
-    <Compile Include="Clocks.cs" />
-    <Compile Include="TaskExtensions.cs" />
-    <Compile Include="Text\CsvWriter.cs" />
-    <Compile Include="Text\DelimitedTextExtensions.cs" />
-    <Compile Include="Text\ICsvWritable.cs" />
-    <Compile Include="Text\Record.cs" />
-    <Compile Include="ConversionExtensions.cs" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+
 </Project>
