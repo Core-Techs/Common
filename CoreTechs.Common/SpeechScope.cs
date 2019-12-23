@@ -1,4 +1,5 @@
-﻿using System;
+﻿//todo System.Speech.Synthesis is currently not available in .net standard
+/*using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -35,4 +36,4 @@ namespace CoreTechs.Common
             yield return _synth;
         }
     }
-}
+}*/

@@ -8,7 +8,7 @@ namespace CoreTechs.Common
 {
     public class EnumConverter : System.ComponentModel.EnumConverter
     {
-        readonly private static Type[] GoodTypes =
+        private static readonly Type[] GoodTypes =
         {
             typeof(byte),
             typeof(sbyte),
